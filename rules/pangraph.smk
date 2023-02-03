@@ -25,6 +25,7 @@ rule PG_build:
         opt=lambda w: kernel_opt[w.opt],
     shell:
         """
+        export JULIA_NUM_THREADS=8
         pangraph build {params.opt} {input.fa} > {output}
         """
 
@@ -40,6 +41,7 @@ rule PG_polish:
         "../conda_env/pangraph.yml"
     shell:
         """
+        export JULIA_NUM_THREADS=8
         pangraph polish {params.opt} {input} > {output}
         """
 
