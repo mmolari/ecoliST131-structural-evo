@@ -23,7 +23,6 @@ rule gbk_to_fa:
         """
 
 
-rule download_all:
-    input:
-        expand(rules.gbk_to_fa.output, acc=acc_list),
-        expand(rules.gbk_to_fa.output, acc=cov_accnums),
+# rule download_all:
+#     input:
+#         expand(rules.gbk_to_fa.output, acc=acc_list),

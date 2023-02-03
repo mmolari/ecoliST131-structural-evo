@@ -1,4 +1,4 @@
 configfile: "config/config.yml"
 
-include: "rules/download.smk"
+include: "rules/downloads.smk"
 include: "rules/pangraph.smk"

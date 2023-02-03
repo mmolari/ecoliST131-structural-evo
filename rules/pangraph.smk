@@ -63,5 +63,5 @@ rule PG_export:
 
 rule PG_all:
     input:
-        expand(rules.PG_polish.output, dset=datasets.keys(), opt=kernel.keys()),
-        expand(rules.PG_export.output, dset=datasets.keys(), opt=kernel.keys()),
+        expand(rules.PG_polish.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(rules.PG_export.output, dset=datasets.keys(), opt=kernel_opt.keys()),
