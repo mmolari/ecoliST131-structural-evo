@@ -22,7 +22,7 @@ rule PG_build:
     input:
         fa=lambda w: expand(rules.gbk_to_fa.output.fa, acc=datasets[w.dset]),
     output:
-        "results/pangraph/{dset}/{opt}.json",
+        "results/{dset}/pangraph/{opt}.json",
     params:
         opt=lambda w: kernel_opt[w.opt],
     shell:
@@ -35,7 +35,7 @@ rule PG_polish:
     input:
         rules.PG_build.output,
     output:
-        "results/pangraph/{dset}/{opt}-polished.json",
+        "results/{dset}/pangraph/{opt}-polished.json",
     params:
         opt=config["pangraph"]["polish-options"],
     conda:
@@ -50,7 +50,7 @@ rule PG_export:
     input:
         rules.PG_polish.output,
     output:
-        directory("results/pangraph/{dset}/{opt}_export"),
+        directory("results/{dset}/pangraph/{opt}_export"),
     conda:
         "../conda_env/pangraph.yml"
     shell:
