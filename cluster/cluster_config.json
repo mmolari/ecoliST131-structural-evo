@@ -1,0 +1,20 @@
+{
+    "__default__": {
+        "time": "00:29:00",
+        "qos": "30min",
+        "n": 1,
+        "mem": "4G"
+    },
+    "PG_build": {
+        "time": "05:50:00",
+        "qos": "6hours",
+        "n": 8,
+        "mem": "30G"
+    },
+    "PG_polish": {
+        "time": "05:50:00",
+        "qos": "6hours",
+        "n": 8,
+        "mem": "30G"
+    }
+}
