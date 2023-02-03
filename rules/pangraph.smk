@@ -7,9 +7,11 @@ datasets = {}
 for k, fname in datasets_fnames.items():
     with open(fname, "r") as f:
         acc_nums = f.readlines()
-    acc_nums = [an.split() for an in acc_nums]
+    acc_nums = [an.strip() for an in acc_nums]
     acc_nums = [an for an in acc_nums if len(an) > 0]
     datasets[k] = acc_nums
+
+print(datasets)
 
 wildcard_constraints:
     opt=f"({'|'.join(kernel_opt.keys())})",
