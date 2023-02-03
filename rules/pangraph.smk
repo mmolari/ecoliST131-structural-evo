@@ -11,8 +11,6 @@ for k, fname in datasets_fnames.items():
     acc_nums = [an for an in acc_nums if len(an) > 0]
     datasets[k] = acc_nums
 
-print(datasets)
-
 wildcard_constraints:
     opt=f"({'|'.join(kernel_opt.keys())})",
     dset=f"({'|'.join(datasets.keys())})",
