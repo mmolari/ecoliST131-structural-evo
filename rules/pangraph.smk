@@ -80,4 +80,4 @@ rule PG_summary_fig:
 rule PG_all:
     input:
         expand(rules.PG_summary_fig.output, dset=datasets.keys(), opt=kernel_opt.keys()),
-        # expand(rules.PG_export.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(rules.PG_export.output, dset=datasets.keys(), opt=kernel_opt.keys()),
