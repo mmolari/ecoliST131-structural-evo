@@ -1,4 +1,3 @@
-
 kernel_opt = config["pangraph"]["kernel-options"]
 datasets_fnames = config["datasets"]
 
@@ -10,6 +9,7 @@ for k, fname in datasets_fnames.items():
     acc_nums = [an.strip() for an in acc_nums]
     acc_nums = [an for an in acc_nums if len(an) > 0]
     datasets[k] = acc_nums
+
 
 wildcard_constraints:
     opt=f"({'|'.join(kernel_opt.keys())})",
@@ -63,7 +63,21 @@ rule PG_export:
         """
 
 
+rule PG_summary_fig:
+    input:
+        rules.PG_polish.output,
+    output:
+        "figs/{dset}/pangraph/{opt}_summary.pdf",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/pangraph/plot_summary.py \
+            --pangraph {input} --fig {output}
+        """
+
+
 rule PG_all:
     input:
-        expand(rules.PG_polish.output, dset=datasets.keys(), opt=kernel_opt.keys()),
-        expand(rules.PG_export.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(rules.PG_summary_fig.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        # expand(rules.PG_export.output, dset=datasets.keys(), opt=kernel_opt.keys()),

@@ -4,3 +4,4 @@
 /.snakemake
 /Makefile
 /log
+/figs
