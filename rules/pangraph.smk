@@ -77,10 +77,30 @@ rule PG_block_distr_fig:
         """
 
 
+rule PG_reduced_corealignment:
+    input:
+        rules.PG_polish.output,
+    output:
+        fa="results/{dset}/pangraph/{opt}-alignment/corealignment.fa",
+        json="results/{dset}/pangraph/{opt}-alignment/corealignment_info.json",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/pangraph/reduced_core_alignment.py \
+            --pangraph {input} --fasta_aln {output.fa} --info {output.json}
+        """
+
+
 rule PG_all:
     input:
         expand(
             rules.PG_block_distr_fig.output,
+            dset=datasets.keys(),
+            opt=kernel_opt.keys(),
+        ),
+        expand(
+            rules.PG_reduced_corealignment.output,
             dset=datasets.keys(),
             opt=kernel_opt.keys(),
         ),
