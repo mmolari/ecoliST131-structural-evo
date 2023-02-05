@@ -18,9 +18,9 @@ flowchart TD
     A("data/fa/{acc}.fa from {dset}") --> |PG_build| B("pangraph/{dset}/{opt}.json") 
     B --> |PG_polish| C("pangraph/{dset}/{opt}-polished.json")
     C --> |PG_export| D("pangraph/{dset}/export/{opt}")
-    C --> |PG_summary_fig| E["figs/{dset}/pangraph/{opt}_summary.pdf"]
+    C --> |PG_block_distr_fig| E["figs/{dset}/pangraph/{opt}_block_distr.pdf"]
 ```
 
 **Description**:
 - `pangraph/{dset}/export/{opt}` : folder containing `.gfa` export of the polished pangraph.
-- `figs/{dset}/pangraph/{opt}_summary.pdf` : summary figure with distribution of block frequency/length.
+- `figs/{dset}/pangraph/{opt}_block_distr.pdf` : figure with distribution of block frequency/length.

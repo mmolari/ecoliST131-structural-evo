@@ -63,21 +63,25 @@ rule PG_export:
         """
 
 
-rule PG_summary_fig:
+rule PG_block_distr_fig:
     input:
         rules.PG_polish.output,
     output:
-        "figs/{dset}/pangraph/{opt}_summary.pdf",
+        "figs/{dset}/pangraph/{opt}_block_distr.pdf",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
         """
-        python3 scripts/pangraph/plot_summary.py \
+        python3 scripts/pangraph/plot_block_distr.py \
             --pangraph {input} --fig {output}
         """
 
 
 rule PG_all:
     input:
-        expand(rules.PG_summary_fig.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(
+            rules.PG_block_distr_fig.output,
+            dset=datasets.keys(),
+            opt=kernel_opt.keys(),
+        ),
         expand(rules.PG_export.output, dset=datasets.keys(), opt=kernel_opt.keys()),

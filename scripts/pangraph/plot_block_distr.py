@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Produce summary plots to describe pangenome graph"
+        description="plot block frequency and length cumulative distributions."
     )
     parser.add_argument("--pangraph", help="json pangraph file.", type=str)
-    parser.add_argument("--fig", help="output pdf file", type=str)
+    parser.add_argument("--fig", help="output figure", type=str)
     args = parser.parse_args()
     return args
 
