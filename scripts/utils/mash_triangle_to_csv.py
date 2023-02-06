@@ -34,7 +34,7 @@ def parse_mash_triangle(fname: str):
     for i, l in enumerate(lines[1:]):
         vals = l.split()
         # name = re.search(r"/([^/]+)\.fa$", vals[0]).group(1)
-        name = vals[0].split("/")[-1]
+        name = vals[0].split("/")[-1].removesuffix(".fa").removesuffix(".fasta")
         strains.append(name)
         for j, v in enumerate(vals[1:]):
             M[i, j] = float(v)
