@@ -57,7 +57,7 @@ def distance_mat_to_df(S, M):
             distances.append(M[i, j])
 
     # save in a dataframe
-    idx = pd.MultiIndex.from_tuples(strains, names=["strain_1", "strain_2"])
+    idx = pd.MultiIndex.from_tuples(strains, names=["si", "sj"])
     df = pd.DataFrame({"mash_dist": distances}, index=idx)
 
     return df

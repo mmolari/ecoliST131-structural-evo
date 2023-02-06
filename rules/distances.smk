@@ -19,8 +19,25 @@ rule DST_corealignment:
         """
 
 
+rule DST_mash:
+    input:
+        fa=lambda w: expand(rules.gbk_to_fa.output.fa, acc=datasets[w.dset]),
+    output:
+        "results/{dset}/distances/mash.csv",
+    conda:
+        "../conda_env/fasttree.yml"
+    shell:
+        """
+        mash triangle {input} > {output}.tmp
+        python3 scripts/utils/mash_triangle_to_csv.py \
+            --mash_tri {output}.tmp --csv {output}
+        rm {output}.tmp
+        """
+
+
 rule DST_all:
     input:
         expand(
             rules.DST_corealignment.output, dset=datasets.keys(), opt=kernel_opt.keys()
         ),
+        expand(rules.DST_mash.output, dset=datasets.keys()),
