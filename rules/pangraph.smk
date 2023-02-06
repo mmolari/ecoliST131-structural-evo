@@ -92,6 +92,26 @@ rule PG_reduced_corealignment:
         """
 
 
+rule PG_coregenome_tree:
+    input:
+        fa=rules.PG_reduced_corealignment.output.fa,
+        json=rules.PG_reduced_corealignment.output.json,
+    output:
+        nwk="results/{dset}/pangraph/{opt}-coretree.nkw",
+    params:
+        confidence=0.2,
+    conda:
+        "../conda_env/fasttree.yml"
+    shell:
+        """
+        fasttree -gtr -nt {input.fa} > {output.nwk}.tmp
+        python3 scripts/pangraph/rescale_coretree.py \
+            --tree_in {output.nwk}.tmp --tree_out {output.nwk} \
+            --json {input.json} --confidence {params.confidence}
+        rm {output.nwk}.tmp
+        """
+
+
 rule PG_all:
     input:
         expand(
@@ -100,7 +120,7 @@ rule PG_all:
             opt=kernel_opt.keys(),
         ),
         expand(
-            rules.PG_reduced_corealignment.output,
+            rules.PG_coregenome_tree.output,
             dset=datasets.keys(),
             opt=kernel_opt.keys(),
         ),
