@@ -31,6 +31,9 @@ def save_aln(aln_dict, fname, strains):
 
 
 def reduce_aln(aln_dict, strains):
+    """Given an alignment dictionary {strain -> alignment sequence}
+    it restrict the alignment to all columns with relevant phylogenetic
+    information, excluding gaps and special characters."""
 
     L = len(aln_dict[strains[0]])
     N = len(strains)
@@ -49,7 +52,18 @@ def reduce_aln(aln_dict, strains):
     n_consensus = is_consensus.sum()
     M = M[:, ~is_consensus]
 
-    return {"gaps": n_gaps, "consensus": n_consensus, "SNPs_matrix": M}
+    # remove extra characters
+    is_extra = ~np.all(np.isin(M, list("acgtACGT")), axis=0)
+    n_extra = is_extra.sum()
+    M = M[:, ~is_extra]
+
+    return {
+        "gaps": int(n_gaps),
+        "consensus": int(n_consensus),
+        "n. special characters": int(n_extra),
+        "n. snps": int(M.shape[1]),
+        "SNPs_matrix": M,
+    }
 
 
 # %%
@@ -70,15 +84,16 @@ if __name__ == "__main__":
     info = {
         "n. core blocks": len(dfc),
         "cumulative core length": int(dfc["len"].sum()),
+        "n. gaps": 0,
+        "n. consensus": 0,
+        "n. snps": 0,
+        "n. special characters": 0,
     }
 
     # get strain names
     strains = np.sort(pan.strains())
 
     # extract alignments
-    n_gaps = 0
-    n_consensus = 0
-    n_snps = 0
     core_alns = defaultdict(str)
     for cbl_name in core_blocks:
         # core block
@@ -91,20 +106,22 @@ if __name__ == "__main__":
 
         # reduce alignment
         red_aln = reduce_aln(aln_dict, strains)
-        n_gaps += red_aln["gaps"]
-        n_consensus += red_aln["consensus"]
+
+        # append to compressed core alignment
         M = red_aln["SNPs_matrix"]
-        n_snps += M.shape[1]
         for n, s in enumerate(strains):
             core_alns[s] += "".join(M[n])
 
+        # update information
+        info["n. gaps"] += red_aln["gaps"]
+        info["n. consensus"] += red_aln["consensus"]
+        info["n. snps"] += red_aln["n. snps"]
+        info["n. special characters"] += red_aln["n. special characters"]
+
     # add and save info
-    info["n. gaps"] = int(n_gaps)
-    info["n. consensus"] = int(n_consensus)
-    info["n. snps"] = int(n_snps)
     print(info)
     with open(args.info, "w") as f:
-        json.dump(info, f)
+        json.dump(info, f, indent=2)
 
     # save compressed alignment
     save_aln(core_alns, fname=args.fasta_aln, strains=strains)

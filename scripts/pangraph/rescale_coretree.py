@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # evaluate rescale factor
     with open(args.json, "r") as f:
         info = json.load(f)
-    factor = info["n. snps"] / info["n. consensus"]
+    factor = info["n. snps"] / (info["n. consensus"] + info["n. snps"])
 
     # load tree
     tree = Phylo.read(args.tree_in, format="newick")
