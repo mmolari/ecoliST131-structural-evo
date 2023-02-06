@@ -97,7 +97,7 @@ rule PG_coregenome_tree:
         fa=rules.PG_reduced_corealignment.output.fa,
         json=rules.PG_reduced_corealignment.output.json,
     output:
-        nwk="results/{dset}/pangraph/{opt}-coretree.nkw",
+        nwk="results/{dset}/pangraph/{opt}-coretree.nwk",
     params:
         confidence=0.2,
     conda:
