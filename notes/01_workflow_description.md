@@ -28,3 +28,17 @@ flowchart TD
 - `{opt}_block_distr.pdf` : figure with distribution of block frequency/length.
 - `{opt}-alignment/corealignment{.fa,_info.json}` : reduced core alignment, and info file with number of sites having gaps / being consensus.
 - `{opt}-coretree.nwk` : core genome tree build from the reduced alignment (rescaled with information on the number of consensus vs mutated sites).
+
+## distances.smk
+
+Rules to estimate evolutionary distances between strains. Results are saved in `results/{dset}/distances`.
+
+```mermaid
+flowchart TD
+    A("{opt}-alignment/corealignment{.fa,_info.json}") --> |DST_corealignment| B("{opt}-coredivergence.csv")
+    C("data/fa/{acc}.fa from {dset}") --> |DST_mash| D("mash_dist.csv")
+```
+
+**Description**
+- `{opt}-coredivergence.csv` : core genome divergence, evaluated from the restricted core genome alignment, and rescaled with alignment info to the full core genome.
+- `mash_dist.csv` : mash distance.

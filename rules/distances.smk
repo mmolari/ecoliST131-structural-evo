@@ -23,7 +23,7 @@ rule DST_mash:
     input:
         fa=lambda w: expand(rules.gbk_to_fa.output.fa, acc=datasets[w.dset]),
     output:
-        "results/{dset}/distances/mash.csv",
+        "results/{dset}/distances/mash_dist.csv",
     conda:
         "../conda_env/fasttree.yml"
     shell:
