@@ -49,10 +49,23 @@ rule DST_pangraph:
         """
 
 
+rule DST_merge:
+    input:
+        aln=rules.DST_corealignment.output,
+        mash=rules.DST_mash.output,
+        pan=rules.DST_pangraph.output,
+    output:
+        "results/{dset}/distances/summary-{opt}.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/distances/merge_dist.py \
+            --dfs_in {input.aln} {input.mash} {input.pan} \
+            --csv {output}
+        """
+
+
 rule DST_all:
     input:
-        expand(
-            rules.DST_corealignment.output, dset=datasets.keys(), opt=kernel_opt.keys()
-        ),
-        expand(rules.DST_mash.output, dset=datasets.keys()),
-        expand(rules.DST_pangraph.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(rules.DST_merge.output, dset=datasets.keys(), opt=kernel_opt.keys()),
