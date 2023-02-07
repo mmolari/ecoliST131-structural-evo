@@ -98,8 +98,6 @@ rule PG_coregenome_tree:
         json=rules.PG_reduced_corealignment.output.json,
     output:
         nwk="results/{dset}/pangraph/{opt}-coretree.nwk",
-    params:
-        confidence=0.2,
     conda:
         "../conda_env/fasttree.yml"
     shell:
@@ -107,7 +105,7 @@ rule PG_coregenome_tree:
         fasttree -gtr -nt {input.fa} > {output.nwk}.tmp
         python3 scripts/pangraph/rescale_coretree.py \
             --tree_in {output.nwk}.tmp --tree_out {output.nwk} \
-            --json {input.json} --confidence {params.confidence}
+            --json {input.json}
         rm {output.nwk}.tmp
         """
 

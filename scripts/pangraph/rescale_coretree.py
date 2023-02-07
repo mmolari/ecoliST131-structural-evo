@@ -8,11 +8,6 @@ def parse_args():
     parser.add_argument("--tree_in", help="input nwk file", type=str)
     parser.add_argument("--tree_out", help="output nwk file", type=str)
     parser.add_argument("--json", help="reduced alignment information", type=str)
-    parser.add_argument(
-        "--confidence",
-        help="collapses branches with below-threshold confidence",
-        type=float,
-    )
     args = parser.parse_args()
     return args
 
@@ -35,10 +30,6 @@ if __name__ == "__main__":
 
     # load tree
     tree = Phylo.read(args.tree_in, format="newick")
-    # collapse below-confidence nodes
-    tree.collapse_all(
-        lambda c: c.confidence is not None and c.confidence < args.confidence
-    )
 
     # root at midpoint and ladderize
     tree.root_at_midpoint()
