@@ -1,4 +1,3 @@
-
 kernel_opt = config["pangraph"]["kernel-options"]
 datasets_fnames = config["datasets"]
 
@@ -10,6 +9,7 @@ for k, fname in datasets_fnames.items():
     acc_nums = [an.strip() for an in acc_nums]
     acc_nums = [an for an in acc_nums if len(an) > 0]
     datasets[k] = acc_nums
+
 
 wildcard_constraints:
     opt=f"({'|'.join(kernel_opt.keys())})",
@@ -63,7 +63,65 @@ rule PG_export:
         """
 
 
+rule PG_block_distr_fig:
+    input:
+        rules.PG_polish.output,
+    output:
+        "figs/{dset}/pangraph/{opt}_block_distr.pdf",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/pangraph/plot_block_distr.py \
+            --pangraph {input} --fig {output}
+        """
+
+
+rule PG_reduced_corealignment:
+    input:
+        rules.PG_polish.output,
+    output:
+        fa="results/{dset}/pangraph/{opt}-alignment/corealignment.fa",
+        json="results/{dset}/pangraph/{opt}-alignment/corealignment_info.json",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/pangraph/reduced_core_alignment.py \
+            --pangraph {input} --fasta_aln {output.fa} --info {output.json}
+        """
+
+
+rule PG_coregenome_tree:
+    input:
+        fa=rules.PG_reduced_corealignment.output.fa,
+        json=rules.PG_reduced_corealignment.output.json,
+    output:
+        nwk="results/{dset}/pangraph/{opt}-coretree.nwk",
+    params:
+        confidence=0.2,
+    conda:
+        "../conda_env/fasttree.yml"
+    shell:
+        """
+        fasttree -gtr -nt {input.fa} > {output.nwk}.tmp
+        python3 scripts/pangraph/rescale_coretree.py \
+            --tree_in {output.nwk}.tmp --tree_out {output.nwk} \
+            --json {input.json} --confidence {params.confidence}
+        rm {output.nwk}.tmp
+        """
+
+
 rule PG_all:
     input:
-        expand(rules.PG_polish.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(
+            rules.PG_block_distr_fig.output,
+            dset=datasets.keys(),
+            opt=kernel_opt.keys(),
+        ),
+        expand(
+            rules.PG_coregenome_tree.output,
+            dset=datasets.keys(),
+            opt=kernel_opt.keys(),
+        ),
         expand(rules.PG_export.output, dset=datasets.keys(), opt=kernel_opt.keys()),

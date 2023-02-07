@@ -19,8 +19,9 @@ rule gbk_to_fa:
         "../conda_env/bioinfo.yml"
     shell:
         """
-        python3 scripts/gbk_to_fa.py --gbk {input.gbk} --fa {output.fa}
+        python3 scripts/utils/gbk_to_fa.py --gbk {input.gbk} --fa {output.fa}
         """
+
 
 # datasets_fnames = config["datasets"]
 
@@ -32,7 +33,6 @@ rule gbk_to_fa:
 #     acc_nums = [an.strip() for an in acc_nums]
 #     acc_nums = [an for an in acc_nums if len(an) > 0]
 #     datasets[k] = acc_nums
-
 # rule download_all:
 #     input:
 #         expand(rules.gbk_to_fa.output, acc=datasets["ST131"]),

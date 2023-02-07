@@ -4,3 +4,6 @@
 /.snakemake
 /Makefile
 /log
+/figs
+/exploration
+.ipynb_checkpoints
