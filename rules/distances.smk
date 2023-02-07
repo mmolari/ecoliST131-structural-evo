@@ -9,7 +9,7 @@ rule DST_corealignment:
         fa=rules.PG_reduced_corealignment.output.fa,
         json=rules.PG_reduced_corealignment.output.json,
     output:
-        "results/{dset}/distances/{opt}-coredivergence.csv",
+        "results/{dset}/distances/coredivergence-{opt}.csv",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
@@ -35,9 +35,24 @@ rule DST_mash:
         """
 
 
+rule DST_pangraph:
+    input:
+        rules.PG_polish.output,
+    output:
+        "results/{dset}/distances/pangraph{opt}.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/distances/pangraph_pairwise_distance.py \
+            --pangraph {input} --csv {output}
+        """
+
+
 rule DST_all:
     input:
         expand(
             rules.DST_corealignment.output, dset=datasets.keys(), opt=kernel_opt.keys()
         ),
         expand(rules.DST_mash.output, dset=datasets.keys()),
+        expand(rules.DST_pangraph.output, dset=datasets.keys(), opt=kernel_opt.keys()),

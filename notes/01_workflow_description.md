@@ -35,10 +35,15 @@ Rules to estimate evolutionary distances between strains. Results are saved in `
 
 ```mermaid
 flowchart TD
-    A("{opt}-alignment/corealignment{.fa,_info.json}") --> |DST_corealignment| B("{opt}-coredivergence.csv")
+    A("{opt}-alignment/corealignment{.fa,_info.json}") --> |DST_corealignment| B("coredivergence-{opt}.csv")
     C("data/fa/{acc}.fa from {dset}") --> |DST_mash| D("mash_dist.csv")
+    E("pangraph/{opt}-polished.json") --> |DST_pangraph| F("pangraph-{opt}.csv")
 ```
 
 **Description**
 - `{opt}-coredivergence.csv` : core genome divergence, evaluated from the restricted core genome alignment, and rescaled with alignment info to the full core genome.
 - `mash_dist.csv` : mash distance.
+- `pangraph-{opt}.csv` : pangenome graph distances, including:
+  - length of private / shared sequence in the pair (total = 2 genomes)
+  - total number of blocks in the projection / n. breakpoints
+  - partition entropy
