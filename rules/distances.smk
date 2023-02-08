@@ -25,7 +25,7 @@ rule DST_mash:
     output:
         "results/{dset}/distances/mash_dist.csv",
     conda:
-        "../conda_env/fasttree.yml"
+        "../conda_env/tree_inference.yml"
     shell:
         """
         mash triangle {input} > {output}.tmp

@@ -1,3 +1,9 @@
+import os
+
+# create log directory - needed for cluster slurm execution
+os.makedirs("log", exist_ok=True)
+
+
 configfile: "config/config.yml"
 
 

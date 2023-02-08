@@ -99,13 +99,13 @@ rule PG_coregenome_tree:
     output:
         nwk="results/{dset}/pangraph/{opt}-coretree.nwk",
     conda:
-        "../conda_env/fasttree.yml"
+        "../conda_env/tree_inference.yml"
     shell:
         """
         fasttree -gtr -nt {input.fa} > {output.nwk}.tmp
-        python3 scripts/pangraph/rescale_coretree.py \
+        python3 scripts/pangraph/refine_coretree_treetime.py \
             --tree_in {output.nwk}.tmp --tree_out {output.nwk} \
-            --json {input.json}
+            --json {input.json} --aln {input.fa}
         rm {output.nwk}.tmp
         """
 
