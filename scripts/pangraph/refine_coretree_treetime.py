@@ -61,5 +61,9 @@ if __name__ == "__main__":
 
     # save tree
     Phylo.write(
-        myTree.tree, args.tree_out, format="newick", format_branch_length="%1.10f"
+        myTree.tree,
+        args.tree_out,
+        format="newick",
+        # format_branch_length="%1.10f",
+        format_branch_length="%.5e",
     )
