@@ -1,5 +1,6 @@
 kernel_opt = config["pangraph"]["kernel-options"]
 datasets_fnames = config["datasets"]
+guide_strain = config["guide-strain"]
 
 # read accession numbers from dataset files
 datasets = {}
@@ -77,7 +78,7 @@ rule PG_block_distr_fig:
         """
 
 
-rule PG_reduced_corealignment:
+rule PG_corealignment:
     input:
         rules.PG_polish.output,
     output:
@@ -92,20 +93,80 @@ rule PG_reduced_corealignment:
         """
 
 
+rule PG_filtered_corealignment:
+    input:
+        rules.PG_polish.output,
+    output:
+        fa="results/{dset}/pangraph/{opt}-alignment/filtered_corealignment.fa",
+        json="results/{dset}/pangraph/{opt}-alignment/filtered_corealignment_info.json",
+        plot="figs/{dset}/pangraph/corealn_remove_recombination/{opt}.pdf",
+    conda:
+        "../conda_env/bioinfo.yml"
+    params:
+        window=1000,
+        max_nsnps=3,
+        guide_strain=lambda w: guide_strain[w.dset],
+    shell:
+        """
+        python3 scripts/pangraph/corealn_without_recombination.py \
+            --pangraph {input} \
+            --guide_strain {params.guide_strain} \
+            --window {params.window} \
+            --max_nsnps {params.max_nsnps} \
+            --fasta_aln {output.fa} \
+            --info {output.json} \
+            --plot {output.plot}
+        """
+
+
+def extract_value(json_file, key):
+    with open(json_file, "r") as f:
+        data = json.load(f)
+    return data[key]
+
+
 rule PG_coregenome_tree:
     input:
-        fa=rules.PG_reduced_corealignment.output.fa,
-        json=rules.PG_reduced_corealignment.output.json,
+        fa=rules.PG_corealignment.output.fa,
+        json=rules.PG_corealignment.output.json,
     output:
         nwk="results/{dset}/pangraph/{opt}-coretree.nwk",
     conda:
         "../conda_env/tree_inference.yml"
+    params:
+        n_cons=lambda wildcards, input: extract_value(input.json, "n. consensus"),
     shell:
         """
         fasttree -gtr -nt {input.fa} > {output.nwk}.tmp
         python3 scripts/pangraph/refine_coretree_treetime.py \
-            --tree_in {output.nwk}.tmp --tree_out {output.nwk} \
-            --json {input.json} --aln {input.fa}
+            --tree_in {output.nwk}.tmp \
+            --n_consensus {params.n_cons} \
+            --aln {input.fa} \
+            --tree_out {output.nwk}
+        rm {output.nwk}.tmp
+        """
+
+
+rule PG_filtered_coregenome_tree:
+    input:
+        fa=rules.PG_filtered_corealignment.output.fa,
+        json=rules.PG_filtered_corealignment.output.json,
+    output:
+        nwk="results/{dset}/pangraph/{opt}-filtered-coretree.nwk",
+    conda:
+        "../conda_env/tree_inference.yml"
+    params:
+        n_cons=lambda wildcards, input: extract_value(
+            input.json, "polished aln consensus"
+        ),
+    shell:
+        """
+        fasttree -gtr -nt {input.fa} > {output.nwk}.tmp
+        python3 scripts/pangraph/refine_coretree_treetime.py \
+            --tree_in {output.nwk}.tmp \
+            --n_consensus {params.n_cons} \
+            --aln {input.fa} \
+            --tree_out {output.nwk}
         rm {output.nwk}.tmp
         """
 
@@ -119,6 +180,11 @@ rule PG_all:
         ),
         expand(
             rules.PG_coregenome_tree.output,
+            dset=datasets.keys(),
+            opt=kernel_opt.keys(),
+        ),
+        expand(
+            rules.PG_filtered_coregenome_tree.output,
             dset=datasets.keys(),
             opt=kernel_opt.keys(),
         ),

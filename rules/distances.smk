@@ -6,8 +6,8 @@
 
 rule DST_corealignment:
     input:
-        fa=rules.PG_reduced_corealignment.output.fa,
-        json=rules.PG_reduced_corealignment.output.json,
+        fa=rules.PG_corealignment.output.fa,
+        json=rules.PG_corealignment.output.json,
     output:
         "results/{dset}/distances/coredivergence-{opt}.csv",
     conda:

@@ -19,9 +19,6 @@ import scipy.sparse as sps
 # - diagnostic plot
 # - restricted alignment
 # - restricted and polished alignment
-
-pg_file = "../../results/ST131/pangraph/asm20-100-5-polished.json"
-pan = pp.Pangraph.load_json(pg_file)
 # %%
 
 
@@ -29,12 +26,7 @@ def block_to_nogap_aln_matrix(b, occs_order):
 
     aln, occs = b.alignment.generate_alignments(which=occs_order)
 
-    recs = []
-    for a, o in zip(aln, occs):
-        rec = Align.SeqRecord(a, name=o[0])
-        recs.append(rec)
-    A = Align.MultipleSeqAlignment(recs)
-    A = np.array(A)
+    A = np.vstack([np.array(list(a)) for a in aln])
 
     gap_mask = np.any(A == "-", axis=0)
     nuc_mask = np.all(np.isin(A, list("ACGT")), axis=0)
@@ -211,6 +203,10 @@ def diagnostic_plot(
 
 
 # %%
+
+pg_file = "../../results/ST131/pangraph/asm20-100-5-polished.json"
+pan = pp.Pangraph.load_json(pg_file)
+
 Nstrains = len(pan.paths)
 strains = np.sort(pan.strains())
 
