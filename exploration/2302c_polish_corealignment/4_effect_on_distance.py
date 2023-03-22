@@ -15,7 +15,7 @@ df = df[mask]
 
 # %%
 
-close_mask = df["core_div_naive"] < 0.0001
+close_mask = df["core_div_filtered"] < 5e-5
 
 # %%
 sns.pairplot(df, kind="hist")
@@ -26,6 +26,13 @@ plt.show()
 sns.pairplot(df[close_mask], kind="hist")
 plt.savefig(fig_fld / "pairplot_similar.png")
 plt.show()
+# %%
+sns.histplot(df, y="core_div_naive", x="core_div_filtered", cbar=True)
+plt.show()
+
+sns.histplot(df[close_mask], y="core_div_naive", x="core_div_filtered", cbar=True)
+plt.show()
+
 # %%
 
 
@@ -38,6 +45,12 @@ for yvar in ["mash_dist", "private seq. (bp)", "n. breakpoints", "part. entropy"
     plt.show()
 
     sns.histplot(df[close_mask], y=yvar, x="core_div_naive", cbar=True)
+    plt.show()
+
+    sns.histplot(df, y=yvar, x="core_div_filtered", cbar=True)
+    plt.show()
+
+    sns.histplot(df[close_mask], y=yvar, x="core_div_filtered", cbar=True)
     plt.show()
 
 # %%
