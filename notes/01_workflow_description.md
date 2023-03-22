@@ -19,8 +19,10 @@ flowchart TD
     B --> |PG_polish| C("{opt}-polished.json")
     C --> |PG_export| D("export/{opt}")
     C --> |PG_block_distr_fig| E["{opt}_block_distr.pdf"]
-    C --> |PG_reduced_corealignment| F("{opt}-alignment/corealignment{.fa,_info.json}")
+    C --> |PG_corealignment| F("{opt}-alignment/corealignment{.fa,_info.json}")
     F --> |PG_coregenome_tree| G("{opt}-coretree.nwk")
+    C --> |PG_filtered_corealignment| H("{opt}-alignment/filtered_corealignment{.fa,_info.json}")
+    H --> |PG_filtered_coregenome_tree| I("{opt}-filtered-coretree.nwk")
 ```
 
 **Description**:
@@ -28,6 +30,7 @@ flowchart TD
 - `{opt}_block_distr.pdf` : figure with distribution of block frequency/length.
 - `{opt}-alignment/corealignment{.fa,_info.json}` : reduced core alignment, and info file with number of sites having gaps / being consensus.
 - `{opt}-coretree.nwk` : core genome tree build from the reduced alignment (rescaled with information on the number of consensus vs mutated sites).
+- `filtered` core-alignment and core-tree are different only in one respect: the alignment has been filtered for regions with high SNPs densitive, which are indicative of recombination.
 
 ## distances.smk
 
@@ -36,15 +39,18 @@ Rules to estimate evolutionary distances between strains. Results are saved in `
 ```mermaid
 flowchart TD
     A("{opt}-alignment/corealignment{.fa,_info.json}") --> |DST_corealignment| B("coredivergence-{opt}.csv")
+    H("{opt}-alignment/filtered_corealignment{.fa,_info.json}") --> |DST_filtered_corealignment| I("coredivergence-filtered-{opt}.csv")
     C("data/fa/{acc}.fa from {dset}") --> |DST_mash| D("mash_dist.csv")
     E("pangraph/{opt}-polished.json") --> |DST_pangraph| F("pangraph-{opt}.csv")
     B --> |DST_merge| G("summary-{opt}.csv")
     D --> G
     F --> G
+    I --> G
 ```
 
 **Description**
-- `{opt}-coredivergence.csv` : core genome divergence, evaluated from the restricted core genome alignment, and rescaled with alignment info to the full core genome.
+- `coredivergence-{opt}.csv` : core genome divergence, evaluated from the restricted core genome alignment, and rescaled with alignment info to the full core genome.
+- `coredivergence-filtered-{opt}.csv` : same but constructed from the recombination-filtered alignment.
 - `mash_dist.csv` : mash distance.
 - `pangraph-{opt}.csv` : pangenome graph distances, including:
   - length of private / shared sequence in the pair (total = 2 genomes)

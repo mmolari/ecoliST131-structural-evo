@@ -5,5 +5,8 @@
 /Makefile
 /log
 /figs
-/exploration
+/exploration/*/*
+/local
 .ipynb_checkpoints
+
+!/exploration/*/*.py

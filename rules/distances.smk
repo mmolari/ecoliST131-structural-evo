@@ -6,16 +6,41 @@
 
 rule DST_corealignment:
     input:
-        fa=rules.PG_reduced_corealignment.output.fa,
-        json=rules.PG_reduced_corealignment.output.json,
+        fa=rules.PG_corealignment.output.fa,
+        json=rules.PG_corealignment.output.json,
     output:
         "results/{dset}/distances/coredivergence-{opt}.csv",
+    params:
+        n_cons=lambda wildcards, input: extract_value(input.json, "n. consensus"),
+        label="core_div_naive",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
         """
         python3 scripts/distances/alignment_distance.py \
-            --aln {input.fa} --info {input.json} --csv {output}
+            --aln {input.fa} --n_cons {params.n_cons} --csv {output} \
+            --label "{params.label}"
+        """
+
+
+rule DST_filtered_corealignment:
+    input:
+        fa=rules.PG_filtered_corealignment.output.fa,
+        json=rules.PG_filtered_corealignment.output.json,
+    output:
+        "results/{dset}/distances/coredivergence-filtered-{opt}.csv",
+    params:
+        n_cons=lambda wildcards, input: extract_value(
+            input.json, "polished aln consensus"
+        ),
+        label="core_div_filtered",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/distances/alignment_distance.py \
+            --aln {input.fa} --n_cons {params.n_cons} --csv {output} \
+            --label "{params.label}"
         """
 
 
@@ -25,7 +50,7 @@ rule DST_mash:
     output:
         "results/{dset}/distances/mash_dist.csv",
     conda:
-        "../conda_env/fasttree.yml"
+        "../conda_env/tree_inference.yml"
     shell:
         """
         mash triangle {input} > {output}.tmp
@@ -52,6 +77,7 @@ rule DST_pangraph:
 rule DST_merge:
     input:
         aln=rules.DST_corealignment.output,
+        aln_flt=rules.DST_filtered_corealignment.output,
         mash=rules.DST_mash.output,
         pan=rules.DST_pangraph.output,
     output:
@@ -61,7 +87,7 @@ rule DST_merge:
     shell:
         """
         python3 scripts/distances/merge_dist.py \
-            --dfs_in {input.aln} {input.mash} {input.pan} \
+            --dfs_in {input.aln} {input.mash} {input.pan} {input.aln_flt} \
             --csv {output}
         """
 
