@@ -74,6 +74,21 @@ rule DST_pangraph:
         """
 
 
+rule DST_pangraph_nodupl:
+    input:
+        rules.PG_polish.output,
+    output:
+        "results/{dset}/distances/pangraph{opt}-nodupl.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/distances/pangraph_pairwise_distance.py \
+            --pangraph {input} --csv {output} \
+            --exclude_dupl
+        """
+
+
 rule DST_merge:
     input:
         aln=rules.DST_corealignment.output,
@@ -95,3 +110,8 @@ rule DST_merge:
 rule DST_all:
     input:
         expand(rules.DST_merge.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(
+            rules.DST_pangraph_nodupl.output,
+            dset=datasets.keys(),
+            opt=kernel_opt.keys(),
+        ),
