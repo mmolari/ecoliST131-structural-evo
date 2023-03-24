@@ -19,12 +19,12 @@ close_mask = df["core_div_filtered"] < 5e-5
 
 # %%
 sns.pairplot(df, kind="hist")
-plt.savefig(fig_fld / "pairplot.png")
+plt.savefig(fig_fld / "pairplot.png", facecolor="white")
 plt.show()
 
 # %%
 sns.pairplot(df[close_mask], kind="hist")
-plt.savefig(fig_fld / "pairplot_similar.png")
+plt.savefig(fig_fld / "pairplot_similar.png", facecolor="white")
 plt.show()
 # %%
 sns.histplot(df, y="core_div_naive", x="core_div_filtered", cbar=True)
