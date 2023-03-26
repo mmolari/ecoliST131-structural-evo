@@ -8,7 +8,8 @@ import json
 
 root_fld = "../.."
 
-fig_fld = pathlib.Path("figs")
+fig_fld = pathlib.Path("figs/scatter")
+fig_fld.mkdir(exist_ok=True)
 
 df = pd.read_csv(f"{root_fld}/results/ST131/distances/summary-asm20-100-5.csv")
 df = df.set_index(["si", "sj"])
@@ -66,4 +67,20 @@ sns.despine(fig)
 plt.tight_layout()
 plt.savefig(fig_fld / "pairplot_subset.pdf")
 plt.show()
+# %%
+
+pairs = [
+    ("corealn snps", "private seq. (bp)", "privseq"),
+    ("corealn snps", "n. blocks", "nblocks"),
+    ("corealn snps", "mash_dist", "mash"),
+]
+
+for xl, yl, sl in pairs:
+    fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+    sns.histplot(data=df, x=xl, y=yl, ax=ax)
+    sns.despine()
+    plt.tight_layout()
+    plt.savefig(fig_fld / f"hist_{sl}.png")
+    plt.show()
+
 # %%
