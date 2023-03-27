@@ -26,7 +26,7 @@ def block_dotplot(ax, pan, str1, str2, alpha_dupl=0.1):
     L2 = block_positions(pan, str2)
 
     D1 = [b for b in L1.keys() if len(L1[b]) > 1]
-    D2 = [b for b in L1.keys() if len(L1[b]) > 1]
+    D2 = [b for b in L2.keys() if len(L2[b]) > 1]
     D = set(D1) | set(D2)
 
     p = pan.paths[str1]
@@ -76,7 +76,7 @@ for i1, i2 in str_pairs:
     plt.show()
 
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
-    block_dotplot(ax, pan, i1, i2, alpha_dupl=0.1)
+    block_dotplot(ax, pan, i1, i2, alpha_dupl=1.0)
     sns.despine(fig)
     plt.savefig(fig_fld / "dotplot.png", dpi=300)
     plt.show()
