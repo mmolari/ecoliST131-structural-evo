@@ -120,7 +120,7 @@ N = len(str_order)
 # assign colors
 c_dict = {}
 
-cmap = plt.get_cmap("Pastel1")
+cmap = plt.get_cmap("Dark2")
 cat = df["host"].dtype.categories
 c_dict["host"] = {v: cmap(n) for n, v in enumerate(cat)}
 c_dict["host"][np.nan] = "white"
