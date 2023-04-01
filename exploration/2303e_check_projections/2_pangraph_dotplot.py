@@ -62,6 +62,7 @@ str_pairs = [
     ("NZ_CP014522", "NZ_JAOSCA010000001"),
     ("NZ_CP076687", "NZ_CP104846"),
     ("NZ_CP076687", "NZ_CP104848"),
+    ("NZ_JAOSEJ010000001", "NZ_CP014497"),
 ]
 
 for i1, i2 in str_pairs:

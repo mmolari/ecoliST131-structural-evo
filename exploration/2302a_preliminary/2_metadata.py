@@ -132,7 +132,7 @@ c_dict["year"][np.nan] = "white"
 
 cmap = plt.get_cmap("tab20")
 cat = df["geo_loc_name"].dtype.categories
-c_dict["geo_loc_name"] = {v: cmap((n*2 % 20) + (n > 9)) for n, v in enumerate(cat)}
+c_dict["geo_loc_name"] = {v: cmap((n * 2 % 20) + (n > 9)) for n, v in enumerate(cat)}
 c_dict["geo_loc_name"][np.nan] = "white"
 # %%
 

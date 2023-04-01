@@ -62,6 +62,10 @@ Ls = pd.Series(Ls, name="len")
 
 
 plt.scatter([Ls[o] for o in order], np.arange(N))
+plt.show()
+
+print(f"mean : {Ls.mean()}")
+print(f"std : {Ls.std()}")
 
 # %%
 fig, ax = plt.subplots(1, 1, figsize=(5, 1.7))
