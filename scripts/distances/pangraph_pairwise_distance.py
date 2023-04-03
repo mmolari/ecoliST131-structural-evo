@@ -7,41 +7,6 @@ from itertools import combinations
 from collections import defaultdict
 
 
-# class pan_link:
-#     """Class that represent an orientation-invariant link between two blocks,
-#     that accounts for strandedness. If a and b are two links with the same topology:
-#     - a == b
-#     - hash(a) == hash(b)
-#     - a in [b]
-#     """
-
-#     def __init__(self, bl_a, str_a, bl_b, str_b):
-#         self.ida = bl_a
-#         self.sa = str_a
-#         self.idb = bl_b
-#         self.sb = str_b
-
-#     def __hash__(self) -> int:
-#         hf = hash((self.ida, self.sa, self.idb, self.sb))
-#         hr = hash((self.idb, not self.sb, self.ida, not self.sa))
-#         return hf ^ hr
-
-#     def __eq__(self, __o: object) -> bool:
-#         res = (self.ida, self.sa, self.idb, self.sb) == (
-#             __o.ida,
-#             __o.sa,
-#             __o.idb,
-#             __o.sb,
-#         )
-#         res |= (self.idb, not self.sb, self.ida, not self.sa) == (
-#             __o.ida,
-#             __o.sa,
-#             __o.idb,
-#             __o.sb,
-#         )
-#         return res
-
-
 def parse_args():
     parser = argparse.ArgumentParser(
         description="""extract pairwise distances from pangenome graph."""
