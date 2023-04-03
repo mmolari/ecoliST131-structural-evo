@@ -83,7 +83,7 @@ def pangraph_to_dist_df(pangraph_file, exclude_dupl):
                 "si": i,
                 "sj": j,
                 "private seq. (bp)": L_priv,
-                "shared seq. (bp)": L_shared,
+                "shared seq. (bp)": L_shared / 2,
                 "n. breakpoints": n_breakpoints,
                 "part. entropy": entropy,
                 "n. blocks": n_blocks,
@@ -96,6 +96,9 @@ def pangraph_to_dist_df(pangraph_file, exclude_dupl):
             "si": acc_i,
             "sj": acc_i,
             "private seq. (bp)": 0,
+            "shared seq. (bp)": sum(
+                len(pan.blocks[b]) for b in pan.paths[acc_i].block_ids
+            ),
             "n. breakpoints": 0,
             "part. entropy": 0.0,
             "n. blocks": 1,

@@ -108,6 +108,7 @@ if __name__ == "__main__":
             for s2 in strains - s:
                 i2 = strain_pos[s2]
                 M_pa[i1, i2] += 1
+                M_pa[i2, i1] += 1
 
     # matrix to dataframe
     df_pa = matrix_to_df(M_pa, S=strain_order, sname="edge_PA")
