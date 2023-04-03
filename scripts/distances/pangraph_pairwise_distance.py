@@ -7,51 +7,21 @@ from itertools import combinations
 from collections import defaultdict
 
 
-# class pan_link:
-#     """Class that represent an orientation-invariant link between two blocks,
-#     that accounts for strandedness. If a and b are two links with the same topology:
-#     - a == b
-#     - hash(a) == hash(b)
-#     - a in [b]
-#     """
-
-#     def __init__(self, bl_a, str_a, bl_b, str_b):
-#         self.ida = bl_a
-#         self.sa = str_a
-#         self.idb = bl_b
-#         self.sb = str_b
-
-#     def __hash__(self) -> int:
-#         hf = hash((self.ida, self.sa, self.idb, self.sb))
-#         hr = hash((self.idb, not self.sb, self.ida, not self.sa))
-#         return hf ^ hr
-
-#     def __eq__(self, __o: object) -> bool:
-#         res = (self.ida, self.sa, self.idb, self.sb) == (
-#             __o.ida,
-#             __o.sa,
-#             __o.idb,
-#             __o.sb,
-#         )
-#         res |= (self.idb, not self.sb, self.ida, not self.sa) == (
-#             __o.ida,
-#             __o.sa,
-#             __o.idb,
-#             __o.sb,
-#         )
-#         return res
-
-
 def parse_args():
     parser = argparse.ArgumentParser(
         description="""extract pairwise distances from pangenome graph."""
     )
-    parser.add_argument("--pangraph", type=str, help="input pangraph file")
-    parser.add_argument("--csv", type=str, help="output distance dataframe")
+    parser.add_argument("--pangraph", type=str, help="input pangraph file.")
+    parser.add_argument("--csv", type=str, help="output distance dataframe.")
+    parser.add_argument(
+        "--exclude_dupl",
+        action="store_true",
+        help="exclude duplications when projecting.",
+    )
     return parser.parse_args()
 
 
-def pangraph_to_dist_df(pangraph_file):
+def pangraph_to_dist_df(pangraph_file, exclude_dupl):
     """Given a pangenome graph file, returns a dataframe of distances for all
     pairwise projections."""
 
@@ -69,30 +39,37 @@ def pangraph_to_dist_df(pangraph_file):
     for acc_i, acc_j in combinations(strains, 2):
 
         # project over the pair
-        pr = ppj.project(acc_i, acc_j)
+        pr = ppj.project(acc_i, acc_j, exclude_dupl=exclude_dupl)
 
         # n. blocks in projection
         n_blocks = len(set(pr.MPA.chunk_id).union(set(pr.MPB.chunk_id)))
 
         # block sequence length dictionary (tot alignment sequence in block)
         block_len = defaultdict(int)
+        # priv_block_len = defaultdict(int)
+        # shared_block_len = defaultdict(int)
 
         L_priv = 0
         L_shared = 0
         n_breakpoints = 0
+
         # for each of the two strains
         for M in [pr.MPA, pr.MPB]:
 
-            s = M.comm  # mask for shared blocks
-            n_breakpoints += np.sum(s != np.roll(s, 1))  # count number of breakpoints
+            S = M.comm  # mask for shared blocks
+            n_breakpoints += np.sum(S != np.roll(S, 1))  # count number of breakpoints
 
             L = M.bl_Ls  # list of block lengths
-            L_priv += np.sum(L[~s])
-            L_shared += np.sum(L[s])
+            L_priv += np.sum(L[~S])
+            L_shared += np.sum(L[S])
 
             cid = M.chunk_id
-            for c, l in zip(cid, L):
+            for c, l, s in zip(cid, L, S):
                 block_len[c] += l
+                # if s:
+                #     shared_block_len[c] += l
+                # else:
+                #     priv_block_len[c] += l
 
         # evaluate partition entropy
         L_genomes = sum(block_len.values())
@@ -106,7 +83,7 @@ def pangraph_to_dist_df(pangraph_file):
                 "si": i,
                 "sj": j,
                 "private seq. (bp)": L_priv,
-                "shared seq. (bp)": L_shared,
+                "shared seq. (bp)": L_shared / 2,
                 "n. breakpoints": n_breakpoints,
                 "part. entropy": entropy,
                 "n. blocks": n_blocks,
@@ -119,6 +96,9 @@ def pangraph_to_dist_df(pangraph_file):
             "si": acc_i,
             "sj": acc_i,
             "private seq. (bp)": 0,
+            "shared seq. (bp)": sum(
+                len(pan.blocks[b]) for b in pan.paths[acc_i].block_ids
+            ),
             "n. breakpoints": 0,
             "part. entropy": 0.0,
             "n. blocks": 1,
@@ -134,7 +114,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     # pangraph pairwise distances
-    df = pangraph_to_dist_df(args.pangraph)
+    df = pangraph_to_dist_df(args.pangraph, exclude_dupl=args.exclude_dupl)
 
     # save dataframe, adding information header
     df_txt = df.to_csv(args.csv, index=False)

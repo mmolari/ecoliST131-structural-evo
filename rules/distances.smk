@@ -74,12 +74,42 @@ rule DST_pangraph:
         """
 
 
+rule DST_pangraph_nodupl:
+    input:
+        rules.PG_polish.output,
+    output:
+        "results/{dset}/distances/pangraph{opt}-nodupl.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/distances/pangraph_pairwise_distance.py \
+            --pangraph {input} --csv {output} \
+            --exclude_dupl
+        """
+
+
+rule DST_edge:
+    input:
+        rules.PG_polish.output,
+    output:
+        "results/{dset}/distances/pangraph{opt}_edge_distance.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/distances/edge_distance.py \
+            --pan {input} --csv {output}
+        """
+
+
 rule DST_merge:
     input:
         aln=rules.DST_corealignment.output,
         aln_flt=rules.DST_filtered_corealignment.output,
         mash=rules.DST_mash.output,
         pan=rules.DST_pangraph.output,
+        edge=rules.DST_edge.output,
     output:
         "results/{dset}/distances/summary-{opt}.csv",
     conda:
@@ -87,7 +117,8 @@ rule DST_merge:
     shell:
         """
         python3 scripts/distances/merge_dist.py \
-            --dfs_in {input.aln} {input.mash} {input.pan} {input.aln_flt} \
+            --dfs_in {input.aln} {input.mash} {input.pan} \
+                     {input.aln_flt} {input.edge} \
             --csv {output}
         """
 
@@ -95,3 +126,8 @@ rule DST_merge:
 rule DST_all:
     input:
         expand(rules.DST_merge.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(
+            rules.DST_pangraph_nodupl.output,
+            dset=datasets.keys(),
+            opt=kernel_opt.keys(),
+        ),
