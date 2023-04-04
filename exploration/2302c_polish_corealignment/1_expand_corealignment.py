@@ -10,7 +10,6 @@ import seaborn as sns
 # %%
 pg_file = "../../results/ST131/pangraph/asm20-100-5-polished.json"
 pan = pp.Pangraph.load_json(pg_file)
-# %%
 
 # %%
 Nstrains = len(pan.paths)
@@ -43,8 +42,11 @@ for b in pan.blocks:
     M = sp.coo_matrix(M, dtype=bool)
 
     aln_matrices[b.id] = M
-# %%
+
 core_blocks = list(aln_matrices.keys())
+# %%
+
+
 cmap = plt.get_cmap("rainbow")
 i, T = 0, len(core_blocks)
 
@@ -99,6 +101,47 @@ plt.tight_layout()
 plt.savefig("figs/core_genome_density.png", facecolor="w")
 plt.show()
 # break
+# %%
+
+
+fig, axs = plt.subplots(3, 1, figsize=(6.5, 3 * 1.3), sharex=True)
+
+
+Ltot = sum(cons_L.values())
+step = 10000
+bins = np.arange(0, Ltot + step, step)
+
+for n, s in enumerate(["NZ_CP014495", "NZ_CP076693", "NZ_CP084678"]):
+    ax = axs[n]
+
+    si = list(strains).index(s)
+    p = pan.paths[s]
+
+    blocks = [(b, o) for b, o in zip(p.block_ids, p.block_strands) if b in core_blocks]
+
+    aln = []
+    idxs = []
+    L = 0
+    for b, o in blocks:
+        row = sp.csr_matrix(aln_matrices[b]).getrow(si).toarray()[0]
+        if not o:
+            row = row[::-1]
+        aln += list(row)
+        idxs += list(np.argwhere(row).flatten() + L)
+        L += len(row)
+
+    ax.hist(idxs, bins=bins, color="k")
+    ax.text(0.8, 0.8, s, transform=ax.transAxes)
+    if ax.get_ylim()[1] < 2:
+        ax.set_ylim(top=2)
+
+sns.despine(fig)
+axs[-1].set_xlabel("core genome projection (bp)")
+axs[0].set_title("SNPs per 10 kbp")
+plt.tight_layout()
+plt.savefig("figs/SNPs_density_example.png", facecolor="w")
+plt.show()
+
 # %%
 plt.figure(figsize=(10, 4))
 plt.hist(mut_count, bins=np.arange(max(mut_count) + 2) - 0.5)
