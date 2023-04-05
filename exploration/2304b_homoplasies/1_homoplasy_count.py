@@ -19,7 +19,7 @@ fig_p.mkdir(exist_ok=True)
 
 def svfig(svname):
     for k in ["pdf", "png", "svg"]:
-        plt.savefig(fig_p / f"{svname}.{k}")
+        plt.savefig(fig_p / f"{svname}.{k}", dpi=300)
 
 
 res_f = pathlib.Path("../../results/ST131/pangraph")
@@ -172,9 +172,12 @@ def add_multiallelic_frac(data, color, *args, **kwargs):
     frac = data["multimut"].mean()
     ns = (~data["multimut"]).sum()
     nm = data["multimut"].sum()
-    ax.text(0.05, 0.9, f"homopl. frac. = {frac*100:.1f} %", color="k", transform=t)
-    ax.text(0.95, 0.9, f"single mut. (n = {ns})", color="C0", transform=t, ha="right")
-    ax.text(0.95, 0.8, f"homoplasy (n = {nm})", color="C1", transform=t, ha="right")
+    ax.text(
+        0.05, 0.9, f"homopl. frac. = {frac*100:.1f} %", color="darkorchid", transform=t
+    )
+    ax.text(0.55, 0.9, f"single mut. (n = {ns})", color="C0", transform=t)
+    ax.text(0.55, 0.83, f" homoplasy (n = {nm})", color="C1", transform=t)
+    ax.set_ylim(top=ax.get_ylim()[1] * 1.1)
 
 
 g.map_dataframe(add_multiallelic_frac)
@@ -217,6 +220,8 @@ saln = subaln(res_a["aln_f"], idxs=I, str_order=str_ord)
 fig, axs = plt.subplots(1, 2, sharey=True, figsize=(5, 8))
 ax = axs[0]
 Phylo.draw(tree, label_func=lambda x: None, do_show=False, axes=ax)
+ax.set_title("core genome tree")
+
 
 ax = axs[1]
 aw = np.argwhere(~saln)
@@ -236,6 +241,37 @@ plt.tight_layout()
 svfig("remaining_biallelic_homoplasies")
 plt.show()
 # %%
+
+# color supported branches
+mask = (df["aln"] == "filtered") & (df["phylogenetic info"] == "bi-allelic")
+mask &= ~df["multimut"]
+I = df[mask]["position"].to_numpy()
+
 T = res_a["TT"].tree
-Phylo.draw(T)
+Ls = [len([m for m in n.mutations if m[1] in I]) for n in T.get_nonterminals()]
+cmap = plt.get_cmap("Blues")
+norm = mpl.colors.LogNorm(vmin=1, vmax=max(Ls))
+# cmap = plt.get_cmap("cool")
+# norm = mpl.colors.BoundaryNorm(boundaries=[0,1,10,100,300], ncolors=256)
+
+fig, ax = plt.subplots(1, 1, figsize=(8, 5))
+for n in T.get_nonterminals():
+    k = len([m for m in n.mutations if m[1] in I])
+    c = cmap(norm(k))
+    n.color = mpl.colors.to_hex(c)
+for n in T.get_terminals():
+    n.color = "#888888"
+T.root.color = "#888888"
+Phylo.draw(T, label_func=lambda x: None, do_show=False, axes=ax)
+mapp = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+plt.colorbar(
+    mapp,
+    label="n. supporting bi-allelic SNPs",
+    shrink=0.8,
+    extend="min",
+)
+sns.despine()
+plt.tight_layout()
+svfig("branch_support")
+plt.show()
 # %%
