@@ -49,6 +49,9 @@ class Edge:
     def invert(self):
         return Edge(self.b[1].invert(), self.b[0].invert())
 
+    def has_block_from(self, bl_ids):
+        return (self.b[0].id in bl_ids) or (self.b[1].id in bl_ids)
+
 
 def path_to_blocklist(pan, k):
     p = pan.paths[k]
@@ -84,6 +87,7 @@ if __name__ == "__main__":
     # extract path and edge representation
     strains = set(pan.strains())
     N = len(strains)
+    Bids = pan.to_paths_dict()
     paths = {k: path_to_blocklist(pan, k) for k in strains}
     edges = {k: blocklist_to_edgelist(bl) for k, bl in paths.items()}
 
@@ -98,7 +102,7 @@ if __name__ == "__main__":
     strain_pos = {s: n for n, s in enumerate(strain_order)}
 
     # edge P/A distance matrix and edge sharing matrix
-    M_pa, M_s = [np.zeros((N, N), int) for _ in range(2)]
+    M_pa, M_s, M_pa_r = [np.zeros((N, N), int) for _ in range(3)]
     for e, s in edge_strains.items():
         for s1 in s:
             i1 = strain_pos[s1]
@@ -109,11 +113,14 @@ if __name__ == "__main__":
                 i2 = strain_pos[s2]
                 M_pa[i1, i2] += 1
                 M_pa[i2, i1] += 1
-
+                if e.has_block_from(Bids[s2]):
+                    M_pa_r[i1, i2] += 1
+                    M_pa_r[i2, i1] += 1
     # matrix to dataframe
     df_pa = matrix_to_df(M_pa, S=strain_order, sname="edge_PA")
+    df_pa_r = matrix_to_df(M_pa_r, S=strain_order, sname="edge_PA_reduced")
     df_s = matrix_to_df(M_s, S=strain_order, sname="edge_sharing")
 
     # concatenate and save
-    df = pd.concat([df_pa, df_s], axis=1, verify_integrity=True)
+    df = pd.concat([df_pa, df_pa_r, df_s], axis=1, verify_integrity=True)
     df.to_csv(args.csv)

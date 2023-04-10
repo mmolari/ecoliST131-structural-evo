@@ -55,6 +55,12 @@ sns.histplot(data=df, x="core_div_filtered", y="edge_sharing")
 plt.show()
 sns.histplot(data=df, x="core_div_filtered", y="edge_PA")
 plt.show()
+sns.histplot(data=df, x="core_div_filtered", y="edge_PA_reduced")
+plt.show()
+sns.histplot(data=df, x="n. blocks", y="edge_PA")
+plt.show()
+sns.histplot(data=df, x="n. blocks", y="edge_PA_reduced")
+plt.show()
 # %%
 
 
@@ -68,6 +74,7 @@ M_ss = df_to_mat(adf, val="shared seq. (bp)", idx_order=str_ord)
 M_se = df_to_mat(adf, val="edge_sharing", idx_order=str_ord)
 M_ps = df_to_mat(adf, val="private seq. (bp)", idx_order=str_ord)
 M_pe = df_to_mat(adf, val="edge_PA", idx_order=str_ord)
+M_per = df_to_mat(adf, val="edge_PA_reduced", idx_order=str_ord)
 M_sb = df_to_mat(adf, val="block_sharing", idx_order=str_ord)
 M_pb = df_to_mat(adf, val="block_PA", idx_order=str_ord)
 # %%
