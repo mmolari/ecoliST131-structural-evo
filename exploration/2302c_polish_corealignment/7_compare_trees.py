@@ -18,8 +18,17 @@ tree_new = Phylo.read(
 )
 tree_new.ladderize()
 
-for t,lab in [(tree_old, "before"), (tree_new, "after")]:
-    fig, ax = plt.subplots(1, 1, figsize=(5,7))
+fig, axs = plt.subplot_mosaic(
+    """
+AB
+AB
+""",
+    figsize=(7, 6),
+)
+for ax, t, lab in [
+    (axs["A"], tree_old, "before"),
+    (axs["B"], tree_new, "after"),
+]:
     Phylo.draw(
         t,
         do_show=False,
@@ -28,10 +37,11 @@ for t,lab in [(tree_old, "before"), (tree_new, "after")]:
     )
     ax.set_ylabel("")
     ax.set_yticks([])
+    ax.set_title(f"tree {lab}")
     for k in ["top", "left", "right"]:
         ax.spines[k].set_visible(False)
-    plt.tight_layout()
-    plt.savefig(fig_fld / f"tree_{lab}.png")
-    plt.show()
+plt.tight_layout()
+plt.savefig(fig_fld / f"tree_comparison.png")
+plt.show()
 
 # %%

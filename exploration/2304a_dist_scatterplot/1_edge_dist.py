@@ -43,6 +43,8 @@ cols = [
     "core_div_filtered",
     "edge_PA",
     "edge_sharing",
+    "block_PA",
+    "block_sharing",
 ]
 # %%
 sns.histplot(data=df, x="core_div_filtered", y="shared seq. (bp)")
@@ -52,6 +54,12 @@ plt.show()
 sns.histplot(data=df, x="core_div_filtered", y="edge_sharing")
 plt.show()
 sns.histplot(data=df, x="core_div_filtered", y="edge_PA")
+plt.show()
+sns.histplot(data=df, x="core_div_filtered", y="edge_PA_reduced")
+plt.show()
+sns.histplot(data=df, x="n. blocks", y="edge_PA")
+plt.show()
+sns.histplot(data=df, x="n. blocks", y="edge_PA_reduced")
 plt.show()
 # %%
 
@@ -66,83 +74,76 @@ M_ss = df_to_mat(adf, val="shared seq. (bp)", idx_order=str_ord)
 M_se = df_to_mat(adf, val="edge_sharing", idx_order=str_ord)
 M_ps = df_to_mat(adf, val="private seq. (bp)", idx_order=str_ord)
 M_pe = df_to_mat(adf, val="edge_PA", idx_order=str_ord)
-# %%
-
-fig, axs = plt.subplots(
-    1,
-    4,
-    sharey=True,
-    figsize=(12, 3.8),
-    gridspec_kw={"width_ratios": [0.3, 1, 1, 1]},
-)
-
-ax = axs[0]
-Phylo.draw(tree, do_show=False, label_func=lambda x: None, axes=ax)
-
-for i, v in enumerate(
-    [
-        [M_core, "core-alignment divergence"],
-        [M_ss, "shared seq. (bp)"],
-        [M_se, "shared edges (n)"],
-    ]
-):
-    ax = axs[i + 1]
-    M, t = v
-    g = ax.matshow(M)
-    ax.set_title(t)
-    plt.colorbar(g, ax=ax, shrink=0.8)
-
-for ax in axs:
-    for s in ax.spines.values():
-        s.set_visible(False)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_xlabel(None)
-    ax.set_ylabel(None)
-
-ax.set_ylim(top=-0.8)
-plt.tight_layout()
-svfig("tree_vs_shared")
-plt.show()
-
+M_per = df_to_mat(adf, val="edge_PA_reduced", idx_order=str_ord)
+M_sb = df_to_mat(adf, val="block_sharing", idx_order=str_ord)
+M_pb = df_to_mat(adf, val="block_PA", idx_order=str_ord)
 # %%
 
 
-fig, axs = plt.subplots(
-    1,
-    4,
-    sharey=True,
-    figsize=(12, 3.8),
-    gridspec_kw={"width_ratios": [0.3, 1, 1, 1]},
-)
+def matrix_plot(matrix_triplet, svname):
+    fig, axs = plt.subplots(
+        1,
+        4,
+        sharey=True,
+        figsize=(12, 3.8),
+        gridspec_kw={"width_ratios": [0.3, 1, 1, 1]},
+    )
 
-ax = axs[0]
-Phylo.draw(tree, do_show=False, label_func=lambda x: None, axes=ax)
+    ax = axs[0]
+    Phylo.draw(tree, do_show=False, label_func=lambda x: None, axes=ax)
 
-for i, v in enumerate(
-    [
-        [M_core, "core-alignment divergence"],
-        [M_ps, "private seq. (bp)"],
-        [M_pe, "edge P/A dist (n)"],
-    ]
-):
-    ax = axs[i + 1]
-    M, t = v
-    g = ax.matshow(M)
-    ax.set_title(t)
-    plt.colorbar(g, ax=ax, shrink=0.8)
+    for i, v in enumerate(matrix_triplet):
+        ax = axs[i + 1]
+        M, t = v
+        g = ax.matshow(M)
+        ax.set_title(t)
+        plt.colorbar(g, ax=ax, shrink=0.8)
 
-for ax in axs:
-    for s in ax.spines.values():
-        s.set_visible(False)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_xlabel(None)
-    ax.set_ylabel(None)
+    for ax in axs:
+        for s in ax.spines.values():
+            s.set_visible(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_xlabel(None)
+        ax.set_ylabel(None)
 
-ax.set_ylim(top=-0.8)
-plt.tight_layout()
-svfig("tree_vs_private")
-plt.show()
+    ax.set_ylim(top=-0.8)
+    plt.tight_layout()
+    svfig(svname)
+    plt.show()
+
+
+triplet = [
+    [M_core, "core-alignment divergence"],
+    [M_ss, "shared seq. (bp)"],
+    [M_se, "shared edges (n)"],
+]
+
+matrix_plot(triplet, "tree_vs_shared")
+
+# %%
+triplet = [
+    [M_core, "core-alignment divergence"],
+    [M_ps, "private seq. (bp)"],
+    [M_pe, "edge P/A dist (n)"],
+]
+matrix_plot(triplet, "tree_vs_private")
+
+# %%
+
+triplet = [
+    [M_core, "core-alignment divergence"],
+    [M_pb, "block P/A dist"],
+    [M_pe, "edge P/A dist (n)"],
+]
+matrix_plot(triplet, "block_vs_edge_PA")
+
+
+triplet = [
+    [M_core, "core-alignment divergence"],
+    [M_sb, "shared blocks (n)"],
+    [M_se, "shared edges (n)"],
+]
+matrix_plot(triplet, "block_vs_edge_shared")
 
 # %%

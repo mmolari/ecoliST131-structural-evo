@@ -42,10 +42,14 @@ flowchart TD
     H("{opt}-alignment/filtered_corealignment{.fa,_info.json}") --> |DST_filtered_corealignment| I("coredivergence-filtered-{opt}.csv")
     C("data/fa/{acc}.fa from {dset}") --> |DST_mash| D("mash_dist.csv")
     E("pangraph/{opt}-polished.json") --> |DST_pangraph| F("pangraph-{opt}.csv")
+    E --> |DST_edge| J("pangraph{opt}_edge_distance.csv")
+    E --> |DST_blocks| K("pangraph{opt}_block_distance.csv")
     B --> |DST_merge| G("summary-{opt}.csv")
     D --> G
     F --> G
     I --> G
+    J --> G
+    K --> G
 ```
 
 **Description**
@@ -56,4 +60,6 @@ flowchart TD
   - length of private / shared sequence in the pair (total = 2 genomes)
   - total number of blocks in the projection / n. breakpoints
   - partition entropy
+- `pangraph{opt}_edge_distance.csv`: measures of edge sharing/differences between strains.
+- `pangraph{opt}_block_distance.csv`: block sharing / presence-absence distance between strains.
 - `summary-{opt}.csv` : summary dataframe containing all distances
