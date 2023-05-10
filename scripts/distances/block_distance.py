@@ -21,11 +21,11 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Evalaute edge-related distances")
     parser.add_argument("--pan", help="pangenome graph", type=str)
     parser.add_argument("--csv", help="output dataframe", type=str)
+    parser.add_argument("--len_thr", help="block length threshold", type=int)
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-
     # load pangraph
     args = parse_args()
     pan = pp.Pangraph.load_json(args.pan)
@@ -35,6 +35,10 @@ if __name__ == "__main__":
 
     # block count matrix to PA
     df = (pan.to_blockcount_df() > 0).astype(int)
+
+    propr = pan.to_blockstats_df()
+    mask = propr["len"] > args.len_thr
+    df = df.loc[:, mask]
 
     # evaluate distance and sharing matrices
     M_pa, M_s = [np.zeros((N, N), int) for _ in range(2)]

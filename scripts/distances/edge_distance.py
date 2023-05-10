@@ -53,9 +53,11 @@ class Edge:
         return (self.b[0].id in bl_ids) or (self.b[1].id in bl_ids)
 
 
-def path_to_blocklist(pan, k):
+def path_to_blocklist(pan, k, mask_dict):
     p = pan.paths[k]
-    return [Block(bid, s) for bid, s in zip(p.block_ids, p.block_strands)]
+    return [
+        Block(bid, s) for bid, s in zip(p.block_ids, p.block_strands) if mask_dict[bid]
+    ]
 
 
 def blocklist_to_edgelist(bl):
@@ -75,20 +77,24 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Evalaute edge-related distances")
     parser.add_argument("--pan", help="pangenome graph", type=str)
     parser.add_argument("--csv", help="output dataframe", type=str)
+    parser.add_argument("--len_thr", help="block length threshold", type=int)
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-
     args = parse_args()
 
     pan = pp.Pangraph.load_json(args.pan)
+
+    # mask out short blocks
+    propr = pan.to_blockstats_df()
+    block_mask = (propr["len"] > args.len_thr).to_dict()
 
     # extract path and edge representation
     strains = set(pan.strains())
     N = len(strains)
     Bids = pan.to_paths_dict()
-    paths = {k: path_to_blocklist(pan, k) for k in strains}
+    paths = {k: path_to_blocklist(pan, k, block_mask) for k in strains}
     edges = {k: blocklist_to_edgelist(bl) for k, bl in paths.items()}
 
     #  dictionary {edge -> strain set}

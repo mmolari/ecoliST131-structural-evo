@@ -94,12 +94,14 @@ rule DST_edge:
         rules.PG_polish.output,
     output:
         "results/{dset}/distances/pangraph{opt}_edge_distance.csv",
+    params:
+        len_thr=100,
     conda:
         "../conda_env/bioinfo.yml"
     shell:
         """
         python3 scripts/distances/edge_distance.py \
-            --pan {input} --csv {output}
+            --pan {input} --csv {output} --len_thr {params.len_thr}
         """
 
 
@@ -108,12 +110,14 @@ rule DST_blocks:
         rules.PG_polish.output,
     output:
         "results/{dset}/distances/pangraph{opt}_block_distance.csv",
+    params:
+        len_thr=100,
     conda:
         "../conda_env/bioinfo.yml"
     shell:
         """
         python3 scripts/distances/block_distance.py \
-            --pan {input} --csv {output}
+            --pan {input} --csv {output} --len_thr {params.len_thr}
         """
 
 
