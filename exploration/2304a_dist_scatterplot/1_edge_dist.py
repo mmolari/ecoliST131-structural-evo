@@ -92,10 +92,12 @@ def matrix_plot(matrix_triplet, svname):
     ax = axs[0]
     Phylo.draw(tree, do_show=False, label_func=lambda x: None, axes=ax)
 
+    cmap = plt.get_cmap("viridis_r")
+
     for i, v in enumerate(matrix_triplet):
         ax = axs[i + 1]
         M, t = v
-        g = ax.matshow(M)
+        g = ax.matshow(M, cmap=cmap)
         ax.set_title(t)
         plt.colorbar(g, ax=ax, shrink=0.8)
 
