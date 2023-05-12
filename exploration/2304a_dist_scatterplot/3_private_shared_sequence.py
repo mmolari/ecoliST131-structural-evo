@@ -12,7 +12,7 @@ fig_fld.mkdir(exist_ok=True)
 
 
 def svfig(svname):
-    for suffix in ["png", "pdf", "svg"]:
+    for suffix in ["png", "pdf"]:
         plt.savefig(
             fig_fld / f"{svname}.{suffix}",
             dpi=300,
@@ -30,6 +30,11 @@ adf = pd.read_csv(df_file)
 mask = adf["si"] > adf["sj"]
 df = adf[mask]
 
+df
+
+# %%
+
+
 cd = "core genome divergence"
 md = "mash distance"
 epa = "edge P/A distance"
@@ -38,8 +43,6 @@ bpa = "block P/A distance"
 npb = "n. blocks (pariwise projection)"
 ps = "private seq. (bp)"
 ss = "shared seq. (bp)"
-bs = "block_sharing"
-es = "edge_sharing"
 
 df = df.rename(
     columns={
@@ -49,18 +52,30 @@ df = df.rename(
         "edge_PA_reduced": epar,
         "block_PA": bpa,
         "n. blocks": npb,
-        "private seq. (bp)": ps,
-        "n. shared blocks": ss,
-        "n. shared edges": es,
     }
 )
 # %%
 
 # seaborn pairgrid
 
+variables = [
+    "core genome divergence",
+    "mash distance",
+    "private seq. (bp)",
+    "shared seq. (bp)",
+    "n. breakpoints",
+    # "part. entropy",
+    "n. blocks (pariwise projection)",
+    "edge P/A distance",
+    "edge P/A reduced distance",
+    "edge_sharing",
+    "block P/A distance",
+    "block_sharing",
+]
+
 g = sns.PairGrid(
     df,
-    vars=[cd, md, epa, epar, bpa, npb, ps, ss, bs, es],
+    vars=variables,
     diag_sharey=False,
 )
 g.map_lower(sns.histplot)
@@ -73,6 +88,32 @@ for i, j in zip(*np.triu_indices_from(g.axes, 1)):
 
 plt.tight_layout()
 svfig("0_all_comparisons")
+plt.show()
+
+# %%
+
+
+color_strain = "NZ_JAOSEJ010000001"
+
+df["color"] = (df["si"] == color_strain) | (df["sj"] == color_strain)
+
+
+g = sns.PairGrid(
+    df,
+    hue="color",
+    vars=variables,
+    diag_sharey=False,
+)
+g.map_lower(sns.histplot)
+g.map_diag(sns.histplot)
+# g.map_upper(sns.kdeplot, fill=True)
+
+# hide upper-diagonal axes
+for i, j in zip(*np.triu_indices_from(g.axes, 1)):
+    g.axes[i, j].set_visible(False)
+
+plt.tight_layout()
+svfig("0_all_comparisons_color")
 plt.show()
 
 
@@ -97,8 +138,46 @@ plt.show()
 
 # %%
 
+import matplotlib as mpl
+
+g = sns.PairGrid(
+    df,
+    hue="color",
+    vars=[cd, ps, ss],
+    diag_sharey=False,
+)
+g.map_lower(sns.histplot)
+g.map_diag(sns.histplot)
+# g.map_upper(sns.kdeplot, fill=True)
+
+# hide upper-diagonal axes
+for i, j in zip(*np.triu_indices_from(g.axes, 1)):
+    g.axes[i, j].set_visible(False)
+
+# make custom legend
+leg = [
+    mpl.patches.Patch(color="C0", alpha=0.4, label="other"),
+    mpl.patches.Patch(color="C1", alpha=0.4, label="NZ_JAOSEJ010000001"),
+]
+# shrink legend
+ax = g.axes[0, 2]
+ax.set_visible(True)
+# remove all spines
+for sp in ax.spines.values():
+    sp.set_visible(False)
+ax.tick_params(axis="x", colors="white")
+ax.tick_params(axis="y", colors="white")
+ax.legend(handles=leg, loc="upper right")
+
+plt.tight_layout()
+svfig("1_priv_shared_seq_color")
+plt.show()
+
+# %%
+
 fig, ax = plt.subplots(1, 1, figsize=(3, 3))
 sns.histplot(data=df, x=ps, y=md)
+sns.despine()
 plt.tight_layout()
 svfig("2_mash_vs_private_seq")
 plt.show()

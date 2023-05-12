@@ -11,7 +11,7 @@ fig_fld.mkdir(exist_ok=True)
 
 
 def svfig(svname):
-    for suffix in ["png", "pdf", "svg"]:
+    for suffix in ["png", "pdf"]:
         plt.savefig(
             fig_fld / f"{svname}.{suffix}",
             dpi=300,
@@ -77,6 +77,7 @@ M_pe = df_to_mat(adf, val="edge_PA", idx_order=str_ord)
 M_per = df_to_mat(adf, val="edge_PA_reduced", idx_order=str_ord)
 M_sb = df_to_mat(adf, val="block_sharing", idx_order=str_ord)
 M_pb = df_to_mat(adf, val="block_PA", idx_order=str_ord)
+M_pwb = df_to_mat(adf, val="n. blocks", idx_order=str_ord)
 # %%
 
 
@@ -147,5 +148,23 @@ triplet = [
     [M_se, "shared edges (n)"],
 ]
 matrix_plot(triplet, "block_vs_edge_shared")
+
+# %%
+
+triplet = [
+    [M_core, "core-alignment divergence"],
+    [M_pb, "block P/A"],
+    [M_pwb, "n. pairwise blocks"],
+]
+matrix_plot(triplet, "blocks_vs_core_tree")
+
+# %%
+
+triplet = [
+    [M_core, "core-alignment divergence"],
+    [M_pe, "edge P/A dist (n)"],
+    [M_per, "edge P/A dist reduced (n)"],
+]
+matrix_plot(triplet, "tree_vs_edges")
 
 # %%
