@@ -67,7 +67,8 @@ def extract_edge_dictionary(pangraph_file, len_thr=0, remove_dupl=False):
     propr = pan.to_blockstats_df()
     block_mask = propr["len"] > len_thr
     if remove_dupl:
-        block_mask = block_mask & (~propr["duplicated"])
+        block_mask &= ~propr["duplicated"]
+    # block_mask &= propr["core"]
     block_mask_dict = block_mask.to_dict()
 
     # extract path and edge representation

@@ -6,7 +6,6 @@ import numpy as np
 from Bio import SeqIO, AlignIO, Phylo
 from pycirclize import Circos
 
-
 import pathlib
 
 import matplotlib.pyplot as plt
@@ -16,7 +15,7 @@ fig_p.mkdir(exist_ok=True)
 
 
 def svfig(svname):
-    for k in ["pdf", "png", "svg"]:
+    for k in ["pdf", "png"]:
         plt.savefig(fig_p / f"{svname}.{k}", dpi=300, facecolor="w")
 
 
@@ -62,12 +61,12 @@ N = len(strains_set)
 edge_pairs = []
 for k, s in E_dict.items():
     if len(s) == 2:
+        # check that the block is present in both
+        # b1, b2 = k.b[0].id, k.b[1].id
+        # if block_pa[[b1, b2]].loc[s].all().any():
         edge_pairs.append(list(s))
-    if len(s) == N - 2:
-        edge_pairs.append(list(strains_set - s))
-
-
-# %%
+    # if len(s) == N - 2:
+    # edge_pairs.append(list(strains_set - s))
 
 
 # %%
@@ -121,10 +120,70 @@ for p1, p2 in edge_pairs:
     i2 = str_order.index(p2) + 0.5
     reg1 = ("Tree", i1, i1)
     reg2 = ("Tree", i2, i2)
-    circos.link(reg1, reg2, color="green", lw=0.5, alpha=0.03, height_ratio=0.23)
+    circos.link(reg1, reg2, color="green", lw=0.5, alpha=0.05, height_ratio=0.23)
 
 
 fig = circos.plotfig()
+plt.tight_layout()
 svfig("pairs_on_tree")
+plt.show()
+# %%
+N = len(strains_set)
+Ms = np.zeros((N, N))
+Mb = np.zeros((N, N))
+Me = np.zeros((N, N))
+for p1, p2 in snps_pairs:
+    i1 = str_order.index(p1)
+    i2 = str_order.index(p2)
+    Ms[i1, i2] += 1
+    Ms[i2, i1] += 1
+
+for p1, p2 in bl_pairs:
+    i1 = str_order.index(p1)
+    i2 = str_order.index(p2)
+    Mb[i1, i2] += 1
+    Mb[i2, i1] += 1
+
+for p1, p2 in edge_pairs:
+    i1 = str_order.index(p1)
+    i2 = str_order.index(p2)
+    Me[i1, i2] += 1
+    Me[i2, i1] += 1
+
+for M in [Ms, Mb, Me]:
+    M[:, :] = np.log10(M)
+
+# %%
+
+fig, axs = plt.subplots(1, 3, figsize=(12, 4), sharex=True, sharey=True)
+
+ax = axs[0]
+g = ax.matshow(Ms, cmap="cool")
+# plt.colorbar(g, ax=ax)
+ax.set_title("SNPs")
+# ax.set_xticks([])
+# ax.set_yticks([])
+ax.grid()
+
+ax = axs[1]
+g = ax.matshow(Mb, cmap="cool")
+# plt.colorbar(g, ax=ax)
+ax.set_title("Blocks")
+# ax.set_xticks([])
+# ax.set_yticks([])
+ax.grid()
+
+ax = axs[2]
+g = ax.matshow(Me, cmap="cool")
+# plt.colorbar(g, ax=ax)
+ax.set_title("Edges")
+# ax.set_xticks([])
+# ax.set_yticks([])
+ax.grid()
+
+plt.tight_layout()
+svfig("pairs_on_matrices")
+plt.show()
+
 
 # %%
