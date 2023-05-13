@@ -37,9 +37,12 @@ df.rename(
         "edge_PA_reduced": "edge_PA_reduced",
         "block_PA": "block P/A",
         "n. blocks": "n. pairwise blocks",
+        "edge_PA": "edge P/A",
+        "edge_PA_reduced": "edge P/A (reduced)",
     },
     inplace=True,
 )
+
 
 cols = [
     "si",
@@ -63,8 +66,12 @@ cols = [
 
 variables = [
     "core genome div.",
-    "n. pairwise blocks",
-    "block P/A",
+    # "block P/A",
+    "edge P/A",
+    "edge P/A (reduced)",
+    # "edge_sharing",
+    # "n. pairwise blocks",
+    # "block P/A",
     # "block_sharing",
     # "part. entropy",
     # "private seq. (bp)",
@@ -89,51 +96,86 @@ for i, j in zip(*np.triu_indices_from(g.axes, 1)):
     g.axes[i, j].set_visible(False)
 
 plt.tight_layout()
-svfig("4_n_blocks")
+svfig("6_edges_vs_core")
+plt.show()
+
+
+# %%
+
+
+fig, axs = plt.subplots(1, 2, figsize=(6, 3))
+
+for j, y in enumerate(["edge P/A", "edge P/A (reduced)"]):
+    ax = axs[j]
+    sns.histplot(
+        data=df,
+        x="block P/A",
+        y=y,
+        # hue="NZ_JAOSEJ010000001",
+        ax=ax,
+        legend=False,
+    )
+
+sns.despine()
+plt.tight_layout()
+svfig("7_edges_vs_blocks")
 plt.show()
 
 # %%
 
-# three seaborn histograms
 
-fig, axs = plt.subplots(1, 3, figsize=(9, 3))
-
-
-sns.histplot(
-    data=df,
-    x="n. pairwise blocks",
-    y="n. breakpoints",
-    hue="NZ_JAOSEJ010000001",
-    ax=axs[0],
-    # legend=False,
-)
-sns.move_legend(axs[0], "lower right", bbox_to_anchor=(1.1, 0.0), ncol=2)
+def df_to_mat(df, val, idx_order):
+    sdf = df.pivot(index="si", columns="sj", values=val)
+    return sdf.loc[idx_order, idx_order].to_numpy()
 
 
-sns.histplot(
-    data=df,
-    x="private seq. (bp)",
-    y="block P/A",
-    hue="NZ_JAOSEJ010000001",
-    ax=axs[1],
-    legend=False,
-)
-# sns.move_legend(axs[1], "lower right", bbox_to_anchor=(1.1, 0.0), ncol=2)
+M_core = df_to_mat(adf, val="core_div_filtered", idx_order=str_ord)
+M_pe = df_to_mat(adf, val="edge_PA", idx_order=str_ord)
+M_per = df_to_mat(adf, val="edge_PA_reduced", idx_order=str_ord)
+# %%
 
 
-sns.histplot(
-    data=df,
-    x="private seq. (bp)",
-    y="n. pairwise blocks",
-    hue="NZ_JAOSEJ010000001",
-    ax=axs[2],
-    legend=False,
-)
-# sns.move_legend(axs[2], "lower right", bbox_to_anchor=(1.1, 0.0), ncol=2)
+def matrix_plot(matrix_triplet, svname):
+    fig, axs = plt.subplots(
+        1,
+        4,
+        sharey=True,
+        figsize=(12, 3.8),
+        gridspec_kw={"width_ratios": [0.3, 1, 1, 1]},
+    )
 
-sns.despine()
-plt.tight_layout()
-svfig("5_blocks_vs_priv_seq")
-plt.show()
+    ax = axs[0]
+    Phylo.draw(tree, do_show=False, label_func=lambda x: None, axes=ax)
+
+    cmap = plt.get_cmap("viridis_r")
+
+    for i, v in enumerate(matrix_triplet):
+        ax = axs[i + 1]
+        M, t = v
+        g = ax.matshow(M, cmap=cmap)
+        ax.set_title(t)
+        plt.colorbar(g, ax=ax, shrink=0.8)
+
+    for ax in axs:
+        for s in ax.spines.values():
+            s.set_visible(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_xlabel(None)
+        ax.set_ylabel(None)
+
+    ax.set_ylim(top=-0.8)
+    plt.tight_layout()
+    svfig(svname)
+    plt.show()
+
+
+triplet = [
+    [M_core, "core-alignment divergence"],
+    [M_pe, "edge P/A"],
+    [M_per, "edge P/A (reduced)"],
+]
+
+matrix_plot(triplet, "tree_vs_edges")
 
 # %%
