@@ -8,6 +8,7 @@ from pycirclize import Circos
 
 import pathlib
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 fig_p = pathlib.Path("fig")
@@ -150,40 +151,79 @@ for p1, p2 in edge_pairs:
     Me[i1, i2] += 1
     Me[i2, i1] += 1
 
-for M in [Ms, Mb, Me]:
-    M[:, :] = np.log10(M)
+# for M in [Ms, Mb, Me]:
+#     M[:, :] = np.log10(M)
 
 # %%
 
-fig, axs = plt.subplots(1, 3, figsize=(12, 4), sharex=True, sharey=True)
+fig, axs = plt.subplots(1, 3, figsize=(12, 3.6), sharex=True, sharey=True)
 
-ax = axs[0]
-g = ax.matshow(Ms, cmap="cool")
-# plt.colorbar(g, ax=ax)
-ax.set_title("SNPs")
-# ax.set_xticks([])
-# ax.set_yticks([])
-ax.grid()
+for ax, M, lab in zip(axs, [Ms, Mb, Me], ["SNPs", "Blocks", "Edges"]):
+    norm = mpl.colors.LogNorm(vmin=1, vmax=M.max())
+    g = ax.matshow(M, cmap="cool", norm=norm)
+    plt.colorbar(g, ax=ax, shrink=0.8)
+    ax.set_title(lab)
 
-ax = axs[1]
-g = ax.matshow(Mb, cmap="cool")
-# plt.colorbar(g, ax=ax)
-ax.set_title("Blocks")
-# ax.set_xticks([])
-# ax.set_yticks([])
-ax.grid()
+    ax.set_xlim(-1, N)
+    ax.set_ylim(N, -1)
 
-ax = axs[2]
-g = ax.matshow(Me, cmap="cool")
-# plt.colorbar(g, ax=ax)
-ax.set_title("Edges")
-# ax.set_xticks([])
-# ax.set_yticks([])
-ax.grid()
+    # set major ticks
+    ax.set_xticks(np.arange(0, N, 10))
+    ax.set_yticks(np.arange(0, N, 10))
+
+    # set minor ticks
+    ax.set_xticks(np.arange(0, N, 5), minor=True)
+    ax.set_yticks(np.arange(0, N, 5), minor=True)
+    ax.grid(which="minor", alpha=0.15)
+    ax.grid(alpha=0.4)
+
 
 plt.tight_layout()
 svfig("pairs_on_matrices")
 plt.show()
 
 
+# %%
+
+Msb = np.copy(Ms)
+Mse = np.copy(Ms)
+Mbe = np.copy(Mb)
+# make the upper triangular part equal to Mb
+Msb[np.triu_indices(N, 1)] = Mb[np.triu_indices(N, 1)]
+Mse[np.triu_indices(N, 1)] = Me[np.triu_indices(N, 1)]
+Mbe[np.triu_indices(N, 1)] = Me[np.triu_indices(N, 1)]
+
+# display the
+
+# %%
+fig, axs = plt.subplots(1, 3, figsize=(12, 3.6), sharex=True, sharey=True)
+
+for ax, M, lab in zip(
+    axs, [Msb, Mse, Mbe], ["SNPs/blocks", "SNPs/edges", "blocks/edges"]
+):
+    norm = mpl.colors.LogNorm(vmin=1, vmax=M.max())
+    g = ax.matshow(M, cmap="cool", norm=norm)
+    plt.colorbar(g, ax=ax, shrink=0.8)
+    ax.set_title(lab)
+
+    ax.set_xlim(-1, N)
+    ax.set_ylim(N, -1)
+
+    # set major ticks
+    ax.set_xticks(np.arange(0, N, 10))
+    ax.set_yticks(np.arange(0, N, 10))
+
+    # set minor ticks
+    ax.set_xticks(np.arange(0, N, 5), minor=True)
+    ax.set_yticks(np.arange(0, N, 5), minor=True)
+    ax.grid(which="minor", alpha=0.15)
+    ax.grid(alpha=0.4)
+
+    # plot diagonal
+    ax.plot([0, N], [0, N], color="black", lw=0.5, alpha=0.5, ls="--")
+
+
+plt.tight_layout()
+svfig("pairs_on_matrices_triu")
+plt.show()
 # %%
