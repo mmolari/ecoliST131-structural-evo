@@ -160,6 +160,7 @@ fig, axs = plt.subplots(1, 3, figsize=(12, 3.6), sharex=True, sharey=True)
 
 for ax, M, lab in zip(axs, [Ms, Mb, Me], ["SNPs", "Blocks", "Edges"]):
     norm = mpl.colors.LogNorm(vmin=1, vmax=M.max())
+
     g = ax.matshow(M, cmap="cool", norm=norm)
     plt.colorbar(g, ax=ax, shrink=0.8)
     ax.set_title(lab)
@@ -199,12 +200,13 @@ Mbe[np.triu_indices(N, 1)] = Me[np.triu_indices(N, 1)]
 fig, axs = plt.subplots(1, 3, figsize=(12, 3.6), sharex=True, sharey=True)
 
 for ax, M, lab in zip(
-    axs, [Msb, Mse, Mbe], ["SNPs/blocks", "SNPs/edges", "blocks/edges"]
+    axs, [Msb, Mse, Mbe], [["SNPs", "blocks"], ["SNPs", "edges"], ["blocks", "edges"]]
 ):
     norm = mpl.colors.LogNorm(vmin=1, vmax=M.max())
     g = ax.matshow(M, cmap="cool", norm=norm)
     plt.colorbar(g, ax=ax, shrink=0.8)
-    ax.set_title(lab)
+    ax.set_ylabel(lab[0])
+    ax.set_title(lab[1])
 
     ax.set_xlim(-1, N)
     ax.set_ylim(N, -1)
@@ -227,3 +229,14 @@ plt.tight_layout()
 svfig("pairs_on_matrices_triu")
 plt.show()
 # %%
+
+for M in [Ms, Mb, Me]:
+    print("------------")
+    # find positions of elements with value > 20
+    wx, wy = np.where(M >= 14)
+    for ix, iy in zip(wx, wy):
+        if ix > iy:
+            continue
+        # print(ix, iy)
+        print(str_order[ix], ix, "|", str_order[iy], iy, "--", M[ix, iy])
+        pass
