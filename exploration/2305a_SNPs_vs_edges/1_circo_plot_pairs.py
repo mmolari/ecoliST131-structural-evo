@@ -232,11 +232,13 @@ plt.show()
 
 for M in [Ms, Mb, Me]:
     print("------------")
-    # find positions of elements with value > 20
-    wx, wy = np.where(M >= 14)
+    # find positions of elements with value > 10
+    wx, wy = np.where(M >= 2)
     for ix, iy in zip(wx, wy):
         if ix > iy:
             continue
         # print(ix, iy)
         print(str_order[ix], ix, "|", str_order[iy], iy, "--", M[ix, iy])
         pass
+
+# %%
