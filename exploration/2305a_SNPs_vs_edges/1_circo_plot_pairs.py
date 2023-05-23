@@ -230,15 +230,15 @@ svfig("pairs_on_matrices_triu")
 plt.show()
 # %%
 
-for M in [Ms, Mb, Me]:
-    print("------------")
+for M, lab in zip([Ms, Mb, Me], ["SNPs", "Blocks", "Edges"]):
+    print(f"------------ {lab} ------------")
     # find positions of elements with value > 10
-    wx, wy = np.where(M >= 2)
+    wx, wy = np.where(M >= 14)
     for ix, iy in zip(wx, wy):
         if ix > iy:
             continue
         # print(ix, iy)
-        print(str_order[ix], ix, "|", str_order[iy], iy, "--", M[ix, iy])
-        pass
+        s = f"{str_order[ix]:<20} {ix:>2} | {str_order[iy]:<20} {iy:>2} -- {M[ix, iy]:.0f}"
+        print(s)
 
 # %%
