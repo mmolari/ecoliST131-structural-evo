@@ -108,6 +108,30 @@ fig = ut.plot_venn(ctr, pairs, iso_colors)
 svfig("dupl_venn.png")
 plt.show()
 
+# weird pattern
+
+mask = np.all(df.T == np.array([0, 1, 1, 0]), axis=1)
+print(df.T[mask].T)
+q = "JQYLNRBZSJ"
+b = pan.blocks[q]
+adf = pan.to_blockcount_df()
+pattern = (adf[q] > 0).to_dict()
+
+# plot tree, coloring leaves according to pattern
+fig, ax = plt.subplots(figsize=(6, 12))
+Phylo.draw(
+    tree,
+    axes=ax,
+    do_show=False,
+    label_func=lambda x: x.name if x in tree.get_terminals() else "",
+    label_colors=lambda x: "red" if x in pattern and pattern[x] else "black",
+    # branch_labels=lambda x: x.branch_length,
+    # branch_labels_color="red",
+    # branch_labels_size=10,
+    show_confidence=False,
+)
+plt.show()
+
 # %%
 
 block_colors = {k: iso_colors[k] for k in pairs}
