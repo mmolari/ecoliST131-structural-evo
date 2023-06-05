@@ -14,7 +14,7 @@ fig_p.mkdir(exist_ok=True)
 
 
 def svfig(svname):
-    for k in ["pdf", "png", "svg"]:
+    for k in ["pdf", "png"]:
         plt.savefig(fig_p / f"{svname}.{k}", dpi=300)
 
 
@@ -68,71 +68,7 @@ for ax in axs:
     ax.set_ylabel("Strain")
 
 plt.tight_layout()
-svfig("distance_matrices")
-plt.show()
-
-# %%
-
-fig, axs = plt.subplots(1, 2, figsize=(10, 5), sharex=True)
-
-ax = axs[0]
-# ax.hist2d(T_dist.values.flatten(), E_dist.values.flatten(), bins=100, cmap="Blues")
-ax.scatter(T_dist.values.flatten(), E_dist.values.flatten(), s=1, alpha=0.3)
-ax.set_xlabel("Core genome divergence")
-ax.set_ylabel("Edge presence/absence distance")
-
-ax = axs[1]
-# ax.hist2d(T_dist.values.flatten(), B_dist.values.flatten(), bins=100, cmap="Blues")
-ax.scatter(T_dist.values.flatten(), B_dist.values.flatten(), s=1, alpha=0.3)
-ax.set_xlabel("Core genome divergence")
-ax.set_ylabel("Block presence/absence distance")
-
-plt.tight_layout()
-# svfig("scatterplot_snps_vs_edges_and_blocks")
-plt.show()
-
-# %%
-
-# triangular histogram plot with seaborn
-
-import seaborn as sns
-
-sns.set_theme(style="darkgrid")
-
-df = dist_df[
-    [
-        "core_div_filtered",
-        "block_PA",
-        "edge_PA",
-        "edge_PA_reduced",
-        "block_sharing",
-        "edge_sharing",
-    ]
-]
-g = sns.PairGrid(df, diag_sharey=False)
-g.map_lower(sns.histplot)
-g.map_diag(sns.histplot)
-for i, j in zip(*np.triu_indices_from(g.axes, k=1)):
-    g.axes[i, j].set_visible(False)
-plt.show()
-
-
-df = dist_df[
-    [
-        "core_div_filtered",
-        "block_PA",
-        "edge_PA",
-        # "edge_PA_reduced",
-        # "block_sharing",
-        # "edge_sharing",
-    ]
-]
-g = sns.PairGrid(df, diag_sharey=False)
-g.map_lower(sns.histplot)
-g.map_diag(sns.histplot)
-for i, j in zip(*np.triu_indices_from(g.axes, k=1)):
-    g.axes[i, j].set_visible(False)
-svfig("pairgrid_distances")
+# svfig("distance_matrices")
 plt.show()
 
 
@@ -149,6 +85,9 @@ fig = tg.plot(
     figsize=(12, 15),
     # dend_kwargs={"color_threshold": 200},
 )
+fig.get_axes()[0].set_title("Block presence/absence distance")
+fig.get_axes()[1].set_title("Edge presence/absence distance")
+svfig("tanglegram_BE")
 plt.show()
 
 # %%
@@ -162,6 +101,9 @@ fig = tg.plot(
     figsize=(12, 15),
     # dend_kwargs={"color_threshold": 200},
 )
+fig.get_axes()[0].set_title("Core genome divergence")
+fig.get_axes()[1].set_title("Block presence/absence distance")
+svfig("tanglegram_TB")
 plt.show()
 
 # %%
@@ -176,6 +118,20 @@ fig = tg.plot(
     figsize=(12, 15),
     # dend_kwargs={"color_threshold": 200},
 )
+fig.get_axes()[0].set_title("Core genome divergence")
+fig.get_axes()[1].set_title("Edge presence/absence distance")
+svfig("tanglegram_TE")
 plt.show()
+
+# %%
+pair = [
+    "NZ_CP104846",
+    "NZ_CP104848",
+    "NZ_CP103710",
+    "NZ_CP103755",
+    "NZ_CP049077",
+    "NZ_CP051615",
+]
+B_dist[pair].loc[pair]
 
 # %%

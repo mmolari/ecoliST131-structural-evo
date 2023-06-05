@@ -1,6 +1,7 @@
 # %%
 import pathlib
 import pandas as pd
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -24,12 +25,25 @@ tree = Phylo.read(tree_file, format="newick")
 tree.ladderize()
 str_ord = [x.name for x in tree.get_terminals()]
 
-# %%
 df_file = "../../results/ST131/distances/summary-asm20-100-5.csv"
 adf = pd.read_csv(df_file)
 mask = adf["si"] > adf["sj"]
-df = adf[mask]
-# %%
+df = adf[mask].copy()
+
+
+df.rename(
+    columns={
+        "core_div_filtered": "core genome div.",
+        "edge_PA_reduced": "edge_PA_reduced",
+        "block_PA": "block P/A",
+        "n. blocks": "n. pairwise blocks",
+        "edge_PA": "edge P/A",
+        "edge_PA_reduced": "edge P/A (reduced)",
+    },
+    inplace=True,
+)
+
+
 cols = [
     "si",
     "sj",
@@ -39,28 +53,74 @@ cols = [
     "shared seq. (bp)",
     "n. breakpoints",
     "part. entropy",
-    "n. blocks",
-    "core_div_filtered",
+    "n. pairwise blocks",
+    "core genome div.",
     "edge_PA",
+    "edge_PA_reduced",
     "edge_sharing",
-    "block_PA",
+    "block P/A",
     "block_sharing",
 ]
+
 # %%
-sns.histplot(data=df, x="core_div_filtered", y="shared seq. (bp)")
+
+variables = [
+    "core genome div.",
+    # "block P/A",
+    "edge P/A",
+    "edge P/A (reduced)",
+    # "edge_sharing",
+    # "n. pairwise blocks",
+    # "block P/A",
+    # "block_sharing",
+    # "part. entropy",
+    # "private seq. (bp)",
+]
+
+color_strain = "NZ_JAOSEJ010000001"
+df["NZ_JAOSEJ010000001"] = (df["si"] == color_strain) | (df["sj"] == color_strain)
+
+
+g = sns.PairGrid(
+    df,
+    # hue="NZ_JAOSEJ010000001",
+    vars=variables,
+    diag_sharey=False,
+)
+g.map_lower(sns.histplot)
+g.map_diag(sns.histplot)
+# g.map_upper(sns.kdeplot, fill=True)
+
+# hide upper-diagonal axes
+for i, j in zip(*np.triu_indices_from(g.axes, 1)):
+    g.axes[i, j].set_visible(False)
+
+plt.tight_layout()
+svfig("6_edges_vs_core")
 plt.show()
-sns.histplot(data=df, x="core_div_filtered", y="private seq. (bp)")
+
+
+# %%
+
+
+fig, axs = plt.subplots(1, 2, figsize=(6, 3))
+
+for j, y in enumerate(["edge P/A", "edge P/A (reduced)"]):
+    ax = axs[j]
+    sns.histplot(
+        data=df,
+        x="block P/A",
+        y=y,
+        # hue="NZ_JAOSEJ010000001",
+        ax=ax,
+        legend=False,
+    )
+
+sns.despine()
+plt.tight_layout()
+svfig("7_edges_vs_blocks")
 plt.show()
-sns.histplot(data=df, x="core_div_filtered", y="edge_sharing")
-plt.show()
-sns.histplot(data=df, x="core_div_filtered", y="edge_PA")
-plt.show()
-sns.histplot(data=df, x="core_div_filtered", y="edge_PA_reduced")
-plt.show()
-sns.histplot(data=df, x="n. blocks", y="edge_PA")
-plt.show()
-sns.histplot(data=df, x="n. blocks", y="edge_PA_reduced")
-plt.show()
+
 # %%
 
 
@@ -70,14 +130,8 @@ def df_to_mat(df, val, idx_order):
 
 
 M_core = df_to_mat(adf, val="core_div_filtered", idx_order=str_ord)
-M_ss = df_to_mat(adf, val="shared seq. (bp)", idx_order=str_ord)
-M_se = df_to_mat(adf, val="edge_sharing", idx_order=str_ord)
-M_ps = df_to_mat(adf, val="private seq. (bp)", idx_order=str_ord)
 M_pe = df_to_mat(adf, val="edge_PA", idx_order=str_ord)
 M_per = df_to_mat(adf, val="edge_PA_reduced", idx_order=str_ord)
-M_sb = df_to_mat(adf, val="block_sharing", idx_order=str_ord)
-M_pb = df_to_mat(adf, val="block_PA", idx_order=str_ord)
-M_pwb = df_to_mat(adf, val="n. blocks", idx_order=str_ord)
 # %%
 
 
@@ -118,53 +172,10 @@ def matrix_plot(matrix_triplet, svname):
 
 triplet = [
     [M_core, "core-alignment divergence"],
-    [M_ss, "shared seq. (bp)"],
-    [M_se, "shared edges (n)"],
+    [M_pe, "edge P/A"],
+    [M_per, "edge P/A (reduced)"],
 ]
 
-matrix_plot(triplet, "tree_vs_shared")
-
-# %%
-triplet = [
-    [M_core, "core-alignment divergence"],
-    [M_ps, "private seq. (bp)"],
-    [M_pe, "edge P/A dist (n)"],
-]
-matrix_plot(triplet, "tree_vs_private")
-
-# %%
-
-triplet = [
-    [M_core, "core-alignment divergence"],
-    [M_pb, "block P/A dist"],
-    [M_pe, "edge P/A dist (n)"],
-]
-matrix_plot(triplet, "block_vs_edge_PA")
-
-
-triplet = [
-    [M_core, "core-alignment divergence"],
-    [M_sb, "shared blocks (n)"],
-    [M_se, "shared edges (n)"],
-]
-matrix_plot(triplet, "block_vs_edge_shared")
-
-# %%
-
-triplet = [
-    [M_core, "core-alignment divergence"],
-    [M_pb, "block P/A"],
-    [M_pwb, "n. pairwise blocks"],
-]
-matrix_plot(triplet, "blocks_vs_core_tree")
-
-# %%
-
-triplet = [
-    [M_core, "core-alignment divergence"],
-    [M_pe, "edge P/A dist (n)"],
-    [M_per, "edge P/A dist reduced (n)"],
-]
 matrix_plot(triplet, "tree_vs_edges")
 
 # %%
