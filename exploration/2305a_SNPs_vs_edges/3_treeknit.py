@@ -5,6 +5,7 @@ import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
 from Bio import Phylo
 
@@ -58,7 +59,7 @@ def distance_to_newick(dist_df):
 
     # Perform nearest-neighbor joining
     cond_dist_mat = squareform(distance_matrix)
-    linkage = hierarchy.linkage(cond_dist_mat, method="signle")
+    linkage = hierarchy.linkage(cond_dist_mat, method="single")
     tree = hierarchy.to_tree(linkage, rd=False)
 
     # Create a dictionary to map leaf ids to names
@@ -89,7 +90,6 @@ for D_df, name in zip([B_dist, E_dist, T_dist], ["block", "edge", "core"]):
 
 
 # %%
-import os
 
 os.system(
     f"""
@@ -100,7 +100,6 @@ os.system(
 )
 
 # %%
-from Bio import Phylo
 
 # load tree
 tree = Phylo.read("data/block_tree.nwk", format="newick")
