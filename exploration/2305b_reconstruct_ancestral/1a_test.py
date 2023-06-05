@@ -26,7 +26,8 @@ def svfig(name):
 
 # %%
 
-pair_1 = ["NZ_CP084679", "NZ_CP084678"]
+# pair_1 = ["NZ_CP084679", "NZ_CP084678"]
+pair_1 = ["NZ_CP104846", "NZ_CP104848"]
 pair_2 = ["NZ_CP035516", "NZ_CP035477"]
 pairs = pair_1 + pair_2
 
