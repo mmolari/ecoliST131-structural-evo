@@ -102,41 +102,40 @@ def path_to_dupl_junctions(path, is_dupl):
     S = path.block_strands
 
     L = len(B)
-    prev_idx = lambda i: (i - 1) % L
 
+    # make sure to start from non-duplicated block
     if is_dupl[B[0]]:
-        # print("Warning: first block is duplicated")
-
         # find last non-duplicated block:
         j = None
-        for i in range(len(B) - 1, 0, -1):
+        for i in range(L - 1, 0, -1):
             if not is_dupl[B[i]]:
                 j = i
                 break
-
-        # prepend copy of last part of the block list to beginning
-        B = list(B[j:]) + list(B)
-        S = list(S[j:]) + list(S)
+        # rotate path
+        B = np.roll(B, -j)
+        S = np.roll(S, -j)
 
     assert not is_dupl[B[0]], "First block is duplicated"
 
     J = []  # junctions
     nl, nr, p = None, None, None
-    for i in range(len(B)):
+    for i in range(L):
         b, s = B[i], S[i]
 
         if is_dupl[b]:
             if nl is None:
-                l = prev_idx(i)
-                nl = ut.Node(B[l], S[l])
-                p = ut.Path([ut.Node(b, s)])
+                # first duplicated block, initialize left node
+                nl = ut.Node(B[i - 1], S[i - 1])
+                p = ut.Path([ut.Node(b, s)])  # add first node to path
             else:
-                p.add_right(ut.Node(b, s))
+                p.add_right(ut.Node(b, s))  # continue path
         else:
             if nl is not None:
-                nr = ut.Node(B[i], S[i])
-                J.append(ut.Junction(nl, p, nr))
-                nl, nr, p = None, None, None
+                # first non-duplicated block after duplication islands
+                # terminate path and add junction
+                nr = ut.Node(B[i], S[i])  # right node
+                J.append(ut.Junction(nl, p, nr))  # create and add junction
+                nl, nr, p = None, None, None  # reset current junction
 
     return J
 
@@ -153,7 +152,11 @@ def n_unique_duplicated_islands(pan):
     # count all junctions
     j_counts = Counter([j for i in junction_list for j in junction_list[i]])
 
-    # find all unique junctions
+    # DEBUG
+    # for i in j_counts:
+    #     print(j_counts[i], i)
+
+    # find all "terminal" unique junctions
     unique_j = [j for j in j_counts if j_counts[j] == 1]
 
     # find number of unique islands per isolate
