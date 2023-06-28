@@ -119,3 +119,17 @@ plt.tight_layout()
 plt.savefig(svfld / "n_core_breakpoints.png")
 plt.show()
 # %%
+
+# extract standard core block ordering
+df = None
+for iso in pan.strains():
+    if iso not in bkp_iso:
+        p = paths[iso]
+        df = []
+        for n in p:
+            df.append({"block": n.id, "strand": n.strand})
+        df = pd.DataFrame(df)
+        break
+df.to_csv("data/block_order.csv", index=False)
+
+# %%
