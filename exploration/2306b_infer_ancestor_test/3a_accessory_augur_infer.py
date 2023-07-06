@@ -33,7 +33,7 @@ bdf = pan.to_blockstats_df()
 for n, node in enumerate(tree.get_nonterminals()):
     node.name = f"node_{n:02d}"
 
-Phylo.write(tree, tree_file, "newick")
+Phylo.write(tree, tree_file, "newick", format_branch_length="%.5e")
 
 # %%
 
@@ -55,7 +55,8 @@ pa_df.replace({0: "A", 1: "P"}).to_csv(pa_file)
 
 pa_inference = {}
 
-for attr in B_acc:
+for n_attr, attr in enumerate(B_acc):
+    print(f"processing {attr} \t - \t {n_attr+1}/{len(B_acc)}")
     out_dir = fld / attr
 
     # run treetime mugration
