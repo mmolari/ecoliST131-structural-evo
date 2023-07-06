@@ -108,3 +108,30 @@ import scipy.stats as sps
 sps.binom_test(11, 12, I / L)
 
 # %%
+Is = {
+    "NZ_CP104846": 2,
+    "NZ_CP104848": 2,
+    "NZ_JAOSCA010000001": 2,
+    "NZ_CP049085": 2,
+    "NZ_JAOSBZ010000001": 3,
+    "NZ_SEVU01000007": 2,
+    "NZ_SEVJ01000001": 4,
+    "NZ_JAOSEU010000001": 2,
+    "NZ_CP035377": 6,
+    "NZ_SEVM01000001": 2,
+    "NZ_JAOSEC010000001": 2,
+    "NZ_JAOSCQ010000001": 2,
+    "NZ_JAOSCB010000001": 2,
+}
+
+iso1 = "NZ_CP035477"
+
+for iso2, n in Is.items():
+    fig, ax = plt.subplots(1, 1, figsize=(8, 8))
+    dotplot(iso1, iso2, ax, l_const=False, roll=0)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(svfld / f"dotplot_{iso1}__{iso2}_{n}.png")
+    plt.show()
+
+# %%
