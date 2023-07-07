@@ -1,4 +1,5 @@
 import itertools as itt
+import matplotlib.pyplot as plt
 
 from Bio import Phylo
 
@@ -100,3 +101,49 @@ def parse_nexus(fname):
 
     info = {"pa": pa_pattern, "events": events}
     return info
+
+
+def plot_tree_events(tree_file, pa_inference, bid):
+    tree = Phylo.read(tree_file, "newick")
+
+    info = pa_inference[bid]
+    pa = info["pa_pattern"]["pa"]
+    ev = info["pa_pattern"]["events"]
+
+    def color_tree(node):
+        # if node.is_terminal():
+        #     if pa[node.name] == "P":
+        #         node.color = "green"
+        #     else:
+        #         node.color = "red"
+        # else:
+        for nn, et in ev:
+            if node.name == nn:
+                node.color = "lime" if et == "gain" else "red"
+        if node.color is None:
+            node.color = "black"
+        for c in node.clades:
+            color_tree(c)
+
+    def label_tree(node):
+        if node.is_terminal():
+            return node.name
+        else:
+            return ""
+
+    def lab_colors(nn):
+        if len(nn) == 0:
+            return None
+        if pa[nn] == "P":
+            return "green"
+        else:
+            return "white"
+
+    color_tree(tree.root)
+
+    fig, ax = plt.subplots(1, 1, figsize=(10, 12))
+    Phylo.draw(
+        tree, label_func=label_tree, label_colors=lab_colors, axes=ax, do_show=False
+    )
+    plt.title(f"block - {bid}")
+    return fig, ax
