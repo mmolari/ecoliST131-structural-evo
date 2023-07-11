@@ -89,7 +89,7 @@ mask = df["max_events"] == 1
 df.loc[mask, "category"] = "trivial"
 
 
-df
+df.to_csv(fld / "infer_pa_summary.csv")
 
 # %%
 df[["n_events", "n_gains", "n_losses", "max_events"]].value_counts()
