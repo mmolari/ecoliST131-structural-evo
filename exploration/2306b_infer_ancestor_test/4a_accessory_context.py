@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 import pypangraph as pp
 import utils4 as ut
@@ -19,6 +20,15 @@ bdf = pan.to_blockstats_df()
 is_core = bdf["core"].to_dict()
 is_dupl = bdf["duplicated"].to_dict()
 bl_Ls = bdf["len"].to_dict()
+
+# load P/A inference
+pa_inference = ut.load_pa_inference()
+
+# load tree
+tree = ut.load_nodenamed_tree()
+
+fig_fld = ut.fig_fld / "4"
+fig_fld.mkdir(exist_ok=True)
 # %%
 
 LEN_THRESH = 500
@@ -121,14 +131,106 @@ for k in ctr_c:
         }
     )
 ctr_df = pd.DataFrame(ctr_df)
-ctr_df
+ctr_df.set_index("block", inplace=True)
 
 # %%
 
-sns.histplot(data=ctr_df, x="core_ctx", y="acc_ctx", bins=[np.arange(12) + 0.5] * 2)
+mask = (ctr_df["core_ctx"] > 1) | (ctr_df["acc_ctx"] > 1)
+fig, ax = plt.subplots(figsize=(4, 4))
+sns.histplot(
+    data=ctr_df,
+    x="core_ctx",
+    y="acc_ctx",
+    bins=[np.arange(12) + 0.5] * 2,
+    cbar=True,
+    ax=ax,
+    norm=mpl.colors.LogNorm(),
+    vmin=None,
+    vmax=None,
+    cmap="rainbow",
+    cbar_kws={"label": "n. blocks"},
+)
+ax.set_xlabel("n. core contexts")
+ax.set_ylabel("n. accessory contexts")
+N_blocks = len(ctr_df)
+N_nontrivial = len(ctr_df[mask])
+ax.set_title(f"n. blocks: {N_blocks}, n. multiple-contexts: {N_nontrivial}")
+plt.tight_layout()
+plt.savefig(fig_fld / "core_vs_acc_ctx.png")
+plt.show()
 
 # %%
 mask = ctr_df["core_ctx"] == ctr_df["acc_ctx"]
 ctr_df[mask]
+
+# %%
+
+mask = (ctr_df["core_ctx"] == 2) & (ctr_df["acc_ctx"] == 2)
+ctr_df[mask]
+
+# %%
+
+
+def plot_tree_events(tree, pa_inference, bid, Adj):
+    info = pa_inference[bid]
+    pa = info["pa_pattern"]["pa"]
+    ev = info["pa_pattern"]["events"]
+
+    cm = iter(mpl.cm.tab10.colors)
+
+    def next_color():
+        return next(cm)
+
+    adj_color = defaultdict(next_color)
+
+    def color_tree(node):
+        for nn, et in ev:
+            if node.name == nn:
+                node.color = "lime" if et == "gain" else "red"
+        if node.color is None:
+            node.color = "black"
+        for c in node.clades:
+            color_tree(c)
+
+    def label_tree(node):
+        if node.is_terminal():
+            return node.name
+        else:
+            return ""
+
+    def lab_colors(nn):
+        if len(nn) == 0:
+            return None
+        if pa[nn] == "P":
+            j = Adj[nn]["core"][bid]
+            return adj_color[j]
+        else:
+            return "lightgray"
+
+    color_tree(tree.root)
+
+    fig, ax = plt.subplots(1, 1, figsize=(10, 12))
+    Phylo.draw(
+        tree, label_func=label_tree, label_colors=lab_colors, axes=ax, do_show=False
+    )
+    plt.title(f"block - {bid}")
+    return fig, ax
+
+
+fig_subfld = fig_fld / "context_trees"
+fig_subfld.mkdir(exist_ok=True)
+
+mask = (ctr_df["core_ctx"] > 1) & (ctr_df["acc_ctx"] == ctr_df["core_ctx"])
+for bid in ctr_df[mask].index:
+    tree = ut.load_nodenamed_tree()
+    fig, ax = plot_tree_events(tree, pa_inference, bid, Adj)
+    depth = bdf.loc[bid]["count"]
+    length = bl_Ls[bid]
+    ctxts = ctr_df.loc[bid]["core_ctx"]
+    ax.set_title(f"block {bid} | {length} bp | depth = {depth} | contexts = {ctxts}")
+    plt.tight_layout()
+    plt.savefig(fig_subfld / f"block_{bid}_{depth}_{ctxts}.png")
+    plt.show()
+
 
 # %%

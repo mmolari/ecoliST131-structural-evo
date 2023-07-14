@@ -2,20 +2,16 @@ import pypangraph as pp
 from Bio import Phylo
 import pathlib
 import unittest
+import json
 
 root = pathlib.Path(__file__).parent.parent.parent.absolute()
-pan_file = root / "results" / "ST131" / "pangraph" / "asm20-100-5-polished.json"
-tree_file = (
-    root / "results" / "ST131" / "pangraph" / "asm20-100-5-filtered-coretree.nwk"
-)
-named_nodes_tree_file = (
-    root
-    / "exploration"
-    / "2306b_infer_ancestor_test"
-    / "data"
-    / "mugration"
-    / "tree.nwk"
-)
+pg_fld = root / "results" / "ST131" / "pangraph"
+expl_fld = root / "exploration" / "2306b_infer_ancestor_test" / "data" / "mugration"
+fig_fld = root / "exploration" / "2306b_infer_ancestor_test" / "figs"
+pan_file = pg_fld / "asm20-100-5-polished.json"
+tree_file = pg_fld / "asm20-100-5-filtered-coretree.nwk"
+named_nodes_tree_file = expl_fld / "tree.nwk"
+pa_inference_file = expl_fld / "infer_pa.json"
 
 
 def load_pangraph():
@@ -28,6 +24,12 @@ def load_tree():
 
 def load_nodenamed_tree():
     return Phylo.read(named_nodes_tree_file, "newick")
+
+
+def load_pa_inference():
+    with open(pa_inference_file, "r") as f:
+        pa_inference = json.load(f)
+    return pa_inference
 
 
 class Node:
