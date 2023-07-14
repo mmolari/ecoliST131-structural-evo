@@ -132,6 +132,7 @@ for k in ctr_c:
     )
 ctr_df = pd.DataFrame(ctr_df)
 ctr_df.set_index("block", inplace=True)
+ctr_df["len"] = ctr_df.apply(lambda x: bl_Ls[x.name], axis=1)
 
 # %%
 
@@ -234,3 +235,20 @@ for bid in ctr_df[mask].index:
 
 
 # %%
+# import os
+
+# bid = "LRHRGGLAZG"
+
+# depth = bdf.loc[bid]["count"]
+# length = bl_Ls[bid]
+# ctxts = ctr_df.loc[bid]["core_ctx"]
+# source = fig_subfld / f"block_{bid}_{depth}_{ctxts}.png"
+
+# prefix = "/home/marco/ownCloud/neherlab"
+# print(ctr_df.loc[bid])
+# dest = f"~/ownCloud/neherlab/notes/ST131_notes/assets/n6/context_tree_{bid}.png"
+# cmd = f"""
+# cp {source} {dest}
+# """
+# os.system(cmd)
+# # %%
