@@ -252,3 +252,5 @@ for i, bid in enumerate(Bs):
 pa_inference_file = data_fld / "infer_pa_context.json"
 with open(pa_inference_file, "w") as f:
     json.dump(pa_inference, f)
+
+# %%

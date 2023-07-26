@@ -12,6 +12,9 @@ expl_fld = root / "exploration" / "2307a_context_mugration" / "data"
 pan_file = pg_fld / "asm20-100-5-polished.json"
 tree_file = pg_fld / "asm20-100-5-filtered-coretree.nwk"
 named_nodes_tree_file = expl_fld / "named_tree.nwk"
+forb_blocks_file = expl_fld / "forbidden_blocks.txt"
+mugration_file_simple = expl_fld / "infer_pa_simple.json"
+mugration_file_context = expl_fld / "infer_pa_context.json"
 
 
 def load_pangraph():
@@ -24,6 +27,13 @@ def load_tree():
 
 def load_nodenamed_tree():
     return Phylo.read(named_nodes_tree_file, "newick")
+
+
+def load_inference(context=False):
+    fname = mugration_file_context if context else mugration_file_simple
+    with open(fname, "r") as f:
+        data = json.load(f)
+    return data
 
 
 def to_core_adjacencies(node_path, is_core):
@@ -331,3 +341,28 @@ class TestClasses(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def pangraph_to_nodepath(pan):
+    """Returns a representation of paths as list of oriented nodes,
+    enclosed in a dictionary whose keys are isolate names."""
+    paths = {}
+    for p in pan.paths:
+        B = p.block_ids
+        S = p.block_strands
+        path = []
+        for b, s in zip(B, S):
+            node = Node(b, s)
+            path.append(node)
+        paths[p.name] = path
+    return paths
+
+
+def clean_up_paths(paths, keep_f):
+    for iso, path in paths.items():
+        L = len(path)
+        for l in range(L)[::-1]:
+            bid = path[l].id
+            if not keep_f(bid):
+                path.pop(l)
+    return paths
