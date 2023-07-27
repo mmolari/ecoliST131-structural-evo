@@ -1,6 +1,6 @@
 import pypangraph as pp
-from Bio import Phylo
 import pathlib
+from Bio import Phylo
 
 LEN_THR = 500
 
@@ -140,6 +140,7 @@ class Junction:
 
 
 def pangraph_to_path_dict(pan):
+    """Creates a dictionary isolate -> path objects"""
     res = {}
     for path in pan.paths:
         name = path.name
@@ -148,3 +149,37 @@ def pangraph_to_path_dict(pan):
         nodes = [Node(b, s) for b, s in zip(B, S)]
         res[name] = Path(nodes)
     return res
+
+
+def filter_paths(paths, keep_f):
+    """Given a filter function, removes nodes that fail the condition from
+    the path dictionaries."""
+    res = {}
+    for iso, path in paths.items():
+        filt_path = Path([node for node in path.nodes if keep_f(node.id)])
+        res[iso] = filt_path
+    return res
+
+
+def to_core_adjacencies(nodes, is_core):
+    """Given a list of nodes, links each accessory block to the flanking core blocks."""
+    adj = []
+    N = len(nodes)
+
+    for i, n in enumerate(nodes):
+        if is_core[n.id]:
+            continue
+        bef, aft = None, None
+        bi, ai = i, i
+        while bef is None:
+            bi = (bi - 1) % N
+            if is_core[nodes[bi].id]:
+                bef = nodes[bi]
+        while aft is None:
+            ai = (ai + 1) % N
+            if is_core[nodes[ai].id]:
+                aft = nodes[ai]
+        j = Junction(bef, n, aft)
+        adj.append(j)
+
+    return adj

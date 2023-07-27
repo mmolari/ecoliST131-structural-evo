@@ -7,6 +7,7 @@ import json
 
 import utils as ut
 
+
 # %%
 
 # load pangraph
@@ -58,12 +59,22 @@ plt.show()
 # how much duplicated sequence is removed ?
 bs_0["gen_len"] = bs_0["len"] * bs_0["count"]
 print("duplicated sequence removed:")
-print(bs_0.groupby("duplicated").sum()["len"] / 1e6)
-print(bs_0.groupby("duplicated").sum()["gen_len"] / 1e6 / len(strains))
-print(bs_0.groupby("duplicated").sum()["count"])
-print(bs_0.groupby("duplicated").count()["len"])
 
 
+def describe_stratified_df(df, var):
+    D = {}
+    D["pangraph len"] = df.groupby(var).sum()["len"] / 1e6
+    D["genome length"] = df.groupby(var).sum()["gen_len"] / 1e6 / len(strains)
+    D["n. nodes"] = df.groupby(var).sum()["count"] / len(strains)
+    D["n. blocks"] = df.groupby(var).count()["len"]
+
+    for k, v in D.items():
+        print(f"--- {k} ---")
+        print(v, "\n--- percentage ---")
+        print(v / v.sum(), "\n\n")
+
+
+describe_stratified_df(bs_0, "duplicated")
 # %%
 # remove sequence
 mask = ~bs_0["duplicated"]
@@ -108,24 +119,56 @@ plt.show()
 
 # %%
 print("short sequence removed:")
-print(bs_1.groupby("length category").sum()["len"] / 1e6)
-print(bs_1.groupby("length category").sum()["gen_len"] / 1e6 / len(strains))
-print(bs_1.groupby("length category").sum()["count"])
-print(bs_1.groupby("length category").count()["len"])
+describe_stratified_df(bs_1, "length category")
+
+# %%
+mask = bs_1["len"] >= ut.LEN_THR
+bs_2 = bs_1[mask].copy().drop(columns=["length category"])
+bs_2["core"].value_counts()
+
+# %%
+# remove synteny-break blocks
+
+forbidden_blocks = np.loadtxt(ut.expl_fld / "forbidden_blocks.txt", dtype=str)
+bs_2["synt. break"] = np.isin(bs_2.index, forbidden_blocks)
+
+# %%
+print("synteny breaks")
+describe_stratified_df(bs_2, "synt. break")
+
+print("synteny breaks accessory blocks")
+describe_stratified_df(bs_2[~bs_2["core"]], "synt. break")
 
 # %%
 
+fig, axs = plt.subplots(1, 2, figsize=(8, 4))
 
-# def cleanup_paths(paths, keep_f):
-#     """Given a function `keep_f` that takes block-ids as input,
-#     remove nodes from paths that do not satisfy it."""
-#     for iso, path in paths.items():
-#         path = [node for node in path if keep_f(node.id)]
-#         paths[iso] = path
-#     return paths
+ax = axs[0]
+sns.histplot(
+    data=bs_2[~bs_2["core"]],
+    x="n. strains",
+    hue="synt. break",
+    ax=ax,
+    bins=np.arange(len(strains) + 1) + 0.5,
+    element="step",
+)
+ax.set_xlabel("Number of strains")
+ax.set_ylabel("Number of accessory  blocks")
 
+ax = axs[1]
+sns.histplot(
+    data=bs_2[~bs_2["core"]],
+    x="len",
+    hue="synt. break",
+    ax=ax,
+    log_scale=True,
+    element="step",
+)
+ax.set_xlabel("Block length (bp)")
+ax.set_ylabel("Number of accessory blocks")
 
-# def merge_transitive_edges(paths, bdf):
-#     pass
+plt.tight_layout()
+plt.savefig(ut.fig_fld / "3_synt_filter.png")
+plt.show()
 
 # %%
