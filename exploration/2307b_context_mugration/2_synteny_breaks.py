@@ -3,7 +3,7 @@ import numpy as np
 
 import utils as ut
 
-from collections import Counter
+from collections import Counter, defaultdict
 
 
 # %% 2a: clean paths
@@ -30,7 +30,9 @@ Edges = Counter(Edges)
 
 # %%
 forbidden_edges = set([e for e, n in Edges.items() if n < N])
-
+forbidden_core_flanks = set([e.left.id for e in forbidden_edges]) | set(
+    [e.right.id for e in forbidden_edges]
+)
 
 # %%
 paths = ut.pangraph_to_path_dict(pan)
@@ -99,6 +101,62 @@ ax.set_ylabel("Number of accessory non-duplicated blocks")
 
 plt.tight_layout()
 plt.savefig(ut.fig_fld / "2_synt_breaks.png")
+plt.show()
+
+# %%
+tree = ut.load_tree()
+str_order = [n.name for n in tree.get_terminals()]
+# %%
+
+is_dupl = bdf["duplicated"].to_dict()
+Ls = bdf["len"].to_dict()
+
+# cmap = plt.get_cmap("rainbow")
+# cdict = defaultdict(lambda: cmap(np.random.rand()))
+core_anchor = bdf[bdf.core].sort_values("len").index[-1]
+
+fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+y = 0
+for iso in str_order:
+    path = paths[iso]
+    x = 0
+    B = [node.id for node in path.nodes]
+    ca = B.index(core_anchor)
+    flip = not path.nodes[ca].strand
+    B = np.roll(B, -ca - flip)
+    if flip:
+        B == B[::-1]
+    for bid in B:
+        # if Ls[bid] < 500:
+        #     continue
+        if is_dupl[bid]:
+            continue
+
+        l = Ls[bid]
+        if bid in forbidden_core_flanks:
+            c = "red"
+            # c = cdict[bid]
+        elif bid in forbidden_blocks:
+            c = "pink"
+        elif is_core[bid]:
+            c = "lightgreen"
+        # elif is_dupl[bid]:
+        #     c = "white"
+        else:
+            c = "blue"
+        plt.plot([x, x + l], [y, y], color=c)
+        x += l
+        # if x > 1e5:
+        #     break
+    y += 1
+
+    # if y > 6:
+    #     break
+ax.set_xlabel("Genome position (bp)")
+ax.set_yticks([])
+sns.despine(left=True)
+plt.tight_layout()
+plt.savefig(ut.fig_fld / "2_synt_breaks_paths.png")
 plt.show()
 
 # %%

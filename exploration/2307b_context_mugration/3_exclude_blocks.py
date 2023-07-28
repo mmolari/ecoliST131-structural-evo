@@ -172,3 +172,9 @@ plt.savefig(ut.fig_fld / "3_synt_filter.png")
 plt.show()
 
 # %%
+bs_3 = bs_2[~bs_2["synt. break"]].copy().drop(columns=["synt. break"])
+
+retained_blocks = bs_3.index
+np.savetxt(ut.expl_fld / "retained_blocks.txt", retained_blocks, fmt="%s")
+
+# %%
