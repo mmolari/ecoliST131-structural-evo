@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pandas as pd
 import seaborn as sns
+import itertools as itt
 
 import utils as ut
 
@@ -11,85 +12,113 @@ from Bio import Phylo
 from collections import defaultdict
 
 # %%
-inf_simple = ut.load_inference(context=False)
 inf_context = ut.load_inference(context=True)
 tree = ut.load_tree()
 bdf = pd.read_csv(ut.expl_fld / "filtered_paths" / "block_stats.csv", index_col=0)
 N_strains = len(tree.get_terminals())
+leaves = {n.name: n for n in tree.get_terminals()}
+leaves_names = list(leaves.keys())
 
 # %%
+df = []
+for bid, row in bdf[~bdf["core"]].iterrows():
+    res = {"bid": bid}
 
-
-def plot_tree_events(tree, pa_inference, bid, ax):
-    info = pa_inference[bid]
+    info = inf_context[bid]
     pa = info["pa_pattern"]["pa"]
     ev = info["pa_pattern"]["events"]
 
-    cm = iter(mpl.cm.tab10.colors)
+    # number of leaves with/without the block
+    vals = np.array([pattern for node, pattern in pa.items() if node in leaves_names])
+    res["without"] = (vals == "-").sum()
+    res["with"] = (vals != "-").sum()
+    res["contexts"] = len(set(vals) - set(["-"]))
 
-    def next_color():
-        return next(cm)
-
-    adj_color = defaultdict(next_color)
-
-    def color_tree(node):
-        for nn, et in ev:
-            if node.name == nn:
-                if et == "gain":
-                    node.color = "lime"
-                elif et == "loss":
-                    node.color = "red"
-                else:
-                    node.color = "orange"
-        if node.color is None:
-            node.color = "black"
-        for c in node.clades:
-            color_tree(c)
-
-    def label_tree(node):
-        if node.is_terminal():
-            return node.name
+    # number of events
+    g, l, m = 0, 0, 0
+    for node, e in ev:
+        if e == "gain":
+            g += 1
+        elif e == "loss":
+            l += 1
         else:
-            return ""
+            m += 1
+    res["gain"] = g
+    res["loss"] = l
+    res["move"] = m
 
-    def lab_colors(nn):
-        if len(nn) == 0:
-            return None
-        if pa[nn] == "-":
-            return "lightgray"
-        else:
-            return adj_color[pa[nn]]
+    # distances
+    ctxts = defaultdict(list)
+    for leaf, pattern in pa.items():
+        if leaf not in leaves_names:
+            continue
+        if pattern != "-":
+            ctxts[pattern].append(leaf)
+    dist_intra = None
+    dist_inter = None
+    dist_all = None
 
-    color_tree(tree.root)
+    # distance all
+    all_leaves_with = sum(ctxts.values(), [])
+    if len(all_leaves_with) > 1:
+        dist_all = 0
+        for l1, l2 in itt.combinations(all_leaves_with, 2):
+            dist_all += tree.distance(leaves[l1], leaves[l2])
+        dist_all /= len(all_leaves_with) * (len(all_leaves_with) - 1) / 2
 
-    Phylo.draw(
-        tree, label_func=label_tree, label_colors=lab_colors, axes=ax, do_show=False
-    )
-    plt.title(f"block - {bid}")
+    if (res["contexts"] > 1) and (res["contexts"] < len(all_leaves_with)):
+        dist_intra = 0
+        dist_intra_n = 0
 
+        # dist intra
+        for ctxt, leaves_with in ctxts.items():
+            for l1, l2 in itt.combinations(leaves_with, 2):
+                dist_intra += tree.distance(leaves[l1], leaves[l2])
+                dist_intra_n += 1
+        dist_intra /= dist_intra_n
+
+    if res["contexts"] > 1:
+        dist_inter = 0
+        dist_inter_n = 0
+
+        # dist inter
+        for k1, k2 in itt.combinations(ctxts.keys(), 2):
+            for l1 in ctxts[k1]:
+                for l2 in ctxts[k2]:
+                    dist_inter += tree.distance(leaves[l1], leaves[l2])
+                    dist_inter_n += 1
+        dist_inter /= dist_inter_n
+
+    res["dist_all"] = dist_all
+    res["dist_intra"] = dist_intra
+    res["dist_inter"] = dist_inter
+    df.append(res)
+
+df = pd.DataFrame(df).set_index("bid")
+
+# %%
+df = df.sort_values("with")
+df = df.merge(bdf, left_index=True, right_index=True)
+df.to_csv(ut.expl_fld / "filtered_paths" / "block_stats_context.csv")
 
 # %%
 
-svfld = ut.fig_fld / "mugration_trees"
-svfld.mkdir(exist_ok=True, parents=True)
-for bid, v in inf_simple.items():
-    print(bid)
+sns.histplot(data=df, x="with", hue="contexts", multiple="stack")
+plt.show()
 
-    n = bdf.loc[bid]["count"]
-    if (n == 1) or (n == (N_strains - 1)):
-        continue
 
-    tree = ut.load_tree()
-    pa = v["pa_pattern"]["pa"]
-    ev = v["pa_pattern"]["events"]
+sns.histplot(data=df, x="len", hue="contexts", multiple="stack", log_scale=True)
+plt.show()
 
-    fig, axs = plt.subplots(1, 2, figsize=(10, 12))
-    plot_tree_events(tree, inf_simple, bid, axs[0])
-    plot_tree_events(tree, inf_context, bid, axs[1])
-    sns.despine(fig)
-    plt.tight_layout()
-    plt.savefig(svfld / f"{bid}.png")
-    plt.close(fig)
-    # break
+# %%
+mask = ~df["dist_intra"].isna()
+df[mask]
+sns.scatterplot(data=df[mask], x="dist_intra", y="dist_inter", hue="with")
+plt.plot([0, 5e-5], [0, 5e-5], color="gray")
+plt.show()
+# %%
+
+mask = df["dist_intra"] > df["dist_inter"]
+df[mask].sort_index()
 
 # %%
