@@ -13,8 +13,9 @@ from collections import defaultdict
 # %%
 inf_simple = ut.load_inference(context=False)
 inf_context = ut.load_inference(context=True)
-tree = ut.load_nodenamed_tree()
-pan = ut.load_pangraph()
+tree = ut.load_tree()
+bdf = pd.read_csv(ut.expl_fld / "filtered_paths" / "block_stats.csv", index_col=0)
+N_strains = len(tree.get_terminals())
 
 # %%
 
@@ -68,8 +69,17 @@ def plot_tree_events(tree, pa_inference, bid, ax):
 
 
 # %%
+
+svfld = ut.fig_fld / "mugration_trees"
+svfld.mkdir(exist_ok=True, parents=True)
 for bid, v in inf_simple.items():
-    tree = ut.load_nodenamed_tree()
+    print(bid)
+
+    n = bdf.loc[bid]["count"]
+    if (n == 1) or (n == (N_strains - 1)):
+        continue
+
+    tree = ut.load_tree()
     pa = v["pa_pattern"]["pa"]
     ev = v["pa_pattern"]["events"]
 
@@ -78,11 +88,8 @@ for bid, v in inf_simple.items():
     plot_tree_events(tree, inf_context, bid, axs[1])
     sns.despine(fig)
     plt.tight_layout()
-    # plt.savefig()
-    plt.show()
+    plt.savefig(svfld / f"{bid}.png")
+    plt.close(fig)
     # break
-# %%
 
-# TODO:
-# remove genes between core genone breakpoints?
-# quantify n. muts / gain / losses vs n. patterns
+# %%
