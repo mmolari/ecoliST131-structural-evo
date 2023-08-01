@@ -95,7 +95,6 @@ for bid, row in bdf[~bdf["core"]].iterrows():
     df.append(res)
 
 df = pd.DataFrame(df).set_index("bid")
-
 # %%
 df = df.sort_values("with")
 df = df.merge(bdf, left_index=True, right_index=True)
