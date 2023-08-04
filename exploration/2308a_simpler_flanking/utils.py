@@ -77,6 +77,9 @@ class Path:
     def __repr__(self) -> str:
         return "_".join([str(n) for n in self.nodes])
 
+    def __len__(self) -> int:
+        return len(self.nodes)
+
     def to_list(self):
         return [n.to_str_id() for n in self.nodes]
 
