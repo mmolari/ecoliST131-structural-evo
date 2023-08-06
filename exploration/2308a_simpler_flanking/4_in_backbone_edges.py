@@ -187,6 +187,7 @@ plt.show()
 
 # %%
 tree = ut.load_tree()
+tree.ladderize()
 str_order = [n.name for n in tree.get_terminals()]
 
 
