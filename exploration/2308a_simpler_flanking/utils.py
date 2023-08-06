@@ -113,6 +113,14 @@ class Edge:
     def __repr__(self) -> str:
         return f"{self.left} <--> {self.right}"
 
+    def to_str_id(self) -> list:
+        return " <---> ".join([self.left.to_str_id(), self.right.to_str_id()])
+
+    @staticmethod
+    def from_str_id(t) -> "Edge":
+        left, right = t.split(" <---> ")
+        return Edge(Node.from_str_id(left), Node.from_str_id(right))
+
 
 class Junction:
     """A junction is a combination of a node (or path) flanked by two nodes, with reverse-complement simmetry"""

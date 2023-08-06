@@ -41,6 +41,10 @@ for iso, path in core_paths.items():
 Edges = Counter(Edges)
 
 backbone_edges = set([e for e, n in Edges.items() if n == N_iso])
+
+with open(ut.expl_fld / "backbone_edges.txt", "w") as f:
+    for e in backbone_edges:
+        f.write(f"{e.to_str_id()}\n")
 # %%
 
 backbone_paths = []
