@@ -1,5 +1,6 @@
 # %%
 
+import pathlib
 import numpy as np
 import pandas as pd
 
@@ -105,6 +106,7 @@ for e in backbone_edges:
         df[e]["n_dupl"] += sum([is_dupl[b] for b in Bs])
         df[e]["n_core"] += sum([is_core[b] for b in Bs])
         df[e]["n_short"] += sum([block_len[b] < 200 for b in Bs])
+        df[e]["n_strains"] += 1 * (len(Bs) > 0)
 
 for e in backbone_edges:
     avg_len = df[e]["len"] / len(strains)
@@ -131,9 +133,8 @@ for e in backbone_edges:
         ) ** 2
 
 df = pd.DataFrame(df).T
-
-# %%
 df = df.sort_values("len", ascending=False)
+
 # %%
 import seaborn as sns
 import matplotlib as mpl
@@ -185,6 +186,20 @@ plt.yscale("log")
 plt.tight_layout()
 plt.show()
 
+sns.scatterplot(
+    data=df,
+    x="len",
+    y="n_strains",
+    # hue="len",
+    # palette="viridis",
+    # hue_norm=mpl.colors.LogNorm(),
+    alpha=0.5,
+)
+plt.xscale("log")
+plt.yscale("log")
+plt.tight_layout()
+plt.show()
+
 # %%
 tree = ut.load_tree()
 tree.ladderize()
@@ -222,13 +237,17 @@ def plot_gap(ax, Js, e, str_order, lengths):
     ax.set_yticks(np.arange(len(str_order)))
     ax.set_yticklabels(str_order)
     ax.set_xlabel("position")
+
+
+svfld = ut.fig_fld / "core_junctions"
+svfld.mkdir(exist_ok=True)
+
+for e in df.index[df["n_strains"] > 1]:
+    Js = {iso: CJs[iso][e] for iso in strains}
+    fig, ax = plt.subplots(figsize=(20, 20))
+    plot_gap(ax, Js, e, str_order, block_len)
+    plt.title(f"{e}")
     plt.tight_layout()
-
-
-e = df.index[0]
-Js = {iso: CJs[iso][e] for iso in strains}
-
-fig, ax = plt.subplots(figsize=(20, 20))
-plot_gap(ax, Js, e, str_order, block_len)
-plt.show()
+    plt.savefig(svfld / f"{e.left}<>{e.right}.png")
+    plt.show()
 # %%
