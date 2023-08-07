@@ -1,12 +1,13 @@
 # %%
 
-import pathlib
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 import utils as ut
 
-from collections import Counter, defaultdict
+from collections import defaultdict
 
 
 CORE_LEN_THR = 500
@@ -100,106 +101,44 @@ for e in backbone_edges:
 
         Bs = [b.id for b in cj.center.nodes]
 
-        df[e]["len"] += sum([block_len[b] for b in Bs])
-        df[e]["len_dupl"] += sum([block_len[b] for b in Bs if is_dupl[b]])
-        df[e]["n_blocks"] += len(Bs)
-        df[e]["n_dupl"] += sum([is_dupl[b] for b in Bs])
-        df[e]["n_core"] += sum([is_core[b] for b in Bs])
-        df[e]["n_short"] += sum([block_len[b] < 200 for b in Bs])
+        df[e]["avg_len"] += sum([block_len[b] for b in Bs])
+        df[e]["avg_len_dupl"] += sum([block_len[b] for b in Bs if is_dupl[b]])
+        df[e]["avg_n_blocks"] += len(Bs)
+        df[e]["avg_n_dupl"] += sum([is_dupl[b] for b in Bs])
+        df[e]["avg_n_core"] += sum([is_core[b] for b in Bs])
+        df[e]["avg_n_short"] += sum([block_len[b] < 200 for b in Bs])
         df[e]["n_strains"] += 1 * (len(Bs) > 0)
+        df[e]["len_max"] = max(df[e]["len_max"], sum([block_len[b] for b in Bs]))
+        if not "len_min" in df[e]:
+            df[e]["len_min"] = sum([block_len[b] for b in Bs])
+        else:
+            df[e]["len_min"] = min(df[e]["len_min"], sum([block_len[b] for b in Bs]))
 
 for e in backbone_edges:
-    avg_len = df[e]["len"] / len(strains)
-    avg_len_dupl = df[e]["len_dupl"] / len(strains)
-    avg_nblocks = df[e]["n_blocks"] / len(strains)
-    avg_ndupl = df[e]["n_dupl"] / len(strains)
-    avg_ncore = df[e]["n_core"] / len(strains)
-    avg_nshort = df[e]["n_short"] / len(strains)
+    df[e]["avg_len"] /= len(strains)
+    df[e]["avg_len_dupl"] /= len(strains)
+    df[e]["avg_n_blocks"] /= len(strains)
+    df[e]["avg_n_dupl"] /= len(strains)
+    df[e]["avg_n_core"] /= len(strains)
+    df[e]["avg_n_short"] /= len(strains)
 
     for iso in strains:
         cj = CJs[iso][e]
 
         Bs = [b.id for b in cj.center.nodes]
 
-        df[e]["len_var"] += (sum([block_len[b] for b in Bs]) - avg_len) ** 2
+        df[e]["len_var"] += (sum([block_len[b] for b in Bs]) - df[e]["avg_len"]) ** 2
         df[e]["len_dupl_var"] += (
-            sum([block_len[b] for b in Bs if is_dupl[b]]) - avg_len_dupl
+            sum([block_len[b] for b in Bs if is_dupl[b]]) - df[e]["avg_len_dupl"]
         ) ** 2
-        df[e]["n_blocks_var"] += (len(Bs) - avg_nblocks) ** 2
-        df[e]["n_dupl_var"] += (sum([is_dupl[b] for b in Bs]) - avg_ndupl) ** 2
-        df[e]["n_core_var"] += (sum([is_core[b] for b in Bs]) - avg_ncore) ** 2
-        df[e]["n_short_var"] += (
-            sum([block_len[b] < 200 for b in Bs]) - avg_nshort
+        df[e]["n_blocks_var"] += (len(Bs) - df[e]["avg_n_blocks"]) ** 2
+        df[e]["n_dupl_var"] += (
+            sum([is_dupl[b] for b in Bs]) - df[e]["avg_n_dupl"]
         ) ** 2
 
 df = pd.DataFrame(df).T
-df = df.sort_values("len", ascending=False)
-
-# %%
-import seaborn as sns
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-
-sns.scatterplot(
-    data=df,
-    x="len",
-    y="n_blocks",
-    # hue="len",
-    # palette="viridis",
-    # hue_norm=mpl.colors.LogNorm(),
-    alpha=0.5,
-)
-plt.xscale("log")
-plt.yscale("log")
-plt.tight_layout()
-plt.show()
-
-
-# %%
-
-# TODO: variance of length and number of blocks
-sns.scatterplot(
-    data=df,
-    x="len",
-    y="len_var",
-    # hue="len",
-    # palette="viridis",
-    # hue_norm=mpl.colors.LogNorm(),
-    alpha=0.5,
-)
-plt.xscale("log")
-plt.yscale("log")
-plt.tight_layout()
-plt.show()
-
-sns.scatterplot(
-    data=df,
-    x="len",
-    y="len_dupl",
-    # hue="len",
-    # palette="viridis",
-    # hue_norm=mpl.colors.LogNorm(),
-    alpha=0.5,
-)
-plt.xscale("log")
-plt.yscale("log")
-plt.tight_layout()
-plt.show()
-
-sns.scatterplot(
-    data=df,
-    x="len",
-    y="n_strains",
-    # hue="len",
-    # palette="viridis",
-    # hue_norm=mpl.colors.LogNorm(),
-    alpha=0.5,
-)
-plt.xscale("log")
-plt.yscale("log")
-plt.tight_layout()
-plt.show()
-
+df = df.sort_values("avg_len", ascending=False)
+df
 # %%
 tree = ut.load_tree()
 tree.ladderize()
@@ -211,8 +150,12 @@ def plot_row(ax, nodes, i, colors, lengths):
     for node in nodes:
         color = colors[node.id]
         l = lengths[node.id]
-        w = is_dupl[node.id] * 2 + 2
+        w = is_dupl[node.id] * 3 + 3
         ax.plot([x, x + l], [i, i], color=color, linewidth=w)
+
+        # dy = 0.3
+        # xc = x if node.strand else x + l
+        # ax.plot([x, x], [i - dy, i + dy], color=color, linewidth=4)
         # if node.strand:
         #     x_arrow = x + l
         #     arrow_marker = "4"
@@ -220,6 +163,7 @@ def plot_row(ax, nodes, i, colors, lengths):
         #     x_arrow = x
         #     arrow_marker = "3"
         # ax.scatter(x_arrow, i, color=color, marker=arrow_marker)
+
         x += l
 
 
@@ -248,6 +192,13 @@ for e in df.index[df["n_strains"] > 1]:
     plot_gap(ax, Js, e, str_order, block_len)
     plt.title(f"{e}")
     plt.tight_layout()
-    plt.savefig(svfld / f"{e.left}<>{e.right}.png")
+    plt.savefig(
+        svfld / f"{e.left.to_str_id()}__{e.right.to_str_id()}.png", facecolor="w"
+    )
     plt.show()
+# %%
+save_df = df.copy()
+save_df.index = [e.to_str_id() for e in save_df.index]
+save_df.to_csv(ut.expl_fld / "core_junctions_df.csv")
+
 # %%
