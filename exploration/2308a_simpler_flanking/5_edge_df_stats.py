@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import utils as ut
 
 N_strains = len(ut.load_tree().get_terminals())
+
+fig_fld = ut.fig_fld / "core_edges"
+fig_fld.mkdir(exist_ok=True)
 # %%
 
 
@@ -20,6 +23,9 @@ sns.scatterplot(
     data=df,
     x="avg_len",
     y="avg_n_blocks",
+    hue="n_strains",
+    hue_norm=mpl.colors.Normalize(vmin=1, vmax=N_strains),
+    palette="rainbow",
     alpha=0.5,
     ax=ax,
 )
@@ -32,18 +38,18 @@ ax.grid(True, alpha=0.3)
 ax = axs[1]
 sns.scatterplot(
     data=df,
-    x="avg_len",
-    y="delta_len",
-    hue="avg_n_blocks",
-    hue_norm=mpl.colors.LogNorm(),
+    x="len_max",
+    y="len_min",
+    hue="n_strains",
+    hue_norm=mpl.colors.Normalize(vmin=1, vmax=N_strains),
     palette="rainbow",
     alpha=0.5,
     ax=ax,
 )
 ax.set_xscale("log")
 ax.set_yscale("log")
-ax.set_xlabel("avg. junction length (bp)")
-ax.set_ylabel("max - min junction length (bp)")
+ax.set_xlabel("max junction len (bp)")
+ax.set_ylabel("min junction length (bp)")
 ax.grid(True, alpha=0.3)
 
 ax = axs[2]
@@ -66,49 +72,7 @@ ax.grid(True, alpha=0.3)
 
 sns.despine()
 plt.tight_layout()
+plt.savefig(fig_fld / "edge_stats.png", facecolor="w")
 plt.show()
-
 
 # %%
-
-sns.scatterplot(
-    data=df,
-    x="len",
-    y="len_var",
-    # hue="len",
-    # palette="viridis",
-    # hue_norm=mpl.colors.LogNorm(),
-    alpha=0.5,
-)
-plt.xscale("log")
-plt.yscale("log")
-plt.tight_layout()
-plt.show()
-
-sns.scatterplot(
-    data=df,
-    x="len",
-    y="len_dupl",
-    # hue="len",
-    # palette="viridis",
-    # hue_norm=mpl.colors.LogNorm(),
-    alpha=0.5,
-)
-plt.xscale("log")
-plt.yscale("log")
-plt.tight_layout()
-plt.show()
-
-sns.scatterplot(
-    data=df,
-    x="len",
-    y="n_strains",
-    # hue="len",
-    # palette="viridis",
-    # hue_norm=mpl.colors.LogNorm(),
-    alpha=0.5,
-)
-plt.xscale("log")
-plt.yscale("log")
-plt.tight_layout()
-plt.show()

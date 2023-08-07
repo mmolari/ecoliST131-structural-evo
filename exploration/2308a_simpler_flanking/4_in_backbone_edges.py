@@ -101,43 +101,56 @@ for e in backbone_edges:
 
         Bs = [b.id for b in cj.center.nodes]
 
-        df[e]["avg_len"] += sum([block_len[b] for b in Bs])
+        l_tot = sum([block_len[b] for b in Bs])
+        df[e]["avg_len"] += l_tot
         df[e]["avg_len_dupl"] += sum([block_len[b] for b in Bs if is_dupl[b]])
         df[e]["avg_n_blocks"] += len(Bs)
         df[e]["avg_n_dupl"] += sum([is_dupl[b] for b in Bs])
         df[e]["avg_n_core"] += sum([is_core[b] for b in Bs])
         df[e]["avg_n_short"] += sum([block_len[b] < 200 for b in Bs])
         df[e]["n_strains"] += 1 * (len(Bs) > 0)
-        df[e]["len_max"] = max(df[e]["len_max"], sum([block_len[b] for b in Bs]))
-        if not "len_min" in df[e]:
-            df[e]["len_min"] = sum([block_len[b] for b in Bs])
-        else:
-            df[e]["len_min"] = min(df[e]["len_min"], sum([block_len[b] for b in Bs]))
+        df[e]["len_max"] = max(df[e]["len_max"], l_tot)
+        if l_tot > 0:
+            if not "len_min" in df[e]:
+                df[e]["len_min"] = l_tot
+            else:
+                df[e]["len_min"] = min(df[e]["len_min"], l_tot)
 
 for e in backbone_edges:
-    df[e]["avg_len"] /= len(strains)
-    df[e]["avg_len_dupl"] /= len(strains)
-    df[e]["avg_n_blocks"] /= len(strains)
-    df[e]["avg_n_dupl"] /= len(strains)
-    df[e]["avg_n_core"] /= len(strains)
-    df[e]["avg_n_short"] /= len(strains)
+    df[e]["avg_len"] /= df[e]["n_strains"]
+    df[e]["avg_len_dupl"] /= df[e]["n_strains"]
+    df[e]["avg_n_blocks"] /= df[e]["n_strains"]
+    df[e]["avg_n_dupl"] /= df[e]["n_strains"]
+    df[e]["avg_n_core"] /= df[e]["n_strains"]
+    df[e]["avg_n_short"] /= df[e]["n_strains"]
 
     for iso in strains:
         cj = CJs[iso][e]
 
         Bs = [b.id for b in cj.center.nodes]
 
-        df[e]["len_var"] += (sum([block_len[b] for b in Bs]) - df[e]["avg_len"]) ** 2
-        df[e]["len_dupl_var"] += (
+        df[e]["len_std"] += (sum([block_len[b] for b in Bs]) - df[e]["avg_len"]) ** 2
+        df[e]["len_dupl_std"] += (
             sum([block_len[b] for b in Bs if is_dupl[b]]) - df[e]["avg_len_dupl"]
         ) ** 2
-        df[e]["n_blocks_var"] += (len(Bs) - df[e]["avg_n_blocks"]) ** 2
-        df[e]["n_dupl_var"] += (
+        df[e]["n_blocks_std"] += (len(Bs) - df[e]["avg_n_blocks"]) ** 2
+        df[e]["n_dupl_std"] += (
             sum([is_dupl[b] for b in Bs]) - df[e]["avg_n_dupl"]
         ) ** 2
 
+    df[e]["len_std"] = np.sqrt(df[e]["len_std"] / df[e]["n_strains"])
+    df[e]["len_dupl_std"] = np.sqrt(df[e]["len_dupl_std"] / df[e]["n_strains"])
+    df[e]["n_blocks_std"] = np.sqrt(df[e]["n_blocks_std"] / df[e]["n_strains"])
+    df[e]["n_dupl_std"] = np.sqrt(df[e]["n_dupl_std"] / df[e]["n_strains"])
+
 df = pd.DataFrame(df).T
 df = df.sort_values("avg_len", ascending=False)
+
+save_df = df.copy()
+save_df.index = [e.to_str_id() for e in save_df.index]
+save_df.to_csv(ut.expl_fld / "core_junctions_df.csv")
+del save_df
+
 df
 # %%
 tree = ut.load_tree()
@@ -196,9 +209,5 @@ for e in df.index[df["n_strains"] > 1]:
         svfld / f"{e.left.to_str_id()}__{e.right.to_str_id()}.png", facecolor="w"
     )
     plt.show()
-# %%
-save_df = df.copy()
-save_df.index = [e.to_str_id() for e in save_df.index]
-save_df.to_csv(ut.expl_fld / "core_junctions_df.csv")
 
 # %%
