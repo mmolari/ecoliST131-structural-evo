@@ -1,6 +1,7 @@
 # %%
 
 import json
+import pathlib
 
 import numpy as np
 import pandas as pd
@@ -11,6 +12,7 @@ import utils as ut
 
 import pypangraph as pp
 
+from Bio import Phylo
 from collections import Counter, defaultdict
 
 LEN_THR = 200
@@ -131,7 +133,10 @@ def path_categories(anchor_edge, j_dict):
             iso_list[path].append(iso)
             nodes[path] = path.nodes
 
-    return [(count, nodes[path], iso_list[path]) for path, count in n_paths.items()]
+    # sort by count
+    path_cat = [(count, nodes[path], iso_list[path]) for path, count in n_paths.items()]
+    path_cat.sort(key=lambda x: x[0], reverse=True)
+    return path_cat
 
 
 block_cts = {}
@@ -164,57 +169,154 @@ for e, j_dict in junctions.items():
 
 # %%
 
-# plot paths
+# # plot paths
 
-import pathlib
-from Bio import Phylo
-from collections import defaultdict
-
-tree = Phylo.read("data/named_tree.nwk", "newick")
-tree.ladderize()
-str_order = [n.name for n in tree.get_terminals()]
+# tree = Phylo.read("data/named_tree.nwk", "newick")
+# tree.ladderize()
+# str_order = [n.name for n in tree.get_terminals()]
 
 
-def plot_row(ax, nodes, i, colors, block_df):
+# def plot_row(ax, nodes, i, colors, block_df):
+#     x = 0
+#     for node in nodes:
+#         color = colors[node.id]
+#         l = block_df["len"][node.id]
+#         w = block_df["dupl"][node.id] * 3 + 3
+#         ax.plot([x, x + l], [i, i], color=color, linewidth=w)
+#         x += l
+
+
+# def plot_gap(ax, Js, e, str_order, lengths):
+#     cmap = mpl.cm.get_cmap("rainbow")
+#     colors = defaultdict(lambda: cmap(np.random.rand()))
+
+#     for i, iso in enumerate(str_order):
+#         j = Js[iso]
+#         if j.left != e.left:
+#             j = j.invert()
+#             assert j.left == e.left
+#         plot_row(ax, j.center.nodes, i, colors, lengths)
+
+#     ax.set_yticks(np.arange(len(str_order)))
+#     ax.set_yticklabels(str_order)
+#     ax.set_xlabel("position")
+
+
+# svfld = pathlib.Path("figs") / "core_junctions"
+# svfld.mkdir(exist_ok=True)
+
+# for e, j_dict in junctions.items():
+#     nn_j = len([j for j in j_dict.values() if len(j.center.nodes) > 0])
+#     if nn_j < 2:
+#         continue
+#     fig, ax = plt.subplots(figsize=(20, 20))
+#     plot_gap(ax, j_dict, e, str_order, block_cts[e])
+#     plt.title(f"{e}")
+#     plt.tight_layout()
+#     plt.savefig(
+#         svfld / f"{e.left.to_str_id()}__{e.right.to_str_id()}.png", facecolor="w"
+#     )
+#     plt.show()
+
+# %%
+
+
+def plot_row(ax, nodes, y, colors, block_df):
     x = 0
     for node in nodes:
         color = colors[node.id]
         l = block_df["len"][node.id]
-        w = block_df["dupl"][node.id] * 3 + 3
-        ax.plot([x, x + l], [i, i], color=color, linewidth=w)
+        h = block_df["dupl"][node.id] * 0.2 + 0.4
+        edge_color = "black" if node.strand else "red"
+        ax.barh(
+            y,
+            l,
+            height=h,
+            left=x,
+            color=color,
+            edgecolor=edge_color,
+            # lw=3,
+        )
         x += l
 
 
-def plot_gap(ax, Js, e, str_order, lengths):
+def plot_categories(e, path_categories, block_df, tree_file):
+    # load tree
+    tree = Phylo.read(tree_file, "newick")
+    tree.ladderize()
+    leaves = [n for n in tree.get_terminals()]
+
+    # assign colors to leaves
+    C = len(path_categories)
+
+    if C <= 10:
+        path_colors = mpl.cm.get_cmap("tab10")(np.arange(C))
+    elif C <= 20:
+        path_colors = mpl.cm.get_cmap("tab20")(np.arange(C))
+    else:
+        path_colors = mpl.cm.get_cmap("jet")(np.linspace(0, 1, C))
+
+    strain_color = defaultdict(lambda: "white")
+    for i, (_, _, isolates) in enumerate(path_categories):
+        for iso in isolates:
+            strain_color[iso] = path_colors[i]
+
+    # assign color to blocks
     cmap = mpl.cm.get_cmap("rainbow")
-    colors = defaultdict(lambda: cmap(np.random.rand()))
+    block_color = defaultdict(lambda: cmap(np.random.rand()))
 
-    for i, iso in enumerate(str_order):
-        j = Js[iso]
-        if j.left != e.left:
-            j = j.invert()
-            assert j.left == e.left
-        plot_row(ax, j.center.nodes, i, colors, lengths)
+    fig, axs = plt.subplots(
+        1, 2, figsize=(20, 15), gridspec_kw={"width_ratios": [1, 3]}
+    )
 
-    ax.set_yticks(np.arange(len(str_order)))
-    ax.set_yticklabels(str_order)
+    ax = axs[0]
+    Phylo.draw(
+        tree,
+        axes=ax,
+        do_show=False,
+        show_confidence=False,
+        label_func=lambda x: x.name if x in leaves else "",
+        label_colors=lambda x: strain_color[x],
+    )
+    ax.set_title(f"{e}")
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+
+    ax = axs[1]
+    for i, (count, nodes, isolates) in enumerate(path_categories):
+        plot_row(ax, nodes, -i, block_color, block_df)
+        ax.text(
+            0,
+            -i + 0.45,
+            f"path {i+1} | n = {count}",
+            color=path_colors[i],
+            fontsize=20,
+        )
+
+    ax.set_yticks([])
+    ax.set_ylim(-len(path_categories) + 0.5, 0.5)
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.spines["left"].set_visible(False)
     ax.set_xlabel("position")
 
+    plt.tight_layout()
+    return fig, ax
 
-svfld = pathlib.Path("figs") / "core_junctions"
+
+svfld = pathlib.Path("figs") / "core_junctions_categories"
 svfld.mkdir(exist_ok=True)
 
-for e, j_dict in junctions.items():
-    nn_j = len([j for j in j_dict.values() if len(j.center.nodes) > 0])
-    if nn_j < 2:
+for e, pc in path_cts.items():
+    if len(pc) == 0:
         continue
-    fig, ax = plt.subplots(figsize=(20, 20))
-    plot_gap(ax, j_dict, e, str_order, block_cts[e])
-    plt.title(f"{e}")
-    plt.tight_layout()
+    if (len(pc) == 1) and (pc[0][0] < 2):
+        continue
+    fig, ax = plot_categories(e, pc, block_cts[e], "data/named_tree.nwk")
     plt.savefig(
         svfld / f"{e.left.to_str_id()}__{e.right.to_str_id()}.png", facecolor="w"
     )
-    plt.show()
+    plt.close(fig)
 
+    # break
 # %%
