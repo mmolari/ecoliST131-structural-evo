@@ -10,6 +10,7 @@ configfile: "config/config.yml"
 include: "rules/downloads.smk"
 include: "rules/pangraph.smk"
 include: "rules/distances.smk"
+include: "rules/backbone_joints.smk"
 
 
 localrules:

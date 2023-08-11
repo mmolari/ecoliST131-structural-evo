@@ -8,3 +8,6 @@ pangraph:
   kernel-options:
     asm20-100-5: "--circular -k minimap2 -s 20 -a 100 -b 5"
   polish-options: "-c"
+
+backbone-joints:
+  len-thr: 500
