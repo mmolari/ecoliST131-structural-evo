@@ -1,4 +1,4 @@
-rule BJ_block_distr_fig:
+rule BJ_find_edges:
     input:
         pan=rules.PG_polish.output,
     output:
@@ -16,10 +16,27 @@ rule BJ_block_distr_fig:
         """
 
 
+rule BJ_extract_joints_pos:
+    input:
+        pan=rules.PG_polish.output,
+        edges=rules.BJ_find_edges.output.edges,
+    output:
+        pos="results/{dset}/backbone_joints/{opt}/joints_pos.json",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/extract_joints_positions.py \
+            --pangraph {input.pan} \
+            --edges {input.edges} \
+            --positions {output.pos}
+        """
+
+
 rule BJ_all:
     input:
         expand(
-            rules.BJ_block_distr_fig.output.edges,
+            rules.BJ_extract_joints_pos.output,
             dset=datasets.keys(),
             opt=kernel_opt.keys(),
         ),

@@ -71,9 +71,6 @@ if __name__ == "__main__":
     strains = pan.strains()
     N_iso = len(strains)
 
-    # turn to paths
-    paths = ut.pangraph_to_path_dict(pan)
-
     # backbone blocks and edges
     df = pd.read_csv(args.core_edges_csv)
     df = df[df["count"] == N_iso]
