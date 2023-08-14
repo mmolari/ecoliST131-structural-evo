@@ -63,3 +63,19 @@ flowchart TD
 - `pangraph{opt}_edge_distance.csv`: measures of edge sharing/differences between strains.
 - `pangraph{opt}_block_distance.csv`: block sharing / presence-absence distance between strains.
 - `summary-{opt}.csv` : summary dataframe containing all distances
+
+## backbone_joints.smk
+
+Rules to evaluate accessory genome diversity in core genes backbone joints. For each value of `{dset}` and `{opt}`, results are saved in `results/{dset}/backbone_joints/{opt}`.
+
+```mermaid
+flowchart TD
+    A("polished pangraph") --> |BJ_find_edges| B("core_edges.csv")
+    B --> C
+    A --> |BJ_extract_joints_pos| C("joints_pos.json")
+```
+
+**Description**
+- `core_edges.csv` : table of core-genes edges and number of times the edge is found in the dataset. Only blocks longer than the threshold (500 bp) are considered.
+- `joints_pos.json` : dictionary of `edge -> isolate -> [beg, end, strand]`, where beginning and end are the beginning and end of the joint on the genome (`beg` < `end`), and `strand` is a boolean value enconding strandedness.
+

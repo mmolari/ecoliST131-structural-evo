@@ -19,13 +19,13 @@ class Node:
         return f"[{self.id}|{s}]"
 
     def to_str_id(self):
-        s = "+" if self.strand else "-"
-        return f"{self.id}|{s}"
+        s = "f" if self.strand else "r"
+        return f"{self.id}_{s}"
 
     @staticmethod
     def from_str_id(t) -> "Node":
-        bid = t.split("|")[0]
-        strand = True if t.split("|")[1] == "+" else False
+        bid = t.split("_")[0]
+        strand = True if t.split("_")[1] == "f" else False
         return Node(bid, strand)
 
 
@@ -90,11 +90,11 @@ class Edge:
         return f"{self.left} <--> {self.right}"
 
     def to_str_id(self) -> list:
-        return " <---> ".join([self.left.to_str_id(), self.right.to_str_id()])
+        return "__".join([self.left.to_str_id(), self.right.to_str_id()])
 
     @staticmethod
     def from_str_id(t) -> "Edge":
-        left, right = t.split(" <---> ")
+        left, right = t.split("__")
         return Edge(Node.from_str_id(left), Node.from_str_id(right))
 
 
