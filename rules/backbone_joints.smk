@@ -89,6 +89,39 @@ rule BJ_pangraph:
         """
 
 
+rule BJ_mash_dist:
+    input:
+        seq=rules.BJ_extract_joint_sequence.output.seq,
+    output:
+        dist="results/{dset}/backbone_joints/{opt}/dist/mash/{edge}.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        mash triangle {input.seq} > {output.dist}.tmp
+        python3 scripts/utils/mash_triangle_to_csv.py \
+            --mash_tri {output.dist}.tmp --csv {output.dist}
+        rm {output.dist}.tmp
+        """
+
+
+rule BJ_plot_linear_repr:
+    input:
+        pan=rules.BJ_pangraph.output.pan,
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+    output:
+        fig="figs/{dset}/backbone_joints/{opt}/joints_linear_plot/{edge}.png",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/plot_junction_categories.py \
+            --pangraph {input.pan} \
+            --tree {input.tree} \
+            --fig {output.fig}
+        """
+
+
 def backbone_edge_list(wildcards):
     edge_file = checkpoints.BJ_find_edges.get(**wildcards).output["edges"]
     with open(edge_file, "r") as f:
@@ -97,14 +130,16 @@ def backbone_edge_list(wildcards):
             edge, n = line.strip().split(",")
             if n == str(len(datasets[wildcards.dset])):
                 edges.append(edge)
-    return expand(rules.BJ_pangraph.output.pan, edge=edges, **wildcards)
+    return expand(rules.BJ_plot_linear_repr.output.fig, edge=edges, **wildcards)
 
 
 rule BJ_all_subgraphs:
     input:
         backbone_edge_list,
     output:
-        "results/{dset}/backbone_joints/{opt}/joints_pangraph.json",
+        "results/{dset}/backbone_joints/{opt}/plots/all.png",
+    run:
+        print("All figures for subgraphs: {wildcards.dset} {wildcards.opt}")
 
 
 rule BJ_all:
