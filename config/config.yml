@@ -11,3 +11,5 @@ pangraph:
 
 backbone-joints:
   len-thr: 500
+  build-opt: "-k minimap2 -s 20 -a 100 -b 5 -l 100"
+  polish-opt: "-c"
