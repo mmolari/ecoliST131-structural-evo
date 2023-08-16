@@ -1,3 +1,5 @@
+import itertools as itt
+
 BJ_config = config["backbone-joints"]
 
 
@@ -122,24 +124,24 @@ rule BJ_plot_linear_repr:
         """
 
 
-def backbone_edge_list(wildcards):
-    edge_file = checkpoints.BJ_find_edges.get(**wildcards).output["edges"]
-    with open(edge_file, "r") as f:
-        edges = []
-        for line in f.readlines():
-            edge, n = line.strip().split(",")
-            if n == str(len(datasets[wildcards.dset])):
-                edges.append(edge)
-    return expand(rules.BJ_plot_linear_repr.output.fig, edge=edges, **wildcards)
+def BJ_all_joints_outputs(wildcards):
+    files = []
+    for dset, opt in itt.product(datasets.keys(), kernel_opt.keys()):
+        wc = {"dset": dset, "opt": opt}
 
+        # define list of edges
+        edge_file = checkpoints.BJ_find_edges.get(**wc).output["edges"]
+        with open(edge_file, "r") as f:
+            edges = []
+            for line in f.readlines():
+                edge, n = line.strip().split(",")
+                if n == str(len(datasets[dset])):
+                    edges.append(edge)
 
-rule BJ_all_subgraphs:
-    input:
-        backbone_edge_list,
-    output:
-        "results/{dset}/backbone_joints/{opt}/plots/all.png",
-    run:
-        print("All figures for subgraphs: {wildcards.dset} {wildcards.opt}")
+        # add desired output files
+        files += expand(rules.BJ_plot_linear_repr.output.fig, edge=edges, **wc)
+        files += expand(rules.BJ_mash_dist.output.dist, edge=edges, **wc)
+    return files
 
 
 rule BJ_all:
@@ -149,8 +151,4 @@ rule BJ_all:
             dset=datasets.keys(),
             opt=kernel_opt.keys(),
         ),
-        expand(
-            rules.BJ_all_subgraphs.output,
-            dset=datasets.keys(),
-            opt=kernel_opt.keys(),
-        ),
+        BJ_all_joints_outputs,
