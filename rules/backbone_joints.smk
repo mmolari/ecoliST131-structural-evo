@@ -91,6 +91,33 @@ rule BJ_pangraph:
         """
 
 
+def all_junction_pangraphs(wildcards):
+    # define list of edges
+    edge_file = checkpoints.BJ_find_edges.get(**wildcards).output["edges"]
+    with open(edge_file, "r") as f:
+        edges = []
+        for line in f.readlines():
+            edge, n = line.strip().split(",")
+            if n == str(len(datasets[wildcards.dset])):
+                edges.append(edge)
+    return expand(rules.BJ_pangraph.output.pan, edge=edges, **wildcards)
+
+
+rule BJ_junct_stats:
+    input:
+        pans=all_junction_pangraphs,
+    output:
+        stats="results/{dset}/backbone_joints/{opt}/junctions_stats.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/junctions_stats.py \
+            --junct_pangraphs {input.pans} \
+            --df_csv {output.stats}
+        """
+
+
 rule BJ_mash_dist:
     input:
         seq=rules.BJ_extract_joint_sequence.output.seq,
@@ -147,7 +174,7 @@ def BJ_all_joints_outputs(wildcards):
 rule BJ_all:
     input:
         expand(
-            rules.BJ_extract_joints_pos.output,
+            rules.BJ_junct_stats.output,
             dset=datasets.keys(),
             opt=kernel_opt.keys(),
         ),
