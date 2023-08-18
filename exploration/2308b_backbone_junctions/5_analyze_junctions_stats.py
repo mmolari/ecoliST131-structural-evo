@@ -14,11 +14,10 @@ df = pd.read_csv(
 N = 84
 
 df["delta_len"] = df["max_length"] - df["min_length"]
-df["delta_len_cat"] = pd.cut(
-    df["delta_len"],
-    [100, 1000, 10000, 100000],
-    # labels=["small", "medium", "large"],
-)
+df["delta_len_cat"] = pd.cut(df["delta_len"], [0, 100, 1000, 10000, 100000])
+
+df["n_blocks_cat"] = pd.cut(df["n_blocks"], [0, 10, 100])
+
 df["type"] = "complex"
 df.loc[df["n_blocks"] == 1, "type"] = "no variation"
 df.loc[df["singleton"], "type"] = "singleton (exchange)"
@@ -138,6 +137,25 @@ ax.set_xlim(left=0)
 sns.despine()
 plt.tight_layout()
 plt.savefig("figs/scr_5/has_dupl.png", facecolor="white")
+plt.show()
+
+# %%
+
+sns.scatterplot(
+    data=df,
+    x="n_categories",
+    y="n_blocks",
+    hue="delta_len_cat",
+    alpha=0.5,
+)
+plt.legend(loc="lower right", title="(max - min) lenght")
+plt.xlabel("Number of path categories")
+plt.ylabel("Number of blocks")
+plt.yscale("log")
+plt.grid(True, alpha=0.5, ls=":")
+sns.despine()
+plt.tight_layout()
+plt.savefig("figs/scr_5/n_blocks.png", facecolor="white")
 plt.show()
 
 # %%
