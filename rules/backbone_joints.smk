@@ -92,7 +92,6 @@ rule BJ_pangraph:
 
 
 def all_junction_pangraphs(wildcards):
-    # define list of edges
     edge_file = checkpoints.BJ_find_edges.get(**wildcards).output["edges"]
     with open(edge_file, "r") as f:
         edges = []

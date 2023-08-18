@@ -44,12 +44,15 @@ def path_categories(paths):
 def get_stats(pan_file):
     """
     Evaluate the following statistics:
-    - n.blocks
+    - n. blocks
+    - n. nodes
     - n. path categories
     - majority category
     - whether there is only one path differing from the rest (sigleton)
+    - how many paths only contain core blocks.
     - category entropy
     - min/max/mean path length
+    - how many paths have duplicated blocks
     - left core length
     - right core length
     - average breakpoint entropy
@@ -64,6 +67,7 @@ def get_stats(pan_file):
 
     # number of blocks
     stats["n_blocks"] = len(bdf)
+    stats["has_dupl"] = np.any(bdf["duplicated"].to_numpy())
 
     # number of categories
     paths = ut.pangraph_to_path_dict(pan)
@@ -76,17 +80,24 @@ def get_stats(pan_file):
     # path lengths
     Ls = []
     len_entr = 0
+    n_all_cores = 0
+    n_nodes = 0
     core_sides = {"left": [], "right": []}
     for count, nodes, isolates in path_cat:
+        n_nodes += len(nodes)
         lengths = [bdf["len"][node.id] for node in nodes]
         Ls += [sum(lengths)] * count
         len_entr += entropy(lengths) * count
         core_sides["left"].append(nodes[0].id)
         core_sides["right"].append(nodes[-1].id)
+        if np.all([bdf["core"][node.id] for node in nodes]):
+            n_all_cores += count
+    stats["n_nodes"] = n_nodes
     stats["min_length"] = min(Ls)
     stats["max_length"] = max(Ls)
     stats["mean_length"] = np.mean(Ls)
     stats["length_entropy"] = len_entr / N
+    stats["n_all_cores"] = n_all_cores
     for side in ["left", "right"]:
         stats[f"core_{side}_length"] = None
         if not np.all(np.array(core_sides[side]) == core_sides[side][0]):
