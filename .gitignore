@@ -8,5 +8,6 @@
 /exploration/*/*
 /local
 .ipynb_checkpoints
-
+/old
 !/exploration/*/*.py
+__pycache__

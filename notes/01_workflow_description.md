@@ -63,3 +63,34 @@ flowchart TD
 - `pangraph{opt}_edge_distance.csv`: measures of edge sharing/differences between strains.
 - `pangraph{opt}_block_distance.csv`: block sharing / presence-absence distance between strains.
 - `summary-{opt}.csv` : summary dataframe containing all distances
+
+## backbone_joints.smk
+
+Rules to evaluate accessory genome diversity in core genes backbone joints. For each value of `{dset}` and `{opt}`, results are saved in `results/{dset}/backbone_joints/{opt}`.
+
+```mermaid
+flowchart TD
+    A --> |BJ_extract_joints_pos| C("joints_pos.json")
+    A("polished pangraph") --> |BJ_find_edges| B("core_edges.csv")
+    B --> C
+    B --> D
+    A --> |B_extract_raw_paths| D("raw_paths.json")
+    F("all genomes") --> E
+    C --> |BJ_extract_joint_sequence| E("joint_seqs/{edge}.fa")
+    E --> |BJ_pangraph| G("joint_pangraph/{edge}.json")
+    E --> |BJ_mash_dist| H("dist/mash/{edge}.csv")
+    T("core genome tree") --> I
+    G --> |BJ_plot_linear_repr| I("figs/.../joints_linear_plot/{edge}.pdf")
+
+
+```
+
+**Description**
+- `core_edges.csv` : table of core-genes edges and number of times the edge is found in the dataset. Only blocks longer than the threshold (500 bp) are considered.
+- `joints_pos.json` : dictionary of `edge -> isolate -> [beg, end, strand]`, where beginning and end are the beginning and end of the joint on the genome (`beg` < `end`), and `strand` is a boolean value enconding strandedness.
+- `raw_paths.json`: dictionary `edge -> isolate -> junction`, containing the core backbone junction for each isolate, as extracted from the complete pangraph.
+- `joint_seqs/{edge}.fa` : fasta file containing the extracted backbone junction sequence for each junction.
+- `joint_pangraph/{edge}.json` : pangenome graph for the considered junction.
+- `dist/mash/{edge}.csv` : mash distance matrix for the junction sequences.
+- `figs/.../joints_linear_plot/{edge}.pdf` : linear representation of the junctions, with paths divided in categories and each category indicated on the core genome tree.
+
