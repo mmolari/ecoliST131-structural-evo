@@ -8,14 +8,17 @@ rule QC_busco_download:
         busco --download enterobacterales_odb10
         mv busco_downloads {output}
         """
+
+
 # busco --download prokaryota --download_path {output}
+
 
 rule QC_busco_run:
     input:
         fa=rules.gbk_to_fa.output.fa,
         mod=rules.QC_busco_download.output,
     output:
-        directory("results/{dset}/assembly_qc/{acc}"),
+        directory("results/{dset}/assembly_qc/busco/{acc}"),
     conda:
         "../conda_env/busco.yml"
     shell:
@@ -27,11 +30,16 @@ rule QC_busco_run:
             -m genome \
             -o {output}
         """
+
+
 # --auto-lineage-prok \
+
 
 rule QC_summary:
     input:
-        lambda w:expand(rules.QC_busco_run.output, acc=datasets[w.dset]),
+        lambda w: expand(
+            rules.QC_busco_run.output, acc=datasets[w.dset], allow_missing=True
+        ),
     output:
         "results/{dset}/assembly_qc/summary.csv",
     conda:
@@ -43,6 +51,7 @@ rule QC_summary:
             --csv {output}
         """
 
+
 rule QC_all:
     input:
-        [expand(rules.QC_busco_run.output, dset=dset, acc=acc) for dset, acc in datasets.items()],
+        expand(rules.QC_summary.output, dset=datasets.keys()),
