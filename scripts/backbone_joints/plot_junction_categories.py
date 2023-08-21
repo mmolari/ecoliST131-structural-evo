@@ -125,7 +125,6 @@ def plot_categories(path_categories, block_df, tree_file):
     ax.spines["left"].set_visible(False)
     ax.set_xlabel("position")
 
-    plt.tight_layout()
     return fig, axs
 
 
@@ -156,5 +155,6 @@ if __name__ == "__main__":
     # plot
     fig, axs = plot_categories(path_cat, bdf, args.tree)
     axs[1].set_title(f"{edge}")
+    plt.tight_layout()
     plt.savefig(args.fig, facecolor="w")
     plt.close(fig)
