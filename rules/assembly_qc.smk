@@ -1,3 +1,13 @@
+# read accession numbers from dataset files
+excluded = {k: [] for k in datasets.keys()}
+for k, fname in config["excluded"].items():
+    with open(fname, "r") as f:
+        acc_nums = f.readlines()
+    acc_nums = [an.strip() for an in acc_nums]
+    acc_nums = [an for an in acc_nums if len(an) > 0]
+    excluded[k] = acc_nums
+
+
 rule QC_busco_download:
     output:
         directory("data/busco_models"),
@@ -38,7 +48,9 @@ rule QC_busco_run:
 rule QC_summary:
     input:
         lambda w: expand(
-            rules.QC_busco_run.output, acc=datasets[w.dset], allow_missing=True
+            rules.QC_busco_run.output,
+            acc=datasets[w.dset] + excluded[w.dset],
+            allow_missing=True,
         ),
     output:
         "results/{dset}/assembly_qc/summary.csv",
