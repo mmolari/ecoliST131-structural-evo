@@ -2,7 +2,7 @@ datasets:
   ST131: "config/datasets/ST43.txt"
 
 excluded:
-  ST131: "config/datasets/ST43.txt"
+  ST131: "config/datasets/ST43_excluded.txt"
 
 guide-strain:
   ST131: "NZ_JAOSFD010000001"

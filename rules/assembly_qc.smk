@@ -1,4 +1,4 @@
-# read accession numbers from dataset files
+# load accession numbers of excluded isolates
 excluded = {k: [] for k in datasets.keys()}
 for k, fname in config["excluded"].items():
     with open(fname, "r") as f:
