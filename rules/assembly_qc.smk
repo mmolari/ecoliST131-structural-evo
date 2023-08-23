@@ -49,7 +49,7 @@ rule QC_summary:
     input:
         lambda w: expand(
             rules.QC_busco_run.output,
-            acc=datasets[w.dset] + excluded[w.dset],
+            acc=sorted(datasets[w.dset] + excluded[w.dset]),
             allow_missing=True,
         ),
     output:
