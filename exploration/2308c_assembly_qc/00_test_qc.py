@@ -42,16 +42,21 @@ for iso, row in df.iterrows():
     x = 0
     tot = sum(row[k] for k in colors.keys())
     for k, c in colors.items():
-        if k == "Single copy":
+        if k in ["Single copy", "Multi copy"]:
             continue
-        dx = row[k] / tot
-        ax.barh(y, dx, left=x, color=c)
+        dx = (row[k] / tot) * 100
+        ax.barh(y, dx, left=x, color=c, label=k if y == 0 else None)
         x += dx
     y += 1
+ax.legend()
 ax.set_yticks(range(len(df)))
+ax.set_ylim(-1, len(df))
 ax.set_yticklabels(df.index)
-plt.tight_layout()
+# ax.axvline(2)
 sns.despine()
+ax.set_xlabel("percent of missing core genes")
+plt.tight_layout()
+# plt.savefig("figs/missing_core_genes.png", facecolor="white")
 plt.show()
 # %%
 fig, ax = plt.subplots(figsize=(5, 4))
