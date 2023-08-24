@@ -124,13 +124,10 @@ def plot_tree(df, tree_file, svname):
         c = [c_dict[k][D[s]] for s in str_order]
         ax.scatter(x, y, color=c, marker="o")
     ax.set_xlim(right=xr + ddx)
-
-    for ax in axs:
-        ax.set_xlabel("")
-        ax.set_ylabel("")
-        ax.set_xticks([])
-        for k in ax.spines:
-            ax.spines[k].set_visible(False)
+    ax.set_xlabel("branch length")
+    ax.set_ylabel("n. isolates")
+    for k in ["top", "right"]:
+        ax.spines[k].set_visible(False)
 
     # legends
     ax = axs[1]
@@ -148,6 +145,13 @@ def plot_tree(df, tree_file, svname):
     l2 = ax.legend(handles=E[2], title="location", loc="lower left")
     ax.add_artist(l0)
     ax.add_artist(l1)
+
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.set_xticks([])
+    for k in ax.spines:
+        ax.spines[k].set_visible(False)
+
     plt.tight_layout()
     plt.savefig(svname)
     plt.close(fig)
