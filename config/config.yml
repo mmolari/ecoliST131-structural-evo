@@ -4,6 +4,9 @@ datasets:
 excluded:
   ST131: "config/datasets/ST43_excluded.txt"
 
+metadata:
+  ST131: "config/datasets/ST43_metadata_raw.csv"
+
 guide-strain:
   ST131: "NZ_JAOSFD010000001"
 

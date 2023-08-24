@@ -7,7 +7,7 @@ import numpy as np
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="""summary figure for BUSCO assembly quality control."""
+        description="summary figure for BUSCO assembly quality control."
     )
     parser.add_argument("--csv", type=str, help="input summary csv")
     parser.add_argument("--fig", type=str, help="output figure")

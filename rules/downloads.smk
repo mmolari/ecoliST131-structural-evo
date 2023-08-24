@@ -23,16 +23,16 @@ rule gbk_to_fa:
         """
 
 
-# datasets_fnames = config["datasets"]
-
-# # read accession numbers from dataset files
-# datasets = {}
-# for k, fname in datasets_fnames.items():
-#     with open(fname, "r") as f:
-#         acc_nums = f.readlines()
-#     acc_nums = [an.strip() for an in acc_nums]
-#     acc_nums = [an for an in acc_nums if len(an) > 0]
-#     datasets[k] = acc_nums
-# rule download_all:
-#     input:
-#         expand(rules.gbk_to_fa.output, acc=datasets["ST131"]),
+rule metadata_preprocess:
+    input:
+        lambda w: config["metadata"][w.dset],
+    output:
+        "results/{dset}/metadata.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/utils/metadata_cleanup.py \
+            --metadata_in {input} \
+            --metadata_out {output}
+        """
