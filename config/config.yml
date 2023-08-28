@@ -12,7 +12,7 @@ guide-strain:
 
 pangraph:
   kernel-options:
-    asm20-100-5: "--circular -k minimap2 -s 20 -a 100 -b 5"
+    asm20-100-5: "--circular -k minimap2 -s 20 -a 100 -b 5 -l 100"
   polish-options: "-c"
 
 backbone-joints:

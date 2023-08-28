@@ -187,10 +187,10 @@ def fig_homoplasies(df, res_a, svname):
 
     ax = axs[1]
     aw = np.argwhere(~saln)
-    ax.scatter(y=aw[:, 0] + 1, x=aw[:, 1], c=aw[:, 1], cmap="tab20")
+    ax.scatter(y=aw[:, 0] + 1, x=aw[:, 1] + 1, c=aw[:, 1], cmap="tab20")
     ax.set_ylim(top=-1)
     K = saln.shape[1]
-    ax.set_xticks(np.arange(K), minor=True)
+    ax.set_xticks(np.arange(K) + 1, minor=True)
     ax.set_title("homoplasies")
 
     for ax in axs:
