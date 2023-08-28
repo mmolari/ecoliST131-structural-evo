@@ -6,79 +6,62 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=4.5
-  - aria2=1.23.0
+  - aria2=1.36.0
   - bzip2=1.0.8
-  - c-ares=1.18.1
-  - ca-certificates=2022.9.24
+  - c-ares=1.19.1
+  - ca-certificates=2023.7.22
   - capnproto=0.9.1
-  - curl=7.86.0
+  - curl=8.2.1
   - expat=2.5.0
   - fasttree=2.1.11
   - gawk=5.1.0
   - gettext=0.21.1
-  - git=2.38.1
+  - git=2.42.0
   - gsl=2.7
-  - icu=70.1
+  - icu=73.2
   - keyutils=1.6.1
-  - krb5=1.19.3
-  - ld_impl_linux-64=2.39
+  - krb5=1.21.2
+  - ld_impl_linux-64=2.40
   - libblas=3.9.0
   - libcblas=3.9.0
-  - libcurl=7.86.0
+  - libcurl=8.2.1
   - libedit=3.1.20191231
   - libev=4.33
+  - libexpat=2.5.0
   - libffi=3.4.2
   - libgcc=7.2.0
-  - libgcc-ng=12.2.0
-  - libgfortran-ng=12.2.0
-  - libgfortran5=12.2.0
-  - libgomp=12.2.0
+  - libgcc-ng=13.1.0
+  - libgfortran-ng=13.1.0
+  - libgfortran5=13.1.0
+  - libgomp=13.1.0
   - libiconv=1.17
   - libidn2=2.3.4
-  - libnghttp2=1.47.0
+  - libnghttp2=1.52.0
   - libnsl=2.0.0
-  - libopenblas=0.3.21
-  - libsqlite=3.39.4
-  - libssh2=1.10.0
-  - libstdcxx-ng=12.2.0
+  - libopenblas=0.3.23
+  - libsqlite=3.43.0
+  - libssh2=1.11.0
+  - libstdcxx-ng=13.1.0
   - libunistring=0.9.10
-  - libuuid=2.32.1
-  - libxml2=2.10.3
+  - libuuid=2.38.1
+  - libxml2=2.11.5
   - libzlib=1.2.13
-  - mafft=7.508
+  - mafft=7.520
   - mash=2.3
   - mmseqs2=14.7e284
-  - ncurses=6.3
-  - openssl=3.0.5
-  - pcre2=10.37
+  - ncurses=6.4
+  - openssl=3.1.2
+  - pcre2=10.40
   - perl=5.32.1
-  - pip=22.3
-  - python=3.11.0
-  - readline=8.1.2
-  - setuptools=65.5.0
-  - sqlite=3.39.4
+  - pip=23.2.1
+  - python=3.11.5
+  - readline=8.2
+  - setuptools=68.1.2
+  - sqlite=3.43.0
   - tk=8.6.12
-  - tzdata=2022e
+  - tzdata=2023c
   - wget=1.20.3
-  - wheel=0.37.1
+  - wheel=0.41.2
   - xz=5.2.6
   - zlib=1.2.13
-  - pip:
-    - biopython==1.79
-    - contourpy==1.0.6
-    - cycler==0.11.0
-    - fonttools==4.38.0
-    - kiwisolver==1.4.4
-    - matplotlib==3.6.1
-    - networkx==2.8.7
-    - numpy==1.23.4
-    - packaging==21.3
-    - pandas==1.5.1
-    - pillow==9.3.0
-    - git+https://github.com/mmolari/pypangraph@0.1.0
-    - pyparsing==3.0.9
-    - python-dateutil==2.8.2
-    - pytz==2022.5
-    - scipy==1.9.3
-    - six==1.16.0
-prefix: /home/marco/miniconda3/envs/pangraph
+  - zstd=1.5.5
