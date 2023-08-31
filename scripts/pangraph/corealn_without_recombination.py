@@ -11,6 +11,7 @@ import scipy.sparse as sps
 from Bio import SeqIO, Seq
 import matplotlib.pyplot as plt
 
+
 # %%
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -62,7 +63,6 @@ def consensus(A):
 
 
 def create_alignment_matrices(pan, block_order):
-
     # alphabetically ordered list of strains
     strains = np.sort(pan.strains())
 
@@ -75,7 +75,6 @@ def create_alignment_matrices(pan, block_order):
     left_idx = 0
 
     for bl in block_order:
-
         b = pan.blocks[bl]
 
         print("proccessing", b)
@@ -108,8 +107,11 @@ def create_alignment_matrices(pan, block_order):
         left_idx += lA
 
     # concatenate
+    # reduced alignment
     aln_matrix = np.hstack(aln_matrix)
+    # indices of SNPs in the full core-genome alignment
     aln_matrix_idxs = np.hstack(aln_matrix_idxs)
+    # boolean sparse matrix of SNP (1) and consensus (0)
     consensus_matrix = sps.hstack(consensus_matrix)
 
     return {
@@ -150,8 +152,8 @@ def diagnostic_plot(
     ct2, _ = np.histogram(kept_idxs, bins=window_bins)
     ctbins = np.arange(np.max(np.hstack([ct1, ct2])) + 3) - 0.5
 
-    ax.hist(ct1, bins=ctbins, alpha=0.4)
-    ax.hist(ct2, bins=ctbins, alpha=0.4)
+    ax.hist(ct1, bins=ctbins, alpha=0.4, label="pre-filter", color="C0")
+    ax.hist(ct2, bins=ctbins, alpha=0.4, label="post-filter", color="C2")
     ax.set_xlim(left=0)
     ax.axvline(threshold, c="k", ls=":", label="threshold")
     ax.set_yscale("log")
@@ -159,6 +161,7 @@ def diagnostic_plot(
     ax.set_title(
         f"window size = {window} bp, threshold > {threshold} neighbouring SNPs"
     )
+    ax.legend(loc="upper right")
     ax.set_xlabel("n. core-genome alignment polymorphic positions per window")
     ax.set_ylabel("n. positions")
 
@@ -199,14 +202,18 @@ def filter_out_idxs(S, window, max_nsnps):
         idxs = np.sort(row.indices)
 
         for i in idxs:
+            # ds -> vector of distances of SNP positions to window center
+            # with periodic boundary conditions
             d1 = (idxs - i) % L
             d2 = (i - idxs) % L
             ds = np.min(np.vstack([d1, d2]), axis=0)
 
+            # boolean array of which SNPs are within the window
             close_mask = ds <= window
             n_neigh = np.sum(close_mask)
             if n_neigh > max_nsnps:
                 remove_idxs += list(idxs[close_mask])
+    # return list of indices to remove
     remove_idxs = np.unique(remove_idxs)
     return remove_idxs
 
@@ -259,7 +266,6 @@ def save_summary_info(S, remove_idxs, window, nsnps_max, fname):
 
 
 if __name__ == "__main__":
-
     # parse arguments
     args = parse_args()
 
@@ -278,8 +284,8 @@ if __name__ == "__main__":
     strains = aln_Ms["strain_order"]
     N, L = S.shape
 
+    # filter out highly mutated (prbably recombined) spots
     w, thr = args.window, args.max_nsnps
-
     remove_idxs = filter_out_idxs(S, window=w, max_nsnps=thr)
 
     # perform a diagnostic plot
