@@ -9,7 +9,6 @@ import numpy as np
 import json
 import scipy.sparse as sps
 from Bio import SeqIO, Seq
-import matplotlib.pyplot as plt
 
 
 # %%
@@ -25,9 +24,8 @@ def parse_args():
     parser.add_argument("--window", help="window size (bp)", type=int)
     parser.add_argument("--max_nsnps", help="max n. of SNPs in the window", type=int)
     parser.add_argument("--fasta_aln", help="output fasta alignment file", type=str)
-    parser.add_argument("--info", help="output json information file", type=str)
-    parser.add_argument("--plot_full", help="diagnostic plot full", type=str)
-    parser.add_argument("--plot_reduced", help="diagnostic plot reduced", type=str)
+    parser.add_argument("--info_size", help="output json information file", type=str)
+    parser.add_argument("--info_idxs", help="save idxs of reduced alignment", type=str)
     args = parser.parse_args()
     return args
 
@@ -123,85 +121,6 @@ def create_alignment_matrices(pan, block_order):
     }
 
 
-def __plot_window(ax, L, window, threshold, Aidxs, remove_idxs):
-    kept_idxs = list(set(Aidxs) - set(remove_idxs))
-    window_bins = np.arange(0, L + window + 1, step=window)
-    ct1, _ = np.histogram(Aidxs, bins=window_bins)
-    ct2, _ = np.histogram(kept_idxs, bins=window_bins)
-    ctbins = np.arange(np.max(np.hstack([ct1, ct2])) + 3) - 0.5
-
-    ax.hist(ct1, bins=ctbins, alpha=0.4, label="pre-filter", color="C0")
-    ax.hist(ct2, bins=ctbins, alpha=0.4, label="post-filter", color="C2")
-    ax.set_xlim(left=0)
-    ax.axvline(threshold, c="k", ls=":", label="threshold")
-    ax.set_yscale("log")
-    ax.set_xscale("symlog")
-    ax.set_title(
-        f"window size = {window} bp, threshold > {threshold} neighbouring SNPs"
-    )
-    ax.legend(loc="upper right")
-    ax.set_xlabel("n. core-genome alignment polymorphic positions per window")
-    ax.set_ylabel("n. positions")
-
-
-def __plot_hist(ax, L, Aidxs, remove_idxs):
-    kept_idxs = list(set(Aidxs) - set(remove_idxs))
-    bins = np.arange(L + 10001, step=10000)
-    ax.hist(Aidxs, bins=bins, label="pre-filter")
-    ax.hist(remove_idxs, bins=bins, label="removed")
-    # ax.hist(kept_idxs, bins=bins, label="post-filter", histtype="step")
-    ax.set_yscale("log")
-    ax.legend()
-    ax.set_xlabel("core genome alignment")
-    ax.set_ylabel("SNPs per 10kbp")
-    ax.set_title(
-        f"n. SNPs in core alignment before / after filtering = {len(Aidxs)} / {len(kept_idxs)}"
-    )
-
-
-def __plot_cumulative(ax, L, Aidxs, remove_idxs):
-    kept_idxs = list(set(Aidxs) - set(remove_idxs))
-    kwargs = {
-        "bins": np.arange(L + 10001, step=10000),
-        "cumulative": True,
-        "density": True,
-        "histtype": "step",
-    }
-    ax.hist(Aidxs, label="pre-filtering", **kwargs)
-    ax.hist(remove_idxs, label="removed", **kwargs)
-    ax.hist(kept_idxs, label="post-filter", **kwargs)
-    ax.legend(loc="upper left")
-    ax.set_xlabel("core genome alignment")
-    ax.set_ylabel("cumul. distr. of SNPs")
-
-
-def diagnostic_plot(Aidxs, remove_idxs, L, window, threshold, filename):
-    """Diagnostic plot to check the effect of recombination filtering."""
-
-    fig, axs = plt.subplots(3, 1, sharex=False, figsize=(10, 8))
-
-    __plot_window(axs[0], L, window, threshold, Aidxs, remove_idxs)
-    __plot_hist(axs[1], L, Aidxs, remove_idxs)
-    __plot_cumulative(axs[2], L, Aidxs, remove_idxs)
-
-    plt.tight_layout()
-    plt.savefig(filename)
-    plt.close(fig)
-
-
-def diagnostic_plot_reduced(Aidxs, remove_idxs, L, filename):
-    """Diagnostic plot to check the effect of recombination filtering."""
-
-    fig, axs = plt.subplots(2, 1, sharex=False, figsize=(10, 6))
-
-    __plot_hist(axs[0], L, Aidxs, remove_idxs)
-    __plot_cumulative(axs[1], L, Aidxs, remove_idxs)
-
-    plt.tight_layout()
-    plt.savefig(filename)
-    plt.close(fig)
-
-
 def filter_out_idxs(S, window, max_nsnps):
     """Filters out sites where mutations are too clustered on a
     specific strain. This is defined using a window size and an upper
@@ -240,7 +159,7 @@ def save_aln(A, strains, fname):
     SeqIO.write(recs, fname, format="fasta")
 
 
-def save_summary_info(S, remove_idxs, window, nsnps_max, fname):
+def save_summary_info(S, remove_idxs, window, nsnps_max, fname_size, fname_idxs):
     """Saves infos on the size of the core genome alignment before and
     after filtering."""
 
@@ -273,7 +192,15 @@ def save_summary_info(S, remove_idxs, window, nsnps_max, fname):
     # make json serializable
     info = {k: int(v) for k, v in info.items()}
 
-    with open(fname, "w") as f:
+    with open(fname_size, "w") as f:
+        json.dump(info, f, indent=2)
+
+    # save idxs
+    info = {
+        "idxs_all": Aidxs.tolist(),
+        "idxs_removed": remove_idxs.tolist(),
+    }
+    with open(fname_idxs, "w") as f:
         json.dump(info, f, indent=2)
 
 
@@ -300,12 +227,6 @@ if __name__ == "__main__":
     w, thr = args.window, args.max_nsnps
     remove_idxs = filter_out_idxs(S, window=w, max_nsnps=thr)
 
-    # perform a diagnostic plot
-    diagnostic_plot(
-        Aidxs, remove_idxs, L, window=w, threshold=thr, filename=args.plot_full
-    )
-    diagnostic_plot_reduced(Aidxs, remove_idxs, L, filename=args.plot_reduced)
-
     # remove recombination islands
     keep = ~np.isin(Aidxs, remove_idxs)
     A_polished = A[:, keep]
@@ -314,4 +235,11 @@ if __name__ == "__main__":
     save_aln(A_polished, strains=strains, fname=args.fasta_aln)
 
     # save summary info
-    save_summary_info(S, remove_idxs, window=w, nsnps_max=thr, fname=args.info)
+    save_summary_info(
+        S,
+        remove_idxs,
+        window=w,
+        nsnps_max=thr,
+        fname_size=args.info_size,
+        fname_idxs=args.info_idxs,
+    )

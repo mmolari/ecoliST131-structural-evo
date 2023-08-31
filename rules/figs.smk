@@ -31,6 +31,25 @@ rule FG_metadata:
         """
 
 
+rule FG_recombination_filter:
+    input:
+        info_idxs=rules.PG_filtered_corealignment.output.info_idxs,
+        info_size=rules.PG_filtered_corealignment.output.info_size,
+    output:
+        full="figs/{dset}/pangraph/corealn_remove_recombination/{opt}_full.pdf",
+        reduced="figs/{dset}/pangraph/corealn_remove_recombination/{opt}_reduced.pdf",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/figs/recombination_filter.py \
+            --idxs {input.info_idxs} \
+            --size {input.info_size} \
+            --fig_full {output.full} \
+            --fig_reduced {output.reduced}
+        """
+
+
 rule FG_homoplasies:
     input:
         tree=rules.PG_coregenome_tree.output.nwk,
@@ -38,7 +57,7 @@ rule FG_homoplasies:
         aln_info=rules.PG_corealignment.output.json,
         filt_tree=rules.PG_filtered_coregenome_tree.output.nwk,
         filt_aln=rules.PG_filtered_corealignment.output.fa,
-        filt_aln_info=rules.PG_filtered_corealignment.output.json,
+        filt_aln_info=rules.PG_filtered_corealignment.output.info_size,
     output:
         hist_fig="figs/{dset}/{opt}/homoplasies/hist.pdf",
         tree_fig="figs/{dset}/{opt}/homoplasies/tree.pdf",
@@ -66,7 +85,7 @@ rule FG_all:
         expand(rules.FG_metadata.output, dset=datasets.keys(), opt=kernel_opt.keys()),
         expand(rules.FG_homoplasies.output, dset=datasets.keys(), opt=kernel_opt.keys()),
         expand(
-            rules.PG_filtered_corealignment.output.plot_reduced,
+            rules.FG_recombination_filter.output,
             dset=datasets.keys(),
             opt=kernel_opt.keys(),
         ),
