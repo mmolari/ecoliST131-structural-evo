@@ -73,7 +73,7 @@ def __plot_hist(ax, params, idxs):
     )
 
 
-def __plot_cumulative(ax, params, idxs):
+def __plot_cumulative(ax, params, idxs, plot_removed):
     L = params["L"]
     Aidxs, remove_idxs, kept_idxs = idxs["all"], idxs["removed"], idxs["kept"]
     kwargs = {
@@ -82,9 +82,10 @@ def __plot_cumulative(ax, params, idxs):
         "density": True,
         "histtype": "step",
     }
-    ax.hist(Aidxs, label="pre-filtering", **kwargs)
-    ax.hist(remove_idxs, label="removed", **kwargs)
-    ax.hist(kept_idxs, label="post-filter", **kwargs)
+    ax.hist(Aidxs, label="pre-filter", color="C0", **kwargs)
+    if plot_removed:
+        ax.hist(remove_idxs, label="removed", color="C1", **kwargs)
+    ax.hist(kept_idxs, label="post-filter", color="C2", **kwargs)
     ax.legend(loc="upper left")
     ax.set_xlabel("core genome alignment")
     ax.set_ylabel("cumul. distr. of SNPs")
@@ -97,7 +98,7 @@ def diagnostic_plot(params, idxs, filename):
 
     __plot_window(axs[0], params, idxs)
     __plot_hist(axs[1], params, idxs)
-    __plot_cumulative(axs[2], params, idxs)
+    __plot_cumulative(axs[2], params, idxs, plot_removed=True)
 
     plt.tight_layout()
     plt.savefig(filename)
@@ -110,7 +111,7 @@ def diagnostic_plot_reduced(params, idxs, filename):
     fig, axs = plt.subplots(2, 1, sharex=False, figsize=(10, 6))
 
     __plot_hist(axs[0], params, idxs)
-    __plot_cumulative(axs[1], params, idxs)
+    __plot_cumulative(axs[1], params, idxs, plot_removed=False)
 
     plt.tight_layout()
     plt.savefig(filename)
