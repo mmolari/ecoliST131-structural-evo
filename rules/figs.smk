@@ -65,3 +65,8 @@ rule FG_all:
         expand(rules.FG_assembly_qc.output, dset=datasets.keys()),
         expand(rules.FG_metadata.output, dset=datasets.keys(), opt=kernel_opt.keys()),
         expand(rules.FG_homoplasies.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(
+            rules.PG_filtered_corealignment.output.plot_reduced,
+            dset=datasets.keys(),
+            opt=kernel_opt.keys(),
+        ),

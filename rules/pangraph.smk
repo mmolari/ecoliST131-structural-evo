@@ -99,7 +99,8 @@ rule PG_filtered_corealignment:
     output:
         fa="results/{dset}/pangraph/{opt}-alignment/filtered_corealignment.fa",
         json="results/{dset}/pangraph/{opt}-alignment/filtered_corealignment_info.json",
-        plot="figs/{dset}/pangraph/corealn_remove_recombination/{opt}.pdf",
+        plot_full="figs/{dset}/pangraph/corealn_remove_recombination/{opt}.pdf",
+        plot_reduced="figs/{dset}/pangraph/corealn_remove_recombination/{opt}_reduced.pdf",
     conda:
         "../conda_env/bioinfo.yml"
     params:
@@ -115,7 +116,8 @@ rule PG_filtered_corealignment:
             --max_nsnps {params.max_nsnps} \
             --fasta_aln {output.fa} \
             --info {output.json} \
-            --plot {output.plot}
+            --plot_full {output.plot_full} \
+            --plot_reduced {output.plot_reduced}
         """
 
 

@@ -26,7 +26,8 @@ def parse_args():
     parser.add_argument("--max_nsnps", help="max n. of SNPs in the window", type=int)
     parser.add_argument("--fasta_aln", help="output fasta alignment file", type=str)
     parser.add_argument("--info", help="output json information file", type=str)
-    parser.add_argument("--plot", help="diagnostic plot", type=str)
+    parser.add_argument("--plot_full", help="diagnostic plot full", type=str)
+    parser.add_argument("--plot_reduced", help="diagnostic plot reduced", type=str)
     args = parser.parse_args()
     return args
 
@@ -122,31 +123,8 @@ def create_alignment_matrices(pan, block_order):
     }
 
 
-def diagnostic_plot(
-    Aidxs,
-    remove_idxs,
-    L,
-    window,
-    threshold,
-    filename,
-):
-    """Diagnostic plot to check the effect of recombination filtering."""
-
+def __plot_window(ax, L, window, threshold, Aidxs, remove_idxs):
     kept_idxs = list(set(Aidxs) - set(remove_idxs))
-
-    bins = np.arange(L + 10001, step=10000)
-
-    kwargs = {
-        "bins": bins,
-        "cumulative": True,
-        "density": True,
-        # "alpha" : 0.5,
-        "histtype": "step",
-    }
-
-    fig, axs = plt.subplots(3, 1, sharex=False, figsize=(10, 8))
-
-    ax = axs[0]
     window_bins = np.arange(0, L + window + 1, step=window)
     ct1, _ = np.histogram(Aidxs, bins=window_bins)
     ct2, _ = np.histogram(kept_idxs, bins=window_bins)
@@ -165,7 +143,10 @@ def diagnostic_plot(
     ax.set_xlabel("n. core-genome alignment polymorphic positions per window")
     ax.set_ylabel("n. positions")
 
-    ax = axs[1]
+
+def __plot_hist(ax, L, Aidxs, remove_idxs):
+    kept_idxs = list(set(Aidxs) - set(remove_idxs))
+    bins = np.arange(L + 10001, step=10000)
     ax.hist(Aidxs, bins=bins, label="pre-filter")
     ax.hist(remove_idxs, bins=bins, label="removed")
     # ax.hist(kept_idxs, bins=bins, label="post-filter", histtype="step")
@@ -174,16 +155,47 @@ def diagnostic_plot(
     ax.set_xlabel("core genome alignment")
     ax.set_ylabel("SNPs per 10kbp")
     ax.set_title(
-        f"core alignment size before / after filtering = {len(Aidxs)} / {len(kept_idxs)}"
+        f"n. SNPs in core alignment before / after filtering = {len(Aidxs)} / {len(kept_idxs)}"
     )
 
-    ax = axs[2]
+
+def __plot_cumulative(ax, L, Aidxs, remove_idxs):
+    kept_idxs = list(set(Aidxs) - set(remove_idxs))
+    kwargs = {
+        "bins": np.arange(L + 10001, step=10000),
+        "cumulative": True,
+        "density": True,
+        "histtype": "step",
+    }
     ax.hist(Aidxs, label="pre-filtering", **kwargs)
     ax.hist(remove_idxs, label="removed", **kwargs)
     ax.hist(kept_idxs, label="post-filter", **kwargs)
     ax.legend(loc="upper left")
     ax.set_xlabel("core genome alignment")
     ax.set_ylabel("cumul. distr. of SNPs")
+
+
+def diagnostic_plot(Aidxs, remove_idxs, L, window, threshold, filename):
+    """Diagnostic plot to check the effect of recombination filtering."""
+
+    fig, axs = plt.subplots(3, 1, sharex=False, figsize=(10, 8))
+
+    __plot_window(axs[0], L, window, threshold, Aidxs, remove_idxs)
+    __plot_hist(axs[1], L, Aidxs, remove_idxs)
+    __plot_cumulative(axs[2], L, Aidxs, remove_idxs)
+
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close(fig)
+
+
+def diagnostic_plot_reduced(Aidxs, remove_idxs, L, filename):
+    """Diagnostic plot to check the effect of recombination filtering."""
+
+    fig, axs = plt.subplots(2, 1, sharex=False, figsize=(10, 6))
+
+    __plot_hist(axs[0], L, Aidxs, remove_idxs)
+    __plot_cumulative(axs[1], L, Aidxs, remove_idxs)
 
     plt.tight_layout()
     plt.savefig(filename)
@@ -290,13 +302,9 @@ if __name__ == "__main__":
 
     # perform a diagnostic plot
     diagnostic_plot(
-        Aidxs,
-        remove_idxs,
-        L,
-        window=w,
-        threshold=thr,
-        filename=args.plot,
+        Aidxs, remove_idxs, L, window=w, threshold=thr, filename=args.plot_full
     )
+    diagnostic_plot_reduced(Aidxs, remove_idxs, L, filename=args.plot_reduced)
 
     # remove recombination islands
     keep = ~np.isin(Aidxs, remove_idxs)
