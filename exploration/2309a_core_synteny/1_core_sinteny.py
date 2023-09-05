@@ -257,3 +257,11 @@ plt.savefig(svfig_blocks)
 plt.show()
 
 # %%
+
+# total tree length
+tbl = tree.total_branch_length()
+n_events = 15
+aln_len = 3772479
+
+print(tbl * aln_len)
+# %%
