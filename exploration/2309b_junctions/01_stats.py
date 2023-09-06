@@ -47,6 +47,14 @@ def count_events(path_cats):
         return i2, "other"
 
 
+fig_fld = pathlib.Path("figs")
+
+
+def svfig(name):
+    plt.savefig(fig_fld / f"{name}.svg")
+    plt.savefig(fig_fld / f"{name}.png")
+
+
 fld = pathlib.Path("/home/marco/ownCloud/neherlab/code/pangenome-evo/results/ST131")
 df_file = fld / "backbone_joints/asm20-100-5/junctions_stats.csv"
 tree_file = fld / "pangraph/asm20-100-5-filtered-coretree.nwk"
@@ -85,27 +93,54 @@ edf
 
 # %%
 
-sns.scatterplot(data=edf, x="branch_length", y="ev_count", hue="loss")
+fig, ax = plt.subplots(1, 1, figsize=(4, 3))
+sns.scatterplot(data=edf, x="branch_length", y="ev_count", alpha=0.5, ax=ax)
+sns.despine()
+plt.xlabel("terminal branch length")
+plt.ylabel("n. of events on terminal branch")
+plt.tight_layout()
+svfig("len_vs_events_scatter")
 plt.show()
-# %%
 
+fig, ax = plt.subplots(1, 1, figsize=(4, 3))
+x_bins = np.linspace(0, edf["branch_length"].max() * 1.1, 20)
+y_bins = np.arange(edf["ev_count"].max() + 2) - 0.5
 sns.histplot(
     data=edf,
     x="branch_length",
-    hue="#events > 0",
-    common_bins=True,
-    bins=25,
-    palette="Set2",
-    # multiple="stack",
+    y="ev_count",
+    bins=(x_bins, y_bins),
+    cbar=True,
+    cbar_kws={"label": "n. of isolates"},
+    ax=ax,
 )
 sns.despine()
+plt.xlabel("terminal branch length")
+plt.ylabel("n. of events on terminal branch")
+plt.tight_layout()
+svfig("len_vs_events_hist")
+plt.show()
+
+# %%
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 3))
+bins = np.linspace(0, edf["branch_length"].max() * 1.1, 20)
+mask = edf["ev_count"] > 0
+ax.hist(edf["branch_length"][mask], bins=bins, label="n. events > 0", alpha=0.3)
+ax.hist(edf["branch_length"][~mask], bins=bins, label="n. events = 0", alpha=0.3)
+ax.set_xlabel("terminal branch length")
+ax.set_ylabel("n. of isolates")
+ax.legend()
+sns.despine()
+plt.tight_layout()
+svfig("len_vs_bool_events_hist")
 plt.show()
 
 
 # %%
 
 # barplot for event types
-fig, axs = plt.subplots(1, 2, figsize=(10, 10))
+fig, axs = plt.subplots(1, 2, figsize=(6, 6))
 
 ax = axs[0]
 Phylo.draw(tree, axes=ax, do_show=False, label_func=lambda x: "")
@@ -129,10 +164,46 @@ ax.barh(
 ax.barh(y=edf.index, width=edf["other"], color="grey", label="other")
 ax.set_ylim(len(edf), -1)
 ax.set_yticks([])
+ax.set_xlabel("n. of events on terminal branch")
 
 plt.xticks(rotation=90)
 plt.legend()
+plt.tight_layout()
+sns.despine()
+svfig("tree_vs_events")
 plt.show()
 
 
+# %%
+
+
+# %%
+def make_autopct(values):
+    def my_autopct(pct):
+        total = sum(values)
+        val = int(round(pct * total / 100.0))
+        return "{p:.0f}%  ({v:d})".format(p=pct, v=val)
+
+    return my_autopct
+
+
+gains = edf["gain"].sum()
+losses = edf["loss"].sum()
+others = edf["other"].sum()
+values = [gains, losses, others]
+labels = ["gains", "losses", "others"]
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 3))
+ax.pie(
+    values,
+    labels=labels,
+    autopct=make_autopct(values),
+    # startangle=90,
+    colors=["lightgreen", "lightcoral", "silver"],
+)
+ax.set_title("n. events on terminal branches")
+fig.set_facecolor("white")
+plt.tight_layout()
+svfig("pie_events")
+plt.show()
 # %%
