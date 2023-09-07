@@ -89,6 +89,7 @@ for j in Js:
 # %%
 edf["ev_count"] = edf["gain"] + edf["loss"] + edf["other"]
 edf["#events > 0"] = edf["ev_count"] > 0
+edf.to_csv("data/event_df.csv")
 edf
 
 # %%
