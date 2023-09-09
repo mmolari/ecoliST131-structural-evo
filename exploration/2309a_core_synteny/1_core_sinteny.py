@@ -69,26 +69,39 @@ def find_mergers(edge_ct, block_ct):
         if (ec == block_ct[bl]) and (ec == block_ct[br]):
             # merge
             if bl in mergers:
-                mergers[br] = mergers[bl]
+                if br in mergers:
+                    source = mergers[br]
+                    sink = mergers[bl]
+                    for k in mergers:
+                        if mergers[k] == source:
+                            mergers[k] = sink
+                else:
+                    mergers[br] = mergers[bl]
             elif br in mergers:
                 mergers[bl] = mergers[br]
             else:
                 mergers[br] = bl
+                mergers[bl] = bl
     return mergers
 
 
 def perform_mergers(mergers, paths, block_df):
     """Performs selected mergers in paths and block stats"""
+    sink_blocks = set(mergers.values())
+
     for source, sink in mergers.items():
         # modify block count dataframe
+        if source in sink_blocks:
+            continue
+        # assert source not in kept_blocks, f"{source} in kept_blocks for sink {sink}"
         block_df.loc[sink, "len"] += block_df["len"][source]
         assert block_df["count"][sink] == block_df["count"][source]
         block_df.drop(source, inplace=True)
 
-    removed_blocks = set(mergers.keys()) - set(mergers.values())
+    discarded_blocks = set(mergers.keys()) - sink_blocks
 
     def keep(bid):
-        return bid not in removed_blocks
+        return bid not in discarded_blocks
 
     return ut.filter_paths(paths, keep)
 
