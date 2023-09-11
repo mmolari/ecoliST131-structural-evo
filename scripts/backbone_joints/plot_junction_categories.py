@@ -8,7 +8,7 @@ import pypangraph as pp
 import utils as ut
 
 from Bio import Phylo
-from collections import Counter, defaultdict
+from collections import defaultdict
 
 
 def parse_args():
@@ -24,24 +24,6 @@ def parse_args():
     parser.add_argument("--fig", type=str)
     parser.add_argument("--len_filt", type=int, default=0)
     return parser.parse_args()
-
-
-def path_categories(paths):
-    """Returns a list of touples, one per non-empty path, with the following info:
-    (count, path, [list of isolates])"""
-    iso_list = defaultdict(list)
-    n_paths = defaultdict(int)
-    nodes = {}
-    for iso, path in paths.items():
-        if len(path.nodes) > 0:
-            n_paths[path] += 1
-            iso_list[path].append(iso)
-            nodes[path] = path.nodes
-
-    # sort by count
-    path_cat = [(count, nodes[path], iso_list[path]) for path, count in n_paths.items()]
-    path_cat.sort(key=lambda x: x[0], reverse=True)
-    return path_cat
 
 
 def plot_row(ax, nodes, y, colors, block_df):
@@ -150,7 +132,7 @@ if __name__ == "__main__":
         bdf = bdf[bdf["len"] >= args.len_filt].copy()
 
     # subdivide paths into categories
-    path_cat = path_categories(paths)
+    path_cat = ut.path_categories(paths)
 
     # plot
     fig, axs = plot_categories(path_cat, bdf, args.tree)
