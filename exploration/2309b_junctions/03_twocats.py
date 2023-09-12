@@ -212,3 +212,14 @@ plt.savefig(fig_fld / "two_cat_events.png", dpi=300)
 plt.savefig(fig_fld / "two_cat_events.pdf")
 plt.show()
 # %%
+
+tot_internal_branch_len = branch_df[~branch_df["terminal"]]["branch_length"].sum()
+tot_n_internal_events = branch_df[~branch_df["terminal"]]["n_events"].sum()
+
+print(f"total internal branch length: {tot_internal_branch_len:.2e}")
+print(f"total number of internal events: {tot_n_internal_events}")
+print(
+    f"event rate: {tot_n_internal_events / tot_internal_branch_len:.2e} events per branch length"
+)
+
+# %%
