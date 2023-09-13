@@ -59,8 +59,16 @@ def are_clade(tree, isolates):
         return None
 
 
-# def find_coordinates(pan, iso, block):
-# path = pan.paths[iso]
+def find_coordinates(pan, block):
+    for path in pan.paths:
+        B = list(path.block_ids)
+        if not block in B:
+            continue
+        idx = B.index(block)
+        strand = path.block_strands[idx]
+        beg, end = path.block_positions[idx : idx + 2]
+        iso = path.name
+        return beg, end, iso, strand
 
 
 events_df = {}
@@ -95,8 +103,15 @@ for j in Js:
     if len(blocks) == 1:
         bid = blocks[0].id
         info["block"] = bid
+        info["seq"] = pan.blocks[bid].sequence
         bdf = pan.to_blockstats_df()
         info["block len"] = bdf.loc[bid, "len"]
+
+        beg, end, loc_iso, strand = find_coordinates(pan, bid)
+        info["loc_beg"] = beg
+        info["loc_end"] = end
+        info["loc_iso"] = loc_iso
+        info["loc_strand"] = strand
 
     events_df[j] = info
 
@@ -120,5 +135,111 @@ sns.histplot(
     # multiple="stack",
 )
 plt.show()
+
+# %%
+
+# find annotations
+from Bio import SeqIO
+import json
+
+gbk_fld = pathlib.Path("../../data/gbk")
+
+offsets_file = "../../results/ST131/backbone_joints/asm20-100-5/joints_pos.json"
+with open(offsets_file, "r") as f:
+    offsets = json.load(f)
+
+
+def parse_features(gbk_file, ws, we):
+    assert ws < we, "start must be smaller than end"
+    features_in_window = []
+
+    for record in SeqIO.parse(gbk_file, "genbank"):
+        L = len(record)
+        if we > L:
+            print("### wrapping ###")
+            we = we % L
+            if ws > L:
+                ws = ws % L
+                return parse_features(gbk_file, ws, we)
+            else:
+                return parse_features(gbk_file, ws, L) + parse_features(gbk_file, 0, we)
+
+        for feature in record.features:
+            if feature.type == "CDS":
+                fs = feature.location.start.position
+                fe = feature.location.end.position
+
+                cs = max([fs, ws])
+                ce = min([fe, we])
+
+                if not (cs < ce):
+                    continue
+
+                left_within = ws < fs
+                right_within = fe < we
+                if left_within and right_within:
+                    cat = "full"
+                elif not (left_within or right_within):
+                    cat = "within"
+                else:
+                    cat = "partial"
+
+                overlap = ce - cs + 1
+                # f_seq = str(feature.extract(record.seq))
+                features_in_window.append((feature, overlap, cat))
+        break
+    # export sequence, feature size and window overlap
+    return features_in_window
+
+
+def parse_qualifiers(qual):
+    dq = dict(qual)
+    for k in [
+        "translation",
+        "transl_except",
+        "note",
+        "old_locus_tag",
+        "inference",
+        "ribosomal_slippage",
+        "codon_start",
+        "transl_table",
+    ]:
+        if k in dq:
+            del dq[k]
+    for k in dq:
+        if isinstance(dq[k], list):
+            if len(dq[k]) == 1:
+                dq[k] = dq[k][0]
+    return dq
+
+
+ft_df = []
+for j, row in events_df.iterrows():
+    print(f"processing {j}")
+    if not pd.isna(row["loc_beg"]):
+        iso = row["loc_iso"]
+        gbk_file = gbk_fld / f"{iso}.gbk"
+        ws, we = row["loc_beg"], row["loc_end"]
+        os, oe, o_strand = offsets[j][iso]
+        ws += os
+        we += os
+        features = parse_features(gbk_file, ws, we)
+
+        for feat, overlap, cat in features:
+            entry = {
+                "overlap": overlap,
+                "cat": cat,
+                "joint": j,
+                "iso": iso,
+                "start": int(feat.location.start),
+                "end": int(feat.location.end),
+                "feature_len": len(feat),
+                "window_size": we - ws,
+            }
+            entry |= parse_qualifiers(feat.qualifiers)
+            ft_df.append(entry)
+ft_df = pd.DataFrame(ft_df)
+ft_df.to_csv("data/annotations.csv")
+ft_df
 
 # %%
