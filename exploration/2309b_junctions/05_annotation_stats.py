@@ -8,6 +8,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 
 df_ann = pd.read_csv("data/annotations.csv", index_col=0)
@@ -72,7 +73,7 @@ mge_df.to_csv("data/mge_fract.csv")
 # %%
 mge_df = pd.read_csv("data/mge_fract.csv")
 
-sns.histplot(data=mge_df, x="mge_fraction", bins=20)
+sns.histplot(data=mge_df, x="mge_fraction", bins=15)
 plt.axvline(mge_df["mge_fraction"].mean(), color="red", label="mean")
 plt.xlabel("fraction of MGE annotations")
 plt.legend()
@@ -141,6 +142,75 @@ sns.despine()
 plt.tight_layout()
 plt.savefig("figs/annotation_stats.pdf")
 plt.savefig("figs/annotation_stats.png")
+plt.show()
+
+# %%
+
+blam_nodes = df_ev[df_ev["betalactam"] == True]["isolate"]
+
+from Bio import Phylo
+from collections import Counter
+
+tree_file = "../../results/ST131/pangraph/asm20-100-5-filtered-coretree.nwk"
+tree = Phylo.read(tree_file, "newick")
+# parse paf file
+pfile = "data/bla_map.paf"
+paf_iso = pd.read_csv(pfile, sep="\t", header=None).iloc[:, 0]
+leaves = [n.name for n in tree.get_terminals()]
+paf_iso = Counter(paf_iso[paf_iso.isin(leaves)])
+# %%
+
+
+def color_node(n):
+    if n.name in blam_nodes.values:
+        n.color = "red"
+    else:
+        n.color = "gray"
+    for c in n:
+        color_node(c)
+
+
+color_node(tree.root)
+
+
+fig, axs = plt.subplots(
+    1, 2, figsize=(6, 12), sharey=True, gridspec_kw={"width_ratios": [3, 1]}
+)
+
+# plot tree
+ax = axs[0]
+Phylo.draw(tree, axes=ax, do_show=False, label_func=lambda x: "")
+# y_value of leaves
+y_iso = {l.name: y + 1 for y, l in enumerate(tree.get_terminals())}
+
+# draw dots
+ax = axs[1]
+for iso, n in paf_iso.items():
+    lab = "total" if iso == "NZ_CP063774" else None
+    ax.barh(y_iso[iso], n, 1, color="k", label=lab)
+ax.set_xlabel("n. bla-ctx-m-15")
+
+isos = []
+for node in blam_nodes.values:
+    if node in leaves:
+        isos += [node]
+    else:
+        t = [l for l in tree.get_nonterminals() if l.name == node][0]
+        isos += [l.name for l in t.get_terminals()]
+for iso, n in Counter(isos).items():
+    lab = "two-categories" if iso == "NZ_CP063774" else None
+    ax.barh(y_iso[iso], n, 1, color="red", label=lab)
+
+ax.legend()
+
+for ax in axs:
+    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(1))
+    ax.grid(alpha=0.5, axis="y", which="major")
+    ax.grid(alpha=0.2, axis="y", which="minor")
+
+sns.despine()
+plt.tight_layout()
+plt.savefig("figs/betalactam_tree.png", dpi=300)
 plt.show()
 
 # %%
