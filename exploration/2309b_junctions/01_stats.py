@@ -12,24 +12,6 @@ from collections import defaultdict
 from Bio import Phylo
 
 
-def path_categories(paths):
-    """Returns a list of touples, one per non-empty path, with the following info:
-    (count, path, [list of isolates])"""
-    iso_list = defaultdict(list)
-    n_paths = defaultdict(int)
-    nodes = {}
-    for iso, path in paths.items():
-        if len(path.nodes) > 0:
-            n_paths[path] += 1
-            iso_list[path].append(iso)
-            nodes[path] = path.nodes
-
-    # sort by count
-    path_cat = [(count, nodes[path], iso_list[path]) for path, count in n_paths.items()]
-    path_cat.sort(key=lambda x: x[0], reverse=True)
-    return path_cat
-
-
 def count_events(path_cats):
     assert len(path_cats) == 2
     p1, p2 = path_cats
@@ -38,13 +20,14 @@ def count_events(path_cats):
     assert c2 == 1, f"{c1}, {c2}"
     assert n1[0] == n2[0], f"{n1}, {n2}"
     assert n1[-1] == n2[-1], f"{n1}, {n2}"
-    if set(n1).issubset(n2):
-        return i2, "gain"
-    elif set(n2).issubset(n1):
-        return i2, "loss"
+    n1, n2 = set(n1), set(n2)
+    if n1.issubset(n2):
+        return i2, "gain", n2 - n1
+    elif n2.issubset(n1):
+        return i2, "loss", n1 - n2
     else:
         print(n1, n2)
-        return i2, "other"
+        return i2, "other", (n1 | n2) - (n1 & n2)
 
 
 fig_fld = pathlib.Path("figs")
@@ -71,7 +54,6 @@ tree.ladderize()
 terminal_len = {b.name: b.branch_length for b in tree.get_terminals()}
 
 # %%
-
 edf = pd.DataFrame.from_dict(terminal_len, orient="index", columns=["branch_length"])
 edf["gain"] = 0
 edf["loss"] = 0
@@ -81,9 +63,9 @@ for j in Js:
     pan = pp.Pangraph.load_json(pan_file)
 
     paths = ut.pangraph_to_path_dict(pan)
-    path_cat = path_categories(paths)
+    path_cat = ut.path_categories(paths)
 
-    iso, tp = count_events(path_cat)
+    iso, tp, bs = count_events(path_cat)
     edf.loc[iso, tp] += 1
 
 # %%
