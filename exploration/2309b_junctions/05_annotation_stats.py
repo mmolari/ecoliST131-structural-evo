@@ -43,21 +43,6 @@ df_ev["mge_fract"] = df_ann.groupby("joint")["mge"].mean()
 # %%
 df_ev[["betalactam", "CTX-M-15", "mge", "phage"]].value_counts()
 # %%
-
-df_ev
-# %%
-sns.histplot(
-    data=df_ev,
-    x="block len",
-    hue="mge",
-    bins=100,
-    # common_norm=False,
-    stat="count",
-    multiple="stack",
-    palette="Set2",
-)
-# %%
-# %%
 gbk_fld = "../../data/gbk"
 strains = pd.read_csv("data/mugration/PA_states.csv", index_col=0).index.to_list()
 
@@ -85,10 +70,77 @@ mge_df = pd.DataFrame.from_dict({"mge_fraction": mge_fract})
 mge_df.to_csv("data/mge_fract.csv")
 
 # %%
+mge_df = pd.read_csv("data/mge_fract.csv")
+
 sns.histplot(data=mge_df, x="mge_fraction", bins=20)
-plt.axvline(mge_df["mge_fraction"].mean(), color="red")
+plt.axvline(mge_df["mge_fraction"].mean(), color="red", label="mean")
+plt.xlabel("fraction of MGE annotations")
+plt.legend()
+sns.despine()
+plt.tight_layout()
+plt.savefig("figs/mge_fract_gbk.png", dpi=300)
 plt.show()
 
 # mge-fraction: between 1.5 and 2.5 percent
+
+# %%
+fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+ax = axs[0, 0]
+sns.histplot(data=df_ev, x="type", hue="event category", ax=ax, multiple="stack")
+
+# how many are associated with single blocks? (gain/loss) Only 6 "other"
+
+ax = axs[0, 1]
+sns.histplot(
+    data=df_ev[df_ev["event category"] != "other"],
+    x="block len",
+    ax=ax,
+    bins=15,
+    log_scale=True,
+    hue="event category",
+    common_bins=True,
+    stat="count",
+    multiple="stack",
+    palette=["C1", "C2"],
+)
+
+ax = axs[1, 0]
+sns.histplot(data=df_ev, x="type", hue=df_ev["isolate"].isna(), multiple="stack", ax=ax)
+ax.legend(["multiple events", "single event"])
+
+ax = axs[1, 1]
+sns.histplot(
+    data=df_ev, x="event category", hue="mge", ax=ax, multiple="stack", palette="Set2"
+)
+ax.legend(["MGE", "no MGE"])
+
+sns.despine()
+plt.tight_layout()
+plt.savefig("figs/annotation_stats.pdf")
+plt.savefig("figs/annotation_stats.png")
+plt.show()
+
+# %%
+from Bio import Phylo
+
+tree_file = "../../results/ST131/pangraph/asm20-100-5-filtered-coretree.nwk"
+tree = Phylo.read(tree_file, "newick")
+tree.ladderize()
+branch_len = {b.name: b.branch_length for b in tree.get_terminals()}
+branch_len |= {b.name: b.branch_length for b in tree.get_nonterminals()}
+dfbl = pd.DataFrame.from_dict(branch_len, orient="index", columns=["branch len"])
+
+dfbl["n. events"] = df_ev.groupby("isolate").count().iloc[:, 0]
+dfbl["n. events"] = dfbl["n. events"].fillna(0)
+# %%
+
+sns.scatterplot(data=dfbl, x="branch len", y="n. events", alpha=0.5)
+plt.xscale("log")
+plt.xlim(1e-7, 1e-4)
+sns.despine()
+plt.tight_layout()
+plt.savefig("figs/annotation_stats.pdf")
+plt.savefig("figs/annotation_stats.png")
+plt.show()
 
 # %%
