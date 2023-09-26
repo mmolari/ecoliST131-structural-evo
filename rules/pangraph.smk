@@ -98,8 +98,8 @@ rule PG_filtered_corealignment:
         rules.PG_polish.output,
     output:
         fa="results/{dset}/pangraph/{opt}-alignment/filtered_corealignment.fa",
-        json="results/{dset}/pangraph/{opt}-alignment/filtered_corealignment_info.json",
-        plot="figs/{dset}/pangraph/corealn_remove_recombination/{opt}.pdf",
+        info_size="results/{dset}/pangraph/{opt}-alignment/filtered_corealignment_info_size.json",
+        info_idxs="results/{dset}/pangraph/{opt}-alignment/filtered_corealignment_info_idxs.json",
     conda:
         "../conda_env/bioinfo.yml"
     params:
@@ -114,8 +114,8 @@ rule PG_filtered_corealignment:
             --window {params.window} \
             --max_nsnps {params.max_nsnps} \
             --fasta_aln {output.fa} \
-            --info {output.json} \
-            --plot {output.plot}
+            --info_size {output.info_size} \
+            --info_idxs {output.info_idxs}
         """
 
 
@@ -150,7 +150,7 @@ rule PG_coregenome_tree:
 rule PG_filtered_coregenome_tree:
     input:
         fa=rules.PG_filtered_corealignment.output.fa,
-        json=rules.PG_filtered_corealignment.output.json,
+        json=rules.PG_filtered_corealignment.output.info_size,
     output:
         nwk="results/{dset}/pangraph/{opt}-filtered-coretree.nwk",
     conda:

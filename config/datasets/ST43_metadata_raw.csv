@@ -1,4 +1,4 @@
-biosample_id,organism,subspecies,strain,host,host_taxid,isolation_source,env_local_scale,collected_by,geo_loc_name,collection_date,first_public,lat_lon
+,biosample_id,organism,subspecies,strain,host,host_taxid,isolation_source,env_local_scale,collected_by,geo_loc_name,collection_date,first_public,lat_lon
 "NC_022648","SAMN02603887","Escherichia coli JJ1886","nan","JJ1886","nan","nan","nan","nan","nan","nan","nan","nan","nan"
 "NZ_CP010876","SAMN03287565","Escherichia coli","nan","MNCRE44","Homo sapiens","nan","sputum","nan","Health care provider","USA: Minnesota","2012-04","nan","46 N 94 W"
 "NZ_CP013658","SAMN04159541","Escherichia coli","nan","uk_P46212","Homo sapiens","nan","urine","nan","MMM","United Kingdom","2005-01-01","nan","51.7519 N 1.2578 W"

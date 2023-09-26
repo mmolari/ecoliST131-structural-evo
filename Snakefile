@@ -12,6 +12,7 @@ include: "rules/pangraph.smk"
 include: "rules/distances.smk"
 include: "rules/assembly_qc.smk"
 include: "rules/backbone_joints.smk"
+include: "rules/figs.smk"
 
 
 localrules:

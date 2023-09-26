@@ -26,7 +26,7 @@ rule DST_corealignment:
 rule DST_filtered_corealignment:
     input:
         fa=rules.PG_filtered_corealignment.output.fa,
-        json=rules.PG_filtered_corealignment.output.json,
+        json=rules.PG_filtered_corealignment.output.info_size,
     output:
         "results/{dset}/distances/coredivergence-filtered-{opt}.csv",
     params:

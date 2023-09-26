@@ -1,6 +1,3 @@
-from collections import defaultdict
-
-
 class Node:
     """Combination of block id and strandedness"""
 
@@ -162,19 +159,5 @@ def filter_paths(paths, keep_f):
     return res
 
 
-def path_categories(paths):
-    """Returns a list of touples, one per non-empty path, with the following info:
-    (count, path, [list of isolates])"""
-    iso_list = defaultdict(list)
-    n_paths = defaultdict(int)
-    nodes = {}
-    for iso, path in paths.items():
-        if len(path.nodes) > 0:
-            n_paths[path] += 1
-            iso_list[path].append(iso)
-            nodes[path] = path.nodes
-
-    # sort by count
-    path_cat = [(count, nodes[path], iso_list[path]) for path, count in n_paths.items()]
-    path_cat.sort(key=lambda x: x[0], reverse=True)
-    return path_cat
+def merge_transitive_edges(paths, stats_df):
+    pass

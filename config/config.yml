@@ -1,12 +1,18 @@
 datasets:
   ST131: "config/datasets/ST43.txt"
 
+excluded:
+  ST131: "config/datasets/ST43_excluded.txt"
+
+metadata:
+  ST131: "config/datasets/ST43_metadata_raw.csv"
+
 guide-strain:
   ST131: "NZ_JAOSFD010000001"
 
 pangraph:
   kernel-options:
-    asm20-100-5: "--circular -k minimap2 -s 20 -a 100 -b 5"
+    asm20-100-5: "--circular -k minimap2 -s 20 -a 100 -b 5 -l 100"
   polish-options: "-c"
 
 backbone-joints:

@@ -1,11 +1,8 @@
-import copy
 import argparse
 
 import numpy as np
 import pandas as pd
 import pypangraph as pp
-
-from collections import defaultdict
 
 
 def matrix_to_df(M, S, sname):
@@ -40,8 +37,12 @@ if __name__ == "__main__":
     mask = propr["len"] > args.len_thr
     df = df.loc[:, mask]
 
+    mask &= ~propr["core"] & ~propr["duplicated"]
+    acc_blocks = propr[mask].index
+    acc_df = df.loc[:, acc_blocks]
+
     # evaluate distance and sharing matrices
-    M_pa, M_s = [np.zeros((N, N), int) for _ in range(2)]
+    M_pa, M_s, M_pa_acc = [np.zeros((N, N), int) for _ in range(3)]
     for i in range(N):
         si = strains[i]
         pi = df.loc[si]
@@ -51,16 +52,20 @@ if __name__ == "__main__":
             pj = df.loc[sj]
             n_shared = (pi & pj).sum()
             n_diff = (pi ^ pj).sum()
+            n_diff_acc = (acc_df.loc[si] ^ acc_df.loc[sj]).sum()
 
             M_s[i, j] = n_shared
             M_s[j, i] = n_shared
             M_pa[i, j] = n_diff
             M_pa[j, i] = n_diff
+            M_pa_acc[i, j] = n_diff_acc
+            M_pa_acc[j, i] = n_diff_acc
 
     # matrix to dataframe
     df_pa = matrix_to_df(M_pa, S=strains, sname="block_PA")
     df_s = matrix_to_df(M_s, S=strains, sname="block_sharing")
+    df_pa_acc = matrix_to_df(M_pa_acc, S=strains, sname="acc_block_PA")
 
     # concatenate and save
-    df = pd.concat([df_pa, df_s], axis=1, verify_integrity=True)
+    df = pd.concat([df_pa, df_s, df_pa_acc], axis=1, verify_integrity=True)
     df.to_csv(args.csv)
