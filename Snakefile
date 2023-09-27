@@ -9,6 +9,7 @@ configfile: "config/config.yml"
 
 include: "rules/downloads.smk"
 include: "rules/pangraph.smk"
+include: "rules/resistance.smk"
 include: "rules/distances.smk"
 include: "rules/assembly_qc.smk"
 include: "rules/backbone_joints.smk"
