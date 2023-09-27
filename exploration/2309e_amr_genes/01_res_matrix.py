@@ -47,7 +47,7 @@ col_order = df[columns].sum().sort_values(ascending=False).index
 df["#FILE"] = df["#FILE"].apply(lambda x: os.path.splitext(os.path.basename(x))[0])
 df.set_index("#FILE", inplace=True)
 df = df.loc[isolates]
-
+df["NUM_FOUND"] = df[columns].sum(axis=1)
 # Set up the figure and axis for plotting
 figsize = {
     "card": (15, 14),
@@ -103,8 +103,30 @@ plt.tight_layout()
 plt.subplots_adjust(wspace=0.1)
 
 # Display the plot
-plt.savefig(f"figs/resistance_{dbase}.png", dpi=300)
+# plt.savefig(f"figs/resistance_{dbase}.png", dpi=300)
 # plt.savefig(f"figs/resistance_{dbase}.pdf")
-plt.savefig(f"figs/resistance_{dbase}.svg")
+# plt.savefig(f"figs/resistance_{dbase}.svg")
 plt.show()
+# %%
+df
+
+# %%
+import pathlib
+
+gene_n = df[columns].sum().to_dict()
+summary = {}
+for fn in pathlib.Path(f"../../results/resistance/{dbase}/").glob("*.tab"):
+    rdf = pd.read_csv(fn, sep="\t")
+    for idx, row in rdf.iterrows():
+        gene = row["GENE"]
+        if gene not in summary:
+            summary[gene] = {
+                "n": gene_n[gene],
+                "resistance": row["RESISTANCE"],
+                "product": row["PRODUCT"],
+                # "accession": row["ACCESSION"],
+            }
+summary = pd.DataFrame.from_dict(summary, orient="index")
+summary.sort_index().to_csv(f"data/resistance_{dbase}_info.csv")
+summary
 # %%
