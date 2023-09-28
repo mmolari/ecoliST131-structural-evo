@@ -42,7 +42,21 @@ rule QC_busco_run:
         """
 
 
-# --auto-lineage-prok \
+rule QC_mlst:
+    input:
+        gbks=lambda w: expand(
+            rules.download_gbk.output, acc=sorted(datasets[w.dset] + excluded[w.dset])
+        ),
+    output:
+        "results/{dset}/assembly_qc/mlst/{scheme}.tsv",
+    conda:
+        "../conda_env/mlst.yml"
+    shell:
+        """
+        mlst {input.gbks} \
+            --scheme {wildcards.scheme} \
+            > {output}
+        """
 
 
 rule QC_summary:
@@ -67,3 +81,6 @@ rule QC_summary:
 rule QC_all:
     input:
         expand(rules.QC_summary.output, dset=datasets.keys()),
+        expand(
+            rules.QC_mlst.output, dset=datasets.keys(), scheme=config["mlst_schemes"]
+        ),
