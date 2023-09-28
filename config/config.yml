@@ -23,3 +23,9 @@ backbone-joints:
 mlst_schemes:
   - "ecoli"
   - "ecoli_achtman_4"
+
+alleles:
+  fimH: "config/utils/alleles/fimH.fa.gz"
+  fimH_eb: "config/utils/alleles/b4320.fa.gz"
+  gyrA_eb: "config/utils/alleles/b2231.fa.gz"
+  parC_eb: "config/utils/alleles/b3019.fa.gz"
