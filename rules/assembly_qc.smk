@@ -155,7 +155,8 @@ rule QC_alleles_concat:
         "../conda_env/bioinfo.yml"
     shell:
         """
-        cat {input} > {output}
+        echo "iso\tlocus\tmatch\tallele\tcoverage\tsim\tmatches\taln_L\tallele_L" > {output}
+        cat {input} >> {output}
         """
 
 

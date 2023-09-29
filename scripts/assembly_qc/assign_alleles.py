@@ -41,7 +41,6 @@ class match:
         self.allele_L = ""
 
     def assign(self, row) -> None:
-        self.locus = row["ref_id"].split("_")[0]
         self.allele = row["ref_id"].split("_")[1]
         self.cov = row["cov"]
         self.sim = row["sim"]
@@ -84,7 +83,7 @@ def import_df(fname):
     return df
 
 
-def find_match(df, min_cov, min_id):
+def find_match(df, m, min_cov, min_id):
     df["cov"] = df["aln_L"] / df["rL"]
     df["sim"] = df["matches"] / df["aln_L"]
 
@@ -100,8 +99,6 @@ def find_match(df, min_cov, min_id):
     sdf.sort_values("matches", ascending=False, inplace=True)
     sdf.reset_index(drop=True, inplace=True)
 
-    m = match()
-    m.iso = df.iloc[0]["qry_id"]
     if len(sdf) == 0:
         m.match_type = "-"
         return m
@@ -130,28 +127,20 @@ def find_match(df, min_cov, min_id):
     return m
 
 
-def empty_match(iso, locus):
-    m = match()
-    m.iso = iso
-    m.locus = locus
-    m.match_type = "x"
-    return m
-
-
 if __name__ == "__main__":
     args = parse_args()
     iso = args.blast_tsv.split("/")[-1].split(".")[0]
     locus = args.blast_tsv.split("/")[-2]
+    m = match()
+    m.iso = iso
+    m.locus = locus
+    m.match_type = "x"
 
     fsize = os.path.getsize(args.blast_tsv)
-    if fsize == 0:
-        m = empty_match(iso, locus)
-    else:
+    if fsize > 0:
         df = import_df(args.blast_tsv)
-        if df is None:
-            m = empty_match(iso, locus)
-        else:
-            m = find_match(df, args.min_cov, args.min_id)
+        if df is not None:
+            m = find_match(df, m, args.min_cov, args.min_id)
 
     with open(args.tsv_out, "w") as f:
         f.write(m.to_tsv_string())
