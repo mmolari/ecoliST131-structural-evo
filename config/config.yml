@@ -5,6 +5,12 @@ datasets:
     plasmids: ""
     metadata: "config/datasets/ST131_refseq/metadata_raw.csv"
     guide-strain: "NZ_JAOSFD010000001"
+  ST131_full:
+    chromosomes: "config/datasets/ST131_full/chromosomes.txt"
+    excluded: "config/datasets/ST131_full/excluded.txt"
+    plasmids: "config/datasets/ST131_full/plasmids.json"
+    metadata: "config/datasets/ST131_full/metadata.csv"
+    guide-strain: "NC_013654.1"
 
 pangraph:
   kernel-options:
