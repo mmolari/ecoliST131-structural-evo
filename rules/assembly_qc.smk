@@ -18,7 +18,7 @@ rule QC_busco_run:
         fa=rules.gbk_to_fa.output.fa,
         mod=rules.QC_busco_download.output,
     output:
-        directory("results/{dset}/assembly_qc/busco/{acc}"),
+        directory("data/busco/{acc}"),
     conda:
         "../conda_env/busco.yml"
     shell:
@@ -55,10 +55,9 @@ rule QC_summary:
         lambda w: expand(
             rules.QC_busco_run.output,
             acc=sorted(dset_chrom_accnums[w.dset] + excluded[w.dset]),
-            allow_missing=True,
         ),
     output:
-        "results/{dset}/assembly_qc/summary.csv",
+        "results/{dset}/assembly_qc/busco_summary.csv",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
@@ -95,7 +94,7 @@ rule QC_alleles_map:
         fa=rules.gbk_to_fa.output.fa,
         db=rules.QC_alleles_db.output.db,
     output:
-        "results/{dset}/assembly_qc/alleles/map/{allele}/{acc}.tsv",
+        "data/alleles/map/{allele}/{acc}.tsv",
     params:
         min_id=95,
     conda:
@@ -116,7 +115,7 @@ rule QC_alleles_assign:
     input:
         paf=rules.QC_alleles_map.output,
     output:
-        "results/{dset}/assembly_qc/alleles/assign/{allele}/{acc}.tsv",
+        "data/alleles/assign/{allele}/{acc}.tsv",
     params:
         min_cov=0.95,
         min_id=0.95,
@@ -138,10 +137,9 @@ rule QC_alleles_concat:
             rules.QC_alleles_assign.output,
             allele=w.allele,
             acc=sorted(dset_chrom_accnums[w.dset] + excluded[w.dset]),
-            allow_missing=True,
         ),
     output:
-        "results/{dset}/assembly_qc/alleles/summary/{allele}.tsv",
+        "results/{dset}/assembly_qc/alleles/{allele}.tsv",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
