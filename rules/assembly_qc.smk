@@ -1,13 +1,3 @@
-# load accession numbers of excluded isolates
-excluded = {k: [] for k in datasets.keys()}
-for k, fname in config["excluded"].items():
-    with open(fname, "r") as f:
-        acc_nums = f.readlines()
-    acc_nums = [an.strip() for an in acc_nums]
-    acc_nums = [an for an in acc_nums if len(an) > 0]
-    excluded[k] = acc_nums
-
-
 rule QC_busco_download:
     output:
         directory("data/busco_models"),
@@ -45,7 +35,8 @@ rule QC_busco_run:
 rule QC_mlst:
     input:
         gbks=lambda w: expand(
-            rules.download_gbk.output, acc=sorted(datasets[w.dset] + excluded[w.dset])
+            rules.download_gbk.output,
+            acc=sorted(dset_chrom_accnums[w.dset] + excluded[w.dset]),
         ),
     output:
         "results/{dset}/assembly_qc/mlst/{scheme}.tsv",
@@ -63,7 +54,7 @@ rule QC_summary:
     input:
         lambda w: expand(
             rules.QC_busco_run.output,
-            acc=sorted(datasets[w.dset] + excluded[w.dset]),
+            acc=sorted(dset_chrom_accnums[w.dset] + excluded[w.dset]),
             allow_missing=True,
         ),
     output:
@@ -83,7 +74,7 @@ rule QC_alleles_db:
         fa=lambda w: config["alleles"][w.allele],
     output:
         db=directory(
-            "results/utils/blast_alleles_db/{allele}",
+            "data/blast_alleles_db/{allele}",
         ),
     conda:
         "../conda_env/mapping.yml"
@@ -146,7 +137,7 @@ rule QC_alleles_concat:
         lambda w: expand(
             rules.QC_alleles_assign.output,
             allele=w.allele,
-            acc=sorted(datasets[w.dset] + excluded[w.dset]),
+            acc=sorted(dset_chrom_accnums[w.dset] + excluded[w.dset]),
             allow_missing=True,
         ),
     output:
@@ -162,12 +153,10 @@ rule QC_alleles_concat:
 
 rule QC_all:
     input:
-        expand(rules.QC_summary.output, dset=datasets.keys()),
-        expand(
-            rules.QC_mlst.output, dset=datasets.keys(), scheme=config["mlst_schemes"]
-        ),
+        expand(rules.QC_summary.output, dset=dset_names),
+        expand(rules.QC_mlst.output, dset=dset_names, scheme=config["mlst_schemes"]),
         expand(
             rules.QC_alleles_concat.output,
-            dset=datasets.keys(),
+            dset=dset_names,
             allele=config["alleles"].keys(),
         ),

@@ -81,11 +81,7 @@ rule FG_homoplasies:
 
 rule FG_all:
     input:
-        expand(rules.FG_assembly_qc.output, dset=datasets.keys()),
-        expand(rules.FG_metadata.output, dset=datasets.keys(), opt=kernel_opt.keys()),
-        expand(rules.FG_homoplasies.output, dset=datasets.keys(), opt=kernel_opt.keys()),
-        expand(
-            rules.FG_recombination_filter.output,
-            dset=datasets.keys(),
-            opt=kernel_opt.keys(),
-        ),
+        expand(rules.FG_assembly_qc.output, dset=dset_names),
+        expand(rules.FG_metadata.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_homoplasies.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_recombination_filter.output, dset=dset_names, opt=kernel_opts),

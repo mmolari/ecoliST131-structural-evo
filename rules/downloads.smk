@@ -25,7 +25,7 @@ rule gbk_to_fa:
 
 rule metadata_preprocess:
     input:
-        lambda w: config["metadata"][w.dset],
+        lambda w: dsets_config[w.dset]["metadata"],
     output:
         "results/{dset}/metadata.csv",
     conda:

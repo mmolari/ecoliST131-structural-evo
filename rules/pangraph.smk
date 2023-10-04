@@ -1,29 +1,10 @@
-kernel_opt = config["pangraph"]["kernel-options"]
-datasets_fnames = config["datasets"]
-guide_strain = config["guide-strain"]
-
-# read accession numbers from dataset files
-datasets = {}
-for k, fname in datasets_fnames.items():
-    with open(fname, "r") as f:
-        acc_nums = f.readlines()
-    acc_nums = [an.strip() for an in acc_nums]
-    acc_nums = [an for an in acc_nums if len(an) > 0]
-    datasets[k] = acc_nums
-
-
-wildcard_constraints:
-    opt=f"({'|'.join(kernel_opt.keys())})",
-    dset=f"({'|'.join(datasets.keys())})",
-
-
 rule PG_build:
     input:
-        fa=lambda w: expand(rules.gbk_to_fa.output.fa, acc=datasets[w.dset]),
+        fa=lambda w: expand(rules.gbk_to_fa.output.fa, acc=dset_chrom_accnums[w.dset]),
     output:
         "results/{dset}/pangraph/{opt}.json",
     params:
-        opt=lambda w: kernel_opt[w.opt],
+        opt=lambda w: config["pangraph"]["kernel-options"][w.opt],
     shell:
         """
         export JULIA_NUM_THREADS=8
@@ -105,7 +86,7 @@ rule PG_filtered_corealignment:
     params:
         window=1000,
         max_nsnps=3,
-        guide_strain=lambda w: guide_strain[w.dset],
+        guide_strain=lambda w: dsets_config[w.dset]["guide-strain"],
     shell:
         """
         python3 scripts/pangraph/corealn_without_recombination.py \
@@ -173,19 +154,9 @@ rule PG_filtered_coregenome_tree:
 
 rule PG_all:
     input:
+        expand(rules.PG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.PG_coregenome_tree.output, dset=dset_names, opt=kernel_opts),
         expand(
-            rules.PG_block_distr_fig.output,
-            dset=datasets.keys(),
-            opt=kernel_opt.keys(),
+            rules.PG_filtered_coregenome_tree.output, dset=dset_names, opt=kernel_opts
         ),
-        expand(
-            rules.PG_coregenome_tree.output,
-            dset=datasets.keys(),
-            opt=kernel_opt.keys(),
-        ),
-        expand(
-            rules.PG_filtered_coregenome_tree.output,
-            dset=datasets.keys(),
-            opt=kernel_opt.keys(),
-        ),
-        expand(rules.PG_export.output, dset=datasets.keys(), opt=kernel_opt.keys()),
+        expand(rules.PG_export.output, dset=dset_names, opt=kernel_opts),
