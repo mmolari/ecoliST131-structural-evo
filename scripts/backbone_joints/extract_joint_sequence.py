@@ -1,6 +1,6 @@
 from Bio import SeqIO
-import pandas as pd
 import json
+import pathlib
 
 import argparse
 
@@ -24,7 +24,7 @@ def parse_args():
 def genomes_file_dict(fnames):
     file_dict = {}
     for fname in fnames:
-        iso = fname.split("/")[-1].split(".")[0]
+        iso = pathlib.Path(fname).stem
         file_dict[iso] = fname
     return file_dict
 
