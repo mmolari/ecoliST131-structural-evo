@@ -23,10 +23,6 @@ def preprocess(df):
     df.loc[mask, "host"] = "wastewater"
 
     # date in bins
-    df["collection_date"] = pd.to_datetime(df["collection_date"])
-    df["year"] = df["collection_date"].map(
-        lambda x: int(x.year) if not pd.isna(x) else np.nan
-    )
     df["year"] = pd.cut(
         df["year"],
         bins=[2002, 2008, 2012, 2016, 2020],
@@ -58,9 +54,9 @@ def plot_histogram(df, svname):
     ax.set_ylabel("host")
 
     ax = axs[1]
-    sns.histplot(data=df, y="collection_date", ax=ax)
-    addna(ax, df["collection_date"])
-    ax.set_ylabel("collection date")
+    sns.histplot(data=df, y="year", ax=ax)
+    addna(ax, df["year"])
+    ax.set_ylabel("year")
 
     ax = axs[2]
     sns.histplot(data=df, y="geo_loc_name", ax=ax)

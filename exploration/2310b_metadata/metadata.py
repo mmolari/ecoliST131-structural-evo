@@ -1,13 +1,15 @@
-import argparse
+# %%
 import pandas as pd
+import matplotlib.pyplot as plt
 
+# %%
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Clean up metadata")
-    parser.add_argument("--metadata_in", type=str)
-    parser.add_argument("--metadata_out", type=str)
-    return parser.parse_args()
-
+mtd_1 = "../../config/datasets/ST131_refseq/metadata.csv"
+mtd_2 = "../../config/datasets/ST131_full/metadata.csv"
+# Load CSV file into pandas dataframe
+df1 = pd.read_csv(mtd_1, index_col=0)
+df2 = pd.read_csv(mtd_2, index_col=0)
+df = pd.concat([df1, df2], axis=0)
 
 substitution_dict = {
     "year": {"missing": None},
@@ -108,17 +110,11 @@ continents = {
     "Netherlands": "Europe",
 }
 
+# only consider country for geo-location
+df["geo_loc_name"] = df["geo_loc_name"].str.split(":", expand=True)[0]
 
-if __name__ == "__main__":
-    args = parse_args()
+for k, d in substitution_dict.items():
+    df[k] = df[k].replace(d)
 
-    df = pd.read_csv(args.metadata_in, index_col=0)
-
-    # only consider country for geo-location
-    df["geo_loc_name"] = df["geo_loc_name"].str.split(":", expand=True)[0]
-
-    for k, d in substitution_dict.items():
-        df[k] = df[k].replace(d)
-
-    df["continent"] = df["geo_loc_name"].replace(continents)
-    df.to_csv(args.metadata_out)
+df["continent"] = df["geo_loc_name"].replace(continents)
+# %%
