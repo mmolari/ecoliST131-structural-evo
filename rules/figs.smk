@@ -16,18 +16,18 @@ rule FG_metadata:
     input:
         tree=rules.PG_filtered_coregenome_tree.output.nwk,
         meta=rules.metadata_preprocess.output,
+        alls=rules.QC_alleles_summary.output.csv,
     output:
-        hist="figs/{dset}/{opt}/metadata/hist.pdf",
-        tree="figs/{dset}/{opt}/metadata/tree.pdf",
+        fld=directory("figs/{dset}/{opt}/metadata"),
     conda:
         "../conda_env/bioinfo.yml"
     shell:
         """
-        python3 scripts/figs/metadata_tree.py \
-            --tree {input.tree} \
-            --metadata {input.meta} \
-            --hist_fig {output.hist} \
-            --tree_fig {output.tree}
+        python3 scripts/figs/metadata_plots.py \
+            --metadata_csv {input.meta} \
+            --alleles_csv {input.alls} \
+            --coregenome_tree {input.tree} \
+            --outdir {output.fld}
         """
 
 
