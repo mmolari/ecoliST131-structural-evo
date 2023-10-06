@@ -149,12 +149,27 @@ rule QC_alleles_concat:
         """
 
 
+rule QC_alleles_summary:
+    input:
+        dfs=expand(
+            rules.QC_alleles_concat.output,
+            allele=config["alleles"].keys(),
+            allow_missing=True,
+        ),
+    output:
+        csv="results/{dset}/assembly_qc/alleles_summary.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/assembly_qc/alleles_summary.py \
+            --in_dfs {input.dfs} \
+            --summary_df {output.csv}
+        """
+
+
 rule QC_all:
     input:
         expand(rules.QC_summary.output, dset=dset_names),
         expand(rules.QC_mlst.output, dset=dset_names, scheme=config["mlst_schemes"]),
-        expand(
-            rules.QC_alleles_concat.output,
-            dset=dset_names,
-            allele=config["alleles"].keys(),
-        ),
+        expand(rules.QC_alleles_summary.output, dset=dset_names),
