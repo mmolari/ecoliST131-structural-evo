@@ -82,7 +82,6 @@ def plot_resistance_vs_tree(tree, df):
     ax.set_xticklabels(list(xticks.values()), rotation=90)
     ax.set_title("n. resistance genes")
     plt.colorbar(mapp, ax=ax, shrink=0.1)
-    ax.grid(True, alpha=0.3, axis="x")
 
     for ax in axs:
         for n in range(Y):
