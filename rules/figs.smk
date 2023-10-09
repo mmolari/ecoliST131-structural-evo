@@ -31,6 +31,28 @@ rule FG_metadata:
         """
 
 
+rule FG_resistance:
+    input:
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+        ncbi=expand(rules.RG_summary.output.txt, database="ncbi", allow_missing=True),
+        card=expand(rules.RG_summary.output.txt, database="card", allow_missing=True),
+    output:
+        fld=directory("figs/{dset}/{opt}/resistance"),
+    params:
+        thr=0.95,
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/figs/resistance_plots.py \
+            --coregenome_tree {input.tree} \
+            --ncbi_df {input.ncbi} \
+            --card_df {input.card} \
+            --id_threshold {params.thr} \
+            --outdir {output.fld}
+        """
+
+
 rule FG_recombination_filter:
     input:
         info_idxs=rules.PG_filtered_corealignment.output.info_idxs,
@@ -85,3 +107,4 @@ rule FG_all:
         expand(rules.FG_metadata.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_homoplasies.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_recombination_filter.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_resistance.output, dset=dset_names, opt=kernel_opts),
