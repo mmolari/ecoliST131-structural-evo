@@ -114,4 +114,4 @@ if __name__ == "__main__":
 
         # plot
         fig, axs = plot_resistance_vs_tree(tree, df)
-        plt.savefig(svfld / f"resistance_{df_type}.png", dpi=300, facecolor="white")
+        plt.savefig(svfld / f"resistance_{df_type}.pdf")

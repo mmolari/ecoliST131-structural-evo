@@ -221,17 +221,16 @@ if __name__ == "__main__":
     svfld.mkdir(exist_ok=True, parents=True)
 
     # barplot by country
-    country_barplot(df_met, svfld / "country_barplot.png", dpi=300)
+    country_barplot(df_met, svfld / "country_barplot.pdf", dpi=300)
 
     # collection date histogram
-    collection_date_hist(df_met, svfld / "collection_date_hist.png", dpi=300)
+    collection_date_hist(df_met, svfld / "collection_date_hist.pdf", dpi=300)
 
     # metadata tree
     metadata_tree(
         df_met,
         df_all,
         tree,
-        svfld / "metadata_tree.png",
-        svfld / "metadata_tree_legend.png",
-        dpi=300,
+        svfld / "metadata_tree.pdf",
+        svfld / "metadata_tree_legend.pdf",
     )
