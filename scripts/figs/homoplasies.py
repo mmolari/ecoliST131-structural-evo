@@ -176,6 +176,7 @@ def fig_homoplasies(df, res_a, svname):
         return np.apply_along_axis(is_cons, axis=0, arr=saln)
 
     tree = Phylo.read(res_a["tree_file"], format="newick")
+    tree.root_at_midpoint()
     tree.ladderize()
     str_ord = [n.name for n in tree.get_terminals()]
     saln = subaln(res_a["aln_f"], idxs=I, str_order=str_ord)

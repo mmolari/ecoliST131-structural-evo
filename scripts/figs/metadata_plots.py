@@ -217,6 +217,8 @@ if __name__ == "__main__":
     df_met = pd.read_csv(args.metadata_csv, index_col=0)
     df_all = pd.read_csv(args.alleles_csv, index_col=0)
     tree = Phylo.read(args.coregenome_tree, "newick")
+    tree.root_at_midpoint()
+    tree.ladderize()
     svfld = pthl.Path(args.outdir)
     svfld.mkdir(exist_ok=True, parents=True)
 
