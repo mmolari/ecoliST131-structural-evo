@@ -39,7 +39,7 @@ rule FG_resistance:
     output:
         fld=directory("figs/{dset}/{opt}/resistance"),
     params:
-        thr=0.95,
+        thr=config["resistance"]["id_threshold"],
     conda:
         "../conda_env/bioinfo.yml"
     shell:
@@ -101,6 +101,20 @@ rule FG_homoplasies:
         """
 
 
+rule FG_block_distr_fig:
+    input:
+        rules.PG_polish.output,
+    output:
+        "figs/{dset}/pangraph/{opt}_block_distr.pdf",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/pangraph/plot_block_distr.py \
+            --pangraph {input} --fig {output}
+        """
+
+
 rule FG_all:
     input:
         expand(rules.FG_assembly_qc.output, dset=dset_names),
@@ -108,3 +122,4 @@ rule FG_all:
         expand(rules.FG_homoplasies.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_recombination_filter.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_resistance.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),

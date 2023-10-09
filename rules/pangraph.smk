@@ -45,20 +45,6 @@ rule PG_export:
         """
 
 
-rule PG_block_distr_fig:
-    input:
-        rules.PG_polish.output,
-    output:
-        "figs/{dset}/pangraph/{opt}_block_distr.pdf",
-    conda:
-        "../conda_env/bioinfo.yml"
-    shell:
-        """
-        python3 scripts/pangraph/plot_block_distr.py \
-            --pangraph {input} --fig {output}
-        """
-
-
 rule PG_corealignment:
     input:
         rules.PG_polish.output,
@@ -154,7 +140,6 @@ rule PG_filtered_coregenome_tree:
 
 rule PG_all:
     input:
-        expand(rules.PG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),
         expand(rules.PG_coregenome_tree.output, dset=dset_names, opt=kernel_opts),
         expand(
             rules.PG_filtered_coregenome_tree.output, dset=dset_names, opt=kernel_opts
