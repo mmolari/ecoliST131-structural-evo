@@ -2,7 +2,6 @@ datasets:
   ST131:
     chromosomes: "config/datasets/ST131_refseq/chromosomes.txt"
     excluded: "config/datasets/ST131_refseq/excluded.txt"
-    plasmids: ""
     metadata: "config/datasets/ST131_refseq/metadata.csv"
     guide-strain: "NZ_JAOSFD010000001"
   ST131_full:

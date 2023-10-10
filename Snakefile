@@ -1,4 +1,5 @@
 import os
+import json
 
 # create log directory - needed for cluster slurm execution
 os.makedirs("log", exist_ok=True)
@@ -31,6 +32,21 @@ for dset_name, dset_info in dsets_config.items():
     acc_nums = [an for an in acc_nums if len(an) > 0]
     excluded[dset_name] = acc_nums
 
+# load plasmids
+# {dset_name: {chromosome_accnum: [plasmid_accnum_1, plasmid_accnum_2 ...]}}
+plasmid_dsets = {}
+for dset_name in dsets_config:
+    if "plasmids" in dsets_config[dset_name]:
+        json_file = dsets_config[dset_name]["plasmids"]
+        with open(json_file, "r") as f:
+            plasmid_dsets[dset_name] = json.load(f)
+
+# load plasmid accnums:
+# {dset_name: [accnum1, accnum2, ...]}
+plasmid_accnums = {}
+for dset_name, pl_dset in plasmid_dsets.items():
+    plasmid_accnums[dset_name] = sum(pl_dset.values(), [])
+
 # pangraph kernel options
 kernel_opts = list(config["pangraph"]["kernel-options"].keys())
 
@@ -47,6 +63,7 @@ include: "rules/distances.smk"
 include: "rules/assembly_qc.smk"
 include: "rules/backbone_joints.smk"
 include: "rules/figs.smk"
+include: "rules/plasmids.smk"
 
 
 localrules:
