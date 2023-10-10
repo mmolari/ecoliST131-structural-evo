@@ -1,6 +1,7 @@
 import argparse
 import json
 import pathlib
+import re
 import pandas as pd
 
 
@@ -20,6 +21,20 @@ def extract_info(fname):
     return info
 
 
+def extract_iso_name(fname):
+    # Regular expression pattern
+    pattern = r"enterobacterales_odb10\.(.*?)\.json$"
+
+    # Search for the pattern
+    match = re.search(pattern, fname)
+
+    if match:
+        return match.group(1)
+    else:
+        print("Warning: no match found for", fname)
+        return None
+
+
 if __name__ == "__main__":
     args = parse_args()
 
@@ -33,7 +48,7 @@ if __name__ == "__main__":
         fname = fnames[0]
 
         # extract isolate name
-        iso = fname.name.split(".")[-2]
+        iso = extract_iso_name(fname.name)
         # extract and append info
         info = extract_info(fname)
         info["iso"] = iso

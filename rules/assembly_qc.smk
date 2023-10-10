@@ -1,13 +1,3 @@
-# load accession numbers of excluded isolates
-excluded = {k: [] for k in datasets.keys()}
-for k, fname in config["excluded"].items():
-    with open(fname, "r") as f:
-        acc_nums = f.readlines()
-    acc_nums = [an.strip() for an in acc_nums]
-    acc_nums = [an for an in acc_nums if len(an) > 0]
-    excluded[k] = acc_nums
-
-
 rule QC_busco_download:
     output:
         directory("data/busco_models"),
@@ -28,7 +18,7 @@ rule QC_busco_run:
         fa=rules.gbk_to_fa.output.fa,
         mod=rules.QC_busco_download.output,
     output:
-        directory("results/{dset}/assembly_qc/busco/{acc}"),
+        directory("data/busco/{acc}"),
     conda:
         "../conda_env/busco.yml"
     shell:
@@ -45,7 +35,8 @@ rule QC_busco_run:
 rule QC_mlst:
     input:
         gbks=lambda w: expand(
-            rules.download_gbk.output, acc=sorted(datasets[w.dset] + excluded[w.dset])
+            rules.download_gbk.output,
+            acc=sorted(dset_chrom_accnums[w.dset] + excluded[w.dset]),
         ),
     output:
         "results/{dset}/assembly_qc/mlst/{scheme}.tsv",
@@ -63,11 +54,10 @@ rule QC_summary:
     input:
         lambda w: expand(
             rules.QC_busco_run.output,
-            acc=sorted(datasets[w.dset] + excluded[w.dset]),
-            allow_missing=True,
+            acc=sorted(dset_chrom_accnums[w.dset] + excluded[w.dset]),
         ),
     output:
-        "results/{dset}/assembly_qc/summary.csv",
+        "results/{dset}/assembly_qc/busco_summary.csv",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
@@ -83,7 +73,7 @@ rule QC_alleles_db:
         fa=lambda w: config["alleles"][w.allele],
     output:
         db=directory(
-            "results/utils/blast_alleles_db/{allele}",
+            "data/blast_alleles_db/{allele}",
         ),
     conda:
         "../conda_env/mapping.yml"
@@ -104,7 +94,7 @@ rule QC_alleles_map:
         fa=rules.gbk_to_fa.output.fa,
         db=rules.QC_alleles_db.output.db,
     output:
-        "results/{dset}/assembly_qc/alleles/map/{allele}/{acc}.tsv",
+        "data/alleles/map/{allele}/{acc}.tsv",
     params:
         min_id=95,
     conda:
@@ -125,7 +115,7 @@ rule QC_alleles_assign:
     input:
         paf=rules.QC_alleles_map.output,
     output:
-        "results/{dset}/assembly_qc/alleles/assign/{allele}/{acc}.tsv",
+        "data/alleles/assign/{allele}/{acc}.tsv",
     params:
         min_cov=0.95,
         min_id=0.95,
@@ -146,11 +136,10 @@ rule QC_alleles_concat:
         lambda w: expand(
             rules.QC_alleles_assign.output,
             allele=w.allele,
-            acc=sorted(datasets[w.dset] + excluded[w.dset]),
-            allow_missing=True,
+            acc=sorted(dset_chrom_accnums[w.dset] + excluded[w.dset]),
         ),
     output:
-        "results/{dset}/assembly_qc/alleles/summary/{allele}.tsv",
+        "results/{dset}/assembly_qc/alleles/{allele}.tsv",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
@@ -160,14 +149,27 @@ rule QC_alleles_concat:
         """
 
 
+rule QC_alleles_summary:
+    input:
+        dfs=expand(
+            rules.QC_alleles_concat.output,
+            allele=config["alleles"].keys(),
+            allow_missing=True,
+        ),
+    output:
+        csv="results/{dset}/assembly_qc/alleles_summary.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/assembly_qc/alleles_summary.py \
+            --in_dfs {input.dfs} \
+            --summary_df {output.csv}
+        """
+
+
 rule QC_all:
     input:
-        expand(rules.QC_summary.output, dset=datasets.keys()),
-        expand(
-            rules.QC_mlst.output, dset=datasets.keys(), scheme=config["mlst_schemes"]
-        ),
-        expand(
-            rules.QC_alleles_concat.output,
-            dset=datasets.keys(),
-            allele=config["alleles"].keys(),
-        ),
+        expand(rules.QC_summary.output, dset=dset_names),
+        expand(rules.QC_mlst.output, dset=dset_names, scheme=config["mlst_schemes"]),
+        expand(rules.QC_alleles_summary.output, dset=dset_names),

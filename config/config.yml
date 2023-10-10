@@ -1,14 +1,16 @@
 datasets:
-  ST131: "config/datasets/ST43.txt"
-
-excluded:
-  ST131: "config/datasets/ST43_excluded.txt"
-
-metadata:
-  ST131: "config/datasets/ST43_metadata_raw.csv"
-
-guide-strain:
-  ST131: "NZ_JAOSFD010000001"
+  ST131:
+    chromosomes: "config/datasets/ST131_refseq/chromosomes.txt"
+    excluded: "config/datasets/ST131_refseq/excluded.txt"
+    plasmids: ""
+    metadata: "config/datasets/ST131_refseq/metadata.csv"
+    guide-strain: "NZ_JAOSFD010000001"
+  ST131_full:
+    chromosomes: "config/datasets/ST131_full/chromosomes.txt"
+    excluded: "config/datasets/ST131_full/excluded.txt"
+    plasmids: "config/datasets/ST131_full/plasmids.json"
+    metadata: "config/datasets/ST131_full/metadata.csv"
+    guide-strain: "NC_013654.1"
 
 pangraph:
   kernel-options:
@@ -29,3 +31,6 @@ alleles:
   fimH_eb: "config/utils/alleles/b4320.fa.gz"
   gyrA_eb: "config/utils/alleles/b2231.fa.gz"
   parC_eb: "config/utils/alleles/b3019.fa.gz"
+
+resistance:
+  id_threshold: 0.95

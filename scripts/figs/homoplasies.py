@@ -176,26 +176,33 @@ def fig_homoplasies(df, res_a, svname):
         return np.apply_along_axis(is_cons, axis=0, arr=saln)
 
     tree = Phylo.read(res_a["tree_file"], format="newick")
+    tree.root_at_midpoint()
     tree.ladderize()
     str_ord = [n.name for n in tree.get_terminals()]
     saln = subaln(res_a["aln_f"], idxs=I, str_order=str_ord)
 
-    fig, axs = plt.subplots(1, 2, sharey=True, figsize=(5, 8))
+    N_leaves = len(str_ord)
+    N_homopl = saln.shape[1]
+    fig, axs = plt.subplots(
+        1,
+        2,
+        sharey=True,
+        figsize=(4 + N_homopl * 0.1, 1 + N_leaves * 0.1),
+        gridspec_kw={"width_ratios": [1.2, N_homopl * 0.1]},
+    )
     ax = axs[0]
     Phylo.draw(tree, label_func=lambda x: None, do_show=False, axes=ax)
     ax.set_title("core genome tree")
 
     ax = axs[1]
     aw = np.argwhere(~saln)
-    ax.scatter(y=aw[:, 0] + 1, x=aw[:, 1] + 1, c=aw[:, 1], cmap="tab20")
+    ax.scatter(y=aw[:, 0] + 1, x=aw[:, 1] + 1, c=aw[:, 1] % 20, cmap="tab20")
     ax.set_ylim(top=-1)
-    K = saln.shape[1]
-    ax.set_xticks(np.arange(K) + 1, minor=True)
+    ax.set_xticks(np.arange(N_homopl) + 1, minor=True)
     ax.set_title("homoplasies")
 
     for ax in axs:
-        N = len(str_ord)
-        ax.set_yticks(np.arange(N) + 1, minor=True)
+        ax.set_yticks(np.arange(N_leaves) + 1, minor=True)
         ax.grid(which="major", alpha=0.6)
         ax.grid(which="minor", alpha=0.3)
 
@@ -217,7 +224,8 @@ def fig_tree(df, res_a, svname):
     # cmap = plt.get_cmap("cool")
     # norm = mpl.colors.BoundaryNorm(boundaries=[0,1,10,100,300], ncolors=256)
 
-    fig, ax = plt.subplots(1, 1, figsize=(8, 5))
+    N_leaves = len(T.get_terminals())
+    fig, ax = plt.subplots(1, 1, figsize=(8, 1 + N_leaves * 0.075))
     for n in T.get_nonterminals():
         k = len([m for m in n.mutations if m[1] in I])
         c = cmap(norm(k))
@@ -230,7 +238,7 @@ def fig_tree(df, res_a, svname):
     plt.colorbar(
         mapp,
         label="n. supporting bi-allelic SNPs",
-        shrink=0.8,
+        shrink=0.6,
         extend="min",
     )
     sns.despine()

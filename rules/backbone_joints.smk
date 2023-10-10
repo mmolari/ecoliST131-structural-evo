@@ -57,7 +57,9 @@ rule BJ_extract_raw_paths:
 
 rule BJ_extract_joint_sequence:
     input:
-        genomes=lambda w: expand(rules.gbk_to_fa.output.fa, acc=datasets[w.dset]),
+        genomes=lambda w: expand(
+            rules.gbk_to_fa.output.fa, acc=dset_chrom_accnums[w.dset]
+        ),
         pos=rules.BJ_extract_joints_pos.output.pos,
     output:
         seq="results/{dset}/backbone_joints/{opt}/joints_seqs/{edge}.fa",
@@ -97,7 +99,7 @@ def all_junction_pangraphs(wildcards):
         edges = []
         for line in f.readlines():
             edge, n = line.strip().split(",")
-            if n == str(len(datasets[wildcards.dset])):
+            if n == str(len(dset_chrom_accnums[wildcards.dset])):
                 edges.append(edge)
     return expand(rules.BJ_pangraph.output.pan, edge=edges, **wildcards)
 
@@ -152,7 +154,7 @@ rule BJ_plot_linear_repr:
 
 def BJ_all_joints_outputs(wildcards):
     files = []
-    for dset, opt in itt.product(datasets.keys(), kernel_opt.keys()):
+    for dset, opt in itt.product(dset_names, kernel_opts):
         wc = {"dset": dset, "opt": opt}
 
         # define list of edges
@@ -161,7 +163,7 @@ def BJ_all_joints_outputs(wildcards):
             edges = []
             for line in f.readlines():
                 edge, n = line.strip().split(",")
-                if n == str(len(datasets[dset])):
+                if n == str(len(dset_chrom_accnums[dset])):
                     edges.append(edge)
 
         # add desired output files
@@ -172,9 +174,5 @@ def BJ_all_joints_outputs(wildcards):
 
 rule BJ_all:
     input:
-        expand(
-            rules.BJ_junct_stats.output,
-            dset=datasets.keys(),
-            opt=kernel_opt.keys(),
-        ),
+        expand(rules.BJ_junct_stats.output, dset=dset_names, opt=kernel_opts),
         BJ_all_joints_outputs,

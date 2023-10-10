@@ -1,5 +1,6 @@
 import pandas as pd
 import argparse
+import pathlib
 import os
 
 
@@ -129,16 +130,17 @@ def find_match(df, m, min_cov, min_id):
 
 if __name__ == "__main__":
     args = parse_args()
-    iso = args.blast_tsv.split("/")[-1].split(".")[0]
-    locus = args.blast_tsv.split("/")[-2]
+    blast_tsv = pathlib.Path(args.blast_tsv)
+    iso = blast_tsv.stem
+    locus = blast_tsv.parent.name
     m = match()
     m.iso = iso
     m.locus = locus
     m.match_type = "x"
 
-    fsize = os.path.getsize(args.blast_tsv)
+    fsize = os.path.getsize(blast_tsv)
     if fsize > 0:
-        df = import_df(args.blast_tsv)
+        df = import_df(blast_tsv)
         if df is not None:
             m = find_match(df, m, args.min_cov, args.min_id)
 

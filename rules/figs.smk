@@ -16,18 +16,40 @@ rule FG_metadata:
     input:
         tree=rules.PG_filtered_coregenome_tree.output.nwk,
         meta=rules.metadata_preprocess.output,
+        alls=rules.QC_alleles_summary.output.csv,
     output:
-        hist="figs/{dset}/{opt}/metadata/hist.pdf",
-        tree="figs/{dset}/{opt}/metadata/tree.pdf",
+        fld=directory("figs/{dset}/{opt}/metadata"),
     conda:
         "../conda_env/bioinfo.yml"
     shell:
         """
-        python3 scripts/figs/metadata_tree.py \
-            --tree {input.tree} \
-            --metadata {input.meta} \
-            --hist_fig {output.hist} \
-            --tree_fig {output.tree}
+        python3 scripts/figs/metadata_plots.py \
+            --metadata_csv {input.meta} \
+            --alleles_csv {input.alls} \
+            --coregenome_tree {input.tree} \
+            --outdir {output.fld}
+        """
+
+
+rule FG_resistance:
+    input:
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+        ncbi=expand(rules.RG_summary.output.txt, database="ncbi", allow_missing=True),
+        card=expand(rules.RG_summary.output.txt, database="card", allow_missing=True),
+    output:
+        fld=directory("figs/{dset}/{opt}/resistance"),
+    params:
+        thr=config["resistance"]["id_threshold"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/figs/resistance_plots.py \
+            --coregenome_tree {input.tree} \
+            --ncbi_df {input.ncbi} \
+            --card_df {input.card} \
+            --id_threshold {params.thr} \
+            --outdir {output.fld}
         """
 
 
@@ -79,13 +101,25 @@ rule FG_homoplasies:
         """
 
 
+rule FG_block_distr_fig:
+    input:
+        rules.PG_polish.output,
+    output:
+        "figs/{dset}/pangraph/{opt}_block_distr.pdf",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/pangraph/plot_block_distr.py \
+            --pangraph {input} --fig {output}
+        """
+
+
 rule FG_all:
     input:
-        expand(rules.FG_assembly_qc.output, dset=datasets.keys()),
-        expand(rules.FG_metadata.output, dset=datasets.keys(), opt=kernel_opt.keys()),
-        expand(rules.FG_homoplasies.output, dset=datasets.keys(), opt=kernel_opt.keys()),
-        expand(
-            rules.FG_recombination_filter.output,
-            dset=datasets.keys(),
-            opt=kernel_opt.keys(),
-        ),
+        expand(rules.FG_assembly_qc.output, dset=dset_names),
+        expand(rules.FG_metadata.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_homoplasies.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_recombination_filter.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_resistance.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),

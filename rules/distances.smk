@@ -46,7 +46,7 @@ rule DST_filtered_corealignment:
 
 rule DST_mash:
     input:
-        fa=lambda w: expand(rules.gbk_to_fa.output.fa, acc=datasets[w.dset]),
+        fa=lambda w: expand(rules.gbk_to_fa.output.fa, acc=dset_chrom_accnums[w.dset]),
     output:
         "results/{dset}/distances/mash_dist.csv",
     conda:
@@ -144,9 +144,5 @@ rule DST_merge:
 
 rule DST_all:
     input:
-        expand(rules.DST_merge.output, dset=datasets.keys(), opt=kernel_opt.keys()),
-        expand(
-            rules.DST_pangraph_nodupl.output,
-            dset=datasets.keys(),
-            opt=kernel_opt.keys(),
-        ),
+        expand(rules.DST_merge.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.DST_pangraph_nodupl.output, dset=dset_names, opt=kernel_opts),
