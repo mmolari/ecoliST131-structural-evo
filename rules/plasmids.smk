@@ -6,7 +6,7 @@ rule PL_resistance:
             allow_missing=True,
         ),
     output:
-        txt="results/{dset}/plasmids/resistance/{database}_summary.txt",
+        txt="results/{dset}/plasmids/resistance/{database}_summary_plasmid.txt",
     conda:
         "../conda_env/abricate.yml"
     shell:
@@ -15,10 +15,30 @@ rule PL_resistance:
         """
 
 
+rule PL_join_resistance:
+    input:
+        res=rules.PL_resistance.output.txt,
+        pls=lambda w: dsets_config[w.dset]["plasmids"],
+    output:
+        csv="results/{dset}/plasmids/resistance/{database}_summary_chromosome.csv",
+    params:
+        thr=config["resistance"]["id_threshold"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/plasmids/join_resistance_df.py \
+            --plasmid_json {input.pls} \
+            --resistance_tsv {input.res} \
+            --threshold_id {params.thr} \
+            --out_csv {output.csv}
+        """
+
+
 rule PL_all:
     input:
         expand(
-            rules.PL_resistance.output.txt,
+            rules.PL_join_resistance.output.csv,
             dset=plasmid_accnums.keys(),
             database=["card", "ncbi"],
         ),
