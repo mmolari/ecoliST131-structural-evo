@@ -59,7 +59,7 @@ rule FG_plasmid_resistance:
         chrm=rules.RG_summary.output.txt,
         plsm=rules.PL_join_resistance.output.csv,
     output:
-        fig="figs/{dset}/{opt}/plasmid_resistance_{database}.pdf",
+        fig="figs/{dset}/{opt}/plasmids/plasmid_resistance_{database}.pdf",
     params:
         thr=config["resistance"]["id_threshold"],
     conda:
