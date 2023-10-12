@@ -1,6 +1,7 @@
 import pathlib
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
 from Bio import Phylo
 import argparse
@@ -90,6 +91,17 @@ def plot_resistance_vs_tree(tree, df_chr, df_pls):
     ax.set_xticklabels(list(xticks.values()), rotation=90)
     ax.set_title("n. resistance genes")
 
+    # create legend
+    handles = [
+        mpl.lines.Line2D(
+            [], [], color="blue", marker="3", linestyle="None", label="chromosome"
+        ),
+        mpl.lines.Line2D(
+            [], [], color="red", marker="4", linestyle="None", label="plasmid"
+        ),
+    ]
+    ax.legend(handles=handles, loc="upper left", bbox_to_anchor=(1, 1))
+
     for ax in axs:
         for n in range(Y):
             ax.axhline(n + 1, c="lightgray", zorder=-1, alpha=0.3)
@@ -104,6 +116,8 @@ if __name__ == "__main__":
     df_chr = load_res_df(args.chr_df, args.id_threshold)
     df_pls = pd.read_csv(args.pls_df, index_col=0)
     tree = Phylo.read(args.coregenome_tree, "newick")
+    tree.root_at_midpoint()
+    tree.ladderize()
 
     fig, ax = plot_resistance_vs_tree(tree, df_chr, df_pls)
     plt.savefig(args.fig, dpi=300, bbox_inches="tight")
