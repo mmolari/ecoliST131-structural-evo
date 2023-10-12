@@ -9,5 +9,6 @@
 /local
 .ipynb_checkpoints
 /old
+/config/ncbi_api_key.txt
 !/exploration/*/*.py
 __pycache__

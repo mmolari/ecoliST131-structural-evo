@@ -53,6 +53,28 @@ rule FG_resistance:
         """
 
 
+rule FG_plasmid_resistance:
+    input:
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+        chrm=rules.RG_summary.output.txt,
+        plsm=rules.PL_join_resistance.output.csv,
+    output:
+        fig="figs/{dset}/{opt}/plasmids/plasmid_resistance_{database}.pdf",
+    params:
+        thr=config["resistance"]["id_threshold"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/figs/plasmid_resistance.py \
+            --coregenome_tree {input.tree} \
+            --chr_df {input.chrm} \
+            --pls_df {input.plsm} \
+            --id_threshold {params.thr} \
+            --fig {output.fig}
+        """
+
+
 rule FG_recombination_filter:
     input:
         info_idxs=rules.PG_filtered_corealignment.output.info_idxs,
@@ -122,4 +144,10 @@ rule FG_all:
         expand(rules.FG_homoplasies.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_recombination_filter.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_resistance.output, dset=dset_names, opt=kernel_opts),
+        expand(
+            rules.FG_plasmid_resistance.output,
+            dset=plasmid_dsets.keys(),
+            opt=kernel_opts,
+            database=["ncbi", "card"],
+        ),
         expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),

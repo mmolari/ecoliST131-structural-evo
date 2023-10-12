@@ -1,11 +1,25 @@
+ncbi_api_key = ""
+try:
+    with open("config/ncbi_api_key.txt", "r") as f:
+        ncbi_api_key = f.read().strip()
+except:
+    print("No NCBI API key found. Save your key in config/ncbi_api_key.txt")
+
+
 rule download_gbk:
     output:
         "data/gbk/{acc}.gbk",
     conda:
         "../conda_env/bioinfo.yml"
+    params:
+        api_key=f"--api-key {ncbi_api_key}" if len(ncbi_api_key) > 0 else "",
     shell:
         """
-        ncbi-acc-download {wildcards.acc} -e all -F genbank
+        ncbi-acc-download {wildcards.acc} \
+            -e all \
+            -F genbank \
+            {params.api_key}
+
         mv {wildcards.acc}.gbk {output}
         """
 
