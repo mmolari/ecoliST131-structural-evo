@@ -86,7 +86,7 @@ def import_df(fname):
 
 def find_match(df, m, min_cov, min_id):
     df["cov"] = df["aln_L"] / df["rL"]
-    df["sim"] = df["matches"] / df["aln_L"]
+    df["sim"] = df["matches"] / df["rL"]
 
     # above minimal coverage
     mask = df["cov"] >= min_cov
@@ -97,7 +97,7 @@ def find_match(df, m, min_cov, min_id):
     sdf = sdf[mask]
 
     # find best match
-    sdf.sort_values("matches", ascending=False, inplace=True)
+    sdf.sort_values(["sim", "matches"], ascending=[False, False], inplace=True)
     sdf.reset_index(drop=True, inplace=True)
 
     if len(sdf) == 0:

@@ -117,8 +117,8 @@ rule QC_alleles_assign:
     output:
         "data/alleles/assign/{allele}/{acc}.tsv",
     params:
-        min_cov=0.95,
-        min_id=0.95,
+        min_cov=0.99,
+        min_id=0.99,
     conda:
         "../conda_env/bioinfo.yml"
     shell:
