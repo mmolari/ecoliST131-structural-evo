@@ -70,7 +70,7 @@ rule QC_summary:
 
 rule QC_alleles_db:
     input:
-        fa=lambda w: config["alleles"][w.allele],
+        fa=lambda w: config["allele-files"][w.allele],
     output:
         db=directory(
             "data/blast_alleles_db/{allele}",
@@ -153,7 +153,7 @@ rule QC_alleles_summary:
     input:
         dfs=expand(
             rules.QC_alleles_concat.output,
-            allele=config["alleles"].keys(),
+            allele=config["chr_alleles"],
             allow_missing=True,
         ),
     output:
