@@ -25,11 +25,33 @@ mlst_schemes:
   - "ecoli"
   - "ecoli_achtman_4"
 
-alleles:
+allele-files:
   fimH: "config/utils/alleles/fimH.fa.gz"
   fimH_eb: "config/utils/alleles/b4320.fa.gz"
   gyrA_eb: "config/utils/alleles/b2231.fa.gz"
   parC_eb: "config/utils/alleles/b3019.fa.gz"
+  FIA: "config/utils/alleles/FIA.fa.gz"
+  FIB: "config/utils/alleles/FIB.fa.gz"
+  FIC: "config/utils/alleles/FIC.fa.gz"
+  FII: "config/utils/alleles/FII.fa.gz"
+  FIIK: "config/utils/alleles/FIIK.fa.gz"
+  FIIS: "config/utils/alleles/FIIS.fa.gz"
+  FIIY: "config/utils/alleles/FIIY.fa.gz"
+
+chr_alleles:
+  - fimH
+  - fimH_eb
+  - gyrA_eb
+  - parC_eb
+
+plsm_alleles:
+  - FIA
+  - FIB
+  - FIC
+  - FII
+  - FIIK
+  - FIIS
+  - FIIY
 
 resistance:
   id_threshold: 0.95

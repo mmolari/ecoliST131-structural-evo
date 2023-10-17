@@ -75,6 +75,25 @@ rule FG_plasmid_resistance:
         """
 
 
+rule FG_plasmid_mlst:
+    input:
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+        df=rules.PL_alleles_summary.output.csv,
+        json=lambda w: dsets_config[w.dset]["plasmids"],
+    output:
+        fig="figs/{dset}/{opt}/plasmids/plasmid_mlst.pdf",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/figs/plasmid_mlst.py \
+            --coregenome_tree {input.tree} \
+            --mlst_df {input.df} \
+            --plsm_json {input.json} \
+            --fig {output.fig}
+        """
+
+
 rule FG_recombination_filter:
     input:
         info_idxs=rules.PG_filtered_corealignment.output.info_idxs,
@@ -150,4 +169,5 @@ rule FG_all:
             opt=kernel_opts,
             database=["ncbi", "card"],
         ),
+        expand(rules.FG_plasmid_mlst.output, dset=plasmid_dsets.keys(), opt=kernel_opts),
         expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),

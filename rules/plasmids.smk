@@ -66,6 +66,43 @@ rule PL_mob_typing_summary:
         """
 
 
+rule PL_alleles_concat:
+    input:
+        lambda w: expand(
+            rules.QC_alleles_assign.output,
+            allele=w.allele,
+            acc=sorted(plasmid_accnums[w.dset]),
+        ),
+    output:
+        "results/{dset}/plasmids/alleles/{allele}.tsv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        echo "iso\tlocus\tmatch\tallele\tcoverage\tsim\tmatches\taln_L\tallele_L" > {output}
+        cat {input} >> {output}
+        """
+
+
+rule PL_alleles_summary:
+    input:
+        dfs=expand(
+            rules.PL_alleles_concat.output,
+            allele=config["plsm_alleles"],
+            allow_missing=True,
+        ),
+    output:
+        csv="results/{dset}/plasmids/alleles_summary.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/assembly_qc/alleles_summary.py \
+            --in_dfs {input.dfs} \
+            --summary_df {output.csv}
+        """
+
+
 rule PL_all:
     input:
         expand(
@@ -75,5 +112,9 @@ rule PL_all:
         ),
         expand(
             rules.PL_mob_typing_summary.output,
+            dset=plasmid_accnums.keys(),
+        ),
+        expand(
+            rules.PL_alleles_summary.output,
             dset=plasmid_accnums.keys(),
         ),

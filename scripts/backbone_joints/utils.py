@@ -163,7 +163,7 @@ def filter_paths(paths, keep_f):
 
 
 def path_categories(paths):
-    """Returns a list of touples, one per non-empty path, with the following info:
+    """Returns a list of tuples, one per non-empty path, with the following info:
     (count, path, [list of isolates])"""
     iso_list = defaultdict(list)
     n_paths = defaultdict(int)
