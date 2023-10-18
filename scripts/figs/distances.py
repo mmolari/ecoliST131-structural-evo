@@ -69,18 +69,41 @@ values_to_titles = {
     # "acc_block_PA": ("accessory blocks P/A distance", "acc_block_PA"),
 }
 
-distributions = [
-    ("private seq. (bp)", "mash_dist"),
-    ("private seq. (bp)", "core_div_filtered"),
-    ("private seq. (bp)", "n. blocks"),
-    ("private seq. (bp)", "block_PA"),
-    ("core_div_filtered", "core_div_naive"),
-    ("core_div_filtered", "n. blocks"),
-    ("core_div_filtered", "block_PA"),
-    ("core_div_filtered", "edge_PA"),
-    ("core_div_filtered", "private seq. (bp)"),
-    ("core_div_filtered", "shared seq. (bp)"),
-]
+distributions = {
+    "private seq. (bp)": (
+        "mash_dist",
+        "core_div_filtered",
+        "n. blocks",
+        "block_PA",
+    ),
+    "core_div_filtered": (
+        "core_div_naive",
+        "n. blocks",
+        "block_PA",
+        "edge_PA",
+        "private seq. (bp)",
+        "shared seq. (bp)",
+    ),
+}
+
+
+def plot_distribution(df, x_value, Y_values, values_to_titles, svname):
+    L = len(Y_values)
+    nY = (L // 2) + int(L % 2)
+    fig, axs = plt.subplots(nY, 2, figsize=(8, nY * 4))
+    mask = df["si"] > df["sj"]
+    sdf = df[mask]
+    for n, yv in enumerate(Y_values):
+        ax = axs[n // 2, n % 2]
+        sns.histplot(data=sdf, x=x_value, y=yv, bins=50, ax=ax)
+        xlab = values_to_titles[x_value][0]
+        ylab = values_to_titles[yv][0]
+        ax.set_xlabel(xlab)
+        ax.set_ylabel(ylab)
+    plt.tight_layout()
+    plt.savefig(svname)
+    plt.close()
+
 
 if __name__ == "__main__":
     args = parse_args()
@@ -105,16 +128,7 @@ if __name__ == "__main__":
         plot_dist_mat(D, tree, title, savefig=svname)
 
     # distributions
-    L = len(distributions)
-    nY = (L // 2) + int(L % 2)
-    fig, axs = plt.subplots(nY, 2, figsize=(8, nY * 4))
-    for n, (xv, yv) in enumerate(distributions):
-        ax = axs[n // 2, n % 2]
-        sns.histplot(data=df, x=xv, y=yv, bins=50, ax=ax)
-        xlab, xtitle = values_to_titles[xv]
-        ylab, ytitle = values_to_titles[yv]
-        ax.set_xlabel(xlab)
-        ax.set_ylabel(ylab)
-    plt.tight_layout()
-    plt.savefig(svfld / "distributions.png")
-    plt.close()
+    for x_value, Y_values in distributions.items():
+        x_title = values_to_titles[x_value][1]
+        svname = svfld / f"distributions_{x_title}.png"
+        plot_distribution(df, x_value, Y_values, values_to_titles, svname)
