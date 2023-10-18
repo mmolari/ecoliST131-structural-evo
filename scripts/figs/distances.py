@@ -107,7 +107,7 @@ if __name__ == "__main__":
     # distributions
     L = len(distributions)
     nY = (L // 2) + int(L % 2)
-    fig, axs = plt.subplots(nY, 2, figsize=(10, nY * 4))
+    fig, axs = plt.subplots(nY, 2, figsize=(8, nY * 4))
     for n, (xv, yv) in enumerate(distributions):
         ax = axs[n // 2, n % 2]
         sns.histplot(data=df, x=xv, y=yv, bins=50, ax=ax)
