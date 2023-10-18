@@ -156,6 +156,23 @@ rule FG_block_distr_fig:
         """
 
 
+rule FG_distances:
+    input:
+        csv=rules.DST_merge.output,
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+    output:
+        directory("figs/{dset}/{opt}/distances"),
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/figs/distances.py \
+            --dist_df {input.csv} \
+            --tree {input.tree} \
+            --fig_fld {output}
+        """
+
+
 rule FG_all:
     input:
         expand(rules.FG_assembly_qc.output, dset=dset_names),
@@ -171,3 +188,4 @@ rule FG_all:
         ),
         expand(rules.FG_plasmid_mlst.output, dset=plasmid_dsets.keys(), opt=kernel_opts),
         expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_distances.output, dset=dset_names, opt=kernel_opts),
