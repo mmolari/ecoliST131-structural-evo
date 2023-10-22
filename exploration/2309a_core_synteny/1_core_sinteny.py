@@ -228,6 +228,8 @@ plt.show()
 # %%
 
 tree = Phylo.read(tree_file, "newick")
+tree.root_at_midpoint()
+tree.ladderize()
 
 fig, ax = plt.subplots(figsize=(3.5, 10))
 
