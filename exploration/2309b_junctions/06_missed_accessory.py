@@ -14,10 +14,9 @@ pangraph_file = f"../../results/{dset}/pangraph/asm20-100-5-polished.json"
 # %%
 pan = pp.Pangraph.load_json(pangraph_file)
 bdf = pan.to_blockstats_df()
-edges_df = pd.read_csv(edge_file)
-
-# %%
 paths = ut.pangraph_to_path_dict(pan)
+del pan
+edges_df = pd.read_csv(edge_file)
 
 # %%
 
@@ -60,43 +59,102 @@ def core_f(block_id):
 
 links = {}
 for iso, path in paths.items():
-    links_bid = encompassing_edges(path, core_f)
-    links_len = {
-        e: sum([bdf.loc[node.id, "len"] for node in l]) for e, l in links_bid.items()
-    }
-    links[iso] = links_len
+    links[iso] = encompassing_edges(path, core_f)
 # %%
 
-df = []
+full_df = []
 for iso, link in links.items():
-    for edge, L in link.items():
+    for edge, nodes in link.items():
         res = {}
-        res["edge"] = edge
+        L = sum([bdf.loc[n.id, "len"] for n in nodes], start=0)
+        res["edge"] = edge.to_unique_str_id()
         res["iso"] = iso
         res["len"] = L
-        df.append(res)
-df = pd.DataFrame(df)
-df = df.pivot(index="iso", columns="edge", values="len")
-df.columns = [e.to_str_id() for e in df.columns]
+        res["n_nodes"] = len(nodes)
+        full_df.append(res)
+full_df = pd.DataFrame(full_df)
+df = full_df.pivot(index="iso", columns="edge", values="len")
 col_ord = df.notna().sum().sort_values(ascending=False).index
 df = df[col_ord]
 df
 
 # %%
-fig, ax = plt.subplots(figsize=(20, 20))
-sns.heatmap(df.notna(), cmap="Blues", ax=ax)
-plt.show()
 
-
-fig, ax = plt.subplots(figsize=(20, 20))
-sns.heatmap(df, cmap="rainbow", ax=ax)
-plt.show()
-# %%
-core_edges_1 = edges_df[edges_df["count"] == len(pan.strains())]["edge"].to_numpy()
-core_edges_2 = df.columns[df.notna().sum() == len(pan.strains())].to_numpy()
+core_edges_1 = df.columns[df.notna().sum() == len(paths)].to_numpy()
+core_edges_2 = edges_df[edges_df["count"] == len(paths)]["edge"].to_numpy()
 
 ce1 = set([ut.Edge.from_str_id(e) for e in core_edges_1])
 ce2 = set([ut.Edge.from_str_id(e) for e in core_edges_2])
 
 assert ce1 == ce2
+# %%
+
+df_core = df[core_edges_1].copy()
+df_acc = df.drop(core_edges_1, axis=1).copy()
+# %%
+fig, ax = plt.subplots(figsize=(20, 30))
+sns.heatmap(df_acc.notna(), cmap="Blues", ax=ax)
+plt.show()
+
+
+fig, ax = plt.subplots(figsize=(20, 30))
+sns.heatmap(df_acc, cmap="rainbow", ax=ax)
+plt.show()
+# %%
+
+sns.histplot(df_core.mean(), log_scale=True, bins=50)
+# plt.xscale("log")
+plt.show()
+# %%
+sns.histplot(x=(df_core == 0).sum(), y=df_core.mean(), log_scale=(False, True), bins=50)
+# %%
+
+n_zero_core = (df_core == 0).sum()
+avg_nonzero_len_core = df_core[df_core > 0].mean()
+avg_nonzero_len_core.fillna(0, inplace=True)
+
+x_bins = np.linspace(0, len(paths) + 1, 50)
+y_bins = np.logspace(
+    np.log10(avg_nonzero_len_core.min()), np.log10(avg_nonzero_len_core.max()), 50
+)
+sns.jointplot(
+    x=n_zero_core,
+    y=avg_nonzero_len_core,
+    kind="hist",
+    joint_kws={
+        "bins": (x_bins, y_bins),
+        # "log_scale": (False, True),
+    },
+)
+plt.yscale("log")
+plt.show()
+# %%
+is_core = df.notna().sum() == len(paths)
+is_core.value_counts()
+# %%
+core_acc_sequence = df.sum()[is_core].sum() / len(paths)
+acc_acc_sequence = df.sum()[~is_core].sum() / len(paths)
+
+print(f"Core-acc sequence: {core_acc_sequence/1e6} Mbp")
+print(f"Acc-acc sequence: {acc_acc_sequence/1e6} Mbp")
+
+# %%
+from collections import defaultdict
+
+imputable = defaultdict(float)
+full_strain_set = set(paths.keys())
+for col in df.columns:
+    srs = df[col]
+    strains_with = set(srs[srs.notna()].index)
+    strains_without = full_strain_set - strains_with
+
+    if len(strains_with) > len(strains_without):
+        culprit = strains_without
+    else:
+        culprit = strains_with
+
+    sequence = df[col].sum()
+    for iso in culprit:
+        imputable[iso] += sequence / len(culprit)
+imputable = pd.Series(imputable)
 # %%

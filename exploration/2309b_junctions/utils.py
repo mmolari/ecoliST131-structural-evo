@@ -92,8 +92,13 @@ class Edge:
     def __repr__(self) -> str:
         return f"{self.left} <--> {self.right}"
 
-    def to_str_id(self) -> list:
+    def to_str_id(self) -> str:
         return "__".join([self.left.to_str_id(), self.right.to_str_id()])
+
+    def to_unique_str_id(self) -> str:
+        A = self.to_str_id()
+        B = self.invert().to_str_id()
+        return A if A < B else B
 
     @staticmethod
     def from_str_id(t) -> "Edge":
