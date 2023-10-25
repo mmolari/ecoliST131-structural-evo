@@ -53,7 +53,7 @@ def encompassing_edges(path, core_f):
 
 def core_f(block_id):
     keep = bdf.loc[block_id, "core"]
-    keep &= bdf.loc[block_id, "len"] > len_thr
+    keep &= bdf.loc[block_id, "len"] >= len_thr
     return keep
 
 
@@ -142,6 +142,7 @@ print(f"Acc-acc sequence: {acc_acc_sequence/1e6} Mbp")
 from collections import defaultdict
 
 imputable = defaultdict(float)
+n_breakpoints = defaultdict(int)
 full_strain_set = set(paths.keys())
 for col in df.columns:
     srs = df[col]
@@ -156,5 +157,28 @@ for col in df.columns:
     sequence = df[col].sum()
     for iso in culprit:
         imputable[iso] += sequence / len(culprit)
+        n_breakpoints[iso] += 1
 imputable = pd.Series(imputable)
+n_breakpoints = pd.Series(n_breakpoints)
+imputable
+# %%
+fig, axs = plt.subplots(2, 1, figsize=(5, 10), sharex=True)
+
+order = imputable.sort_values(ascending=False).index
+ax = axs[0]
+ax.plot(imputable[order] / len(paths), "o")
+ax.set_yscale("log")
+
+ax = axs[1]
+ax.plot(n_breakpoints[order], "o")
+ax.set_yscale("log")
+
+for ax in axs:
+    ax.set_xticks(range(len(imputable)))
+    ax.set_xticklabels(imputable.sort_values(ascending=False).index, rotation=90)
+    ax.grid(alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
 # %%
