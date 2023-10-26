@@ -345,7 +345,6 @@ def load_genome(iso):
 
 
 def extract_seq(seq, delta, pos):
-    rev_comp = pos["ls"]
     avg_l = (pos["lb"] + pos["le"]) / 2
     avg_r = (pos["rb"] + pos["re"]) / 2
     assert np.abs(avg_l - avg_r) < 1e6, f"weird positions: {pos}"
