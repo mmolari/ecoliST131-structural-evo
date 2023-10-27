@@ -116,7 +116,6 @@ def plot_accessory_vs_core(df_acc, df_core):
     # plt.xscale("log")
     plt.legend()
     plt.xlabel("total amount of accessory genome per isolate (bp)")
-    plt.show()
 
 
 plot_accessory_vs_core(jdf_acc, jdf_core)
