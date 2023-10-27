@@ -107,7 +107,7 @@ def plot_accessory_vs_core(df_acc, df_core):
     plt.hist(
         [avg_len_core, avg_len_acc],
         bins=50,
-        label=["core", "accessory"],
+        label=["backbone", "off-backbone"],
         log=True,
         histtype="stepfilled",
         alpha=0.3,
@@ -116,6 +116,7 @@ def plot_accessory_vs_core(df_acc, df_core):
     # plt.xscale("log")
     plt.legend()
     plt.xlabel("total amount of accessory genome per isolate (bp)")
+    plt.ylabel("n. core-edges")
 
 
 plot_accessory_vs_core(jdf_acc, jdf_core)
@@ -238,155 +239,4 @@ def plot_offbackbone_frequency(dfa):
 
 plot_offbackbone_frequency(jdf_acc)
 
-# %%
-# check peak
-mean_nonempty_len = jdf_core[jdf_core > 0].mean()
-bins = np.logspace(1, 6, 100)
-h = plt.hist(
-    mean_nonempty_len,
-    log=True,
-    bins=bins,
-)
-plt.xscale("log")
-plt.show()
-# %%
-mask = mean_nonempty_len < 830
-mask &= mean_nonempty_len > 739
-mean_nonempty_len[mask].value_counts()
-# %%
-mask = mean_nonempty_len == 766
-suspicious = mean_nonempty_len[mask].index.to_numpy()
-# %%
-
-sus = []
-for iso, path in paths.items():
-    junctions = ut.path_junction_split(path, is_core)
-    for J in junctions:
-        edge = J.flanking_edge()
-        if not edge.to_unique_str_id() in suspicious:
-            continue
-        path = J.center
-        if edge.left.id > edge.right.id:
-            path = path.invert()
-        L_nodes = [bdf.loc[node.id, "len"] for node in path.nodes]
-        L = sum(L_nodes)
-        if L != 766:
-            continue
-        N_nodes = len(path.nodes)
-        sus.append(
-            {
-                "iso": iso,
-                "edge": edge.to_unique_str_id(),
-                "len": L,
-                "nodes": N_nodes,
-                "L_nodes": L_nodes,
-                "path": path,
-            }
-        )
-sus = pd.DataFrame(sus)
-sus = sus.sort_values(["edge", "iso"]).reset_index(drop=True)
-sus.to_csv("data/suspicious.csv")
-sus
-# %%
-# it's in many genomes
-sus["iso"].value_counts()
-# %%
-
-edge = "BDLHMQPIBW_f__NKOVRJRZTL_f"
-iso_in = "NZ_CP124372.1"
-iso_out = "NZ_CP124339.1"
-
-edge = ut.Edge.from_str_id(edge)
-bl = pan.blocks[edge.left.id]
-br = pan.blocks[edge.right.id]
-pos_l_in = [
-    (occ[0], occ[2], *pos) for occ, pos in bl.alignment.pos.items() if occ[0] == iso_in
-][0]
-pos_l_out = [
-    (occ[0], occ[2], *pos) for occ, pos in bl.alignment.pos.items() if occ[0] == iso_out
-][0]
-pos_r_in = [
-    (occ[0], occ[2], *pos) for occ, pos in br.alignment.pos.items() if occ[0] == iso_in
-][0]
-pos_r_out = [
-    (occ[0], occ[2], *pos) for occ, pos in br.alignment.pos.items() if occ[0] == iso_out
-][0]
-print(pos_l_in)
-print(pos_r_in)
-print(pos_l_out)
-print(pos_r_out)
-
-# extract sequence from iso_in
-from Bio import SeqIO
-
-with open(f"../../data/fa/{iso_in}.fa") as f:
-    genome_in = SeqIO.read(f, "fasta")
-if pos_l_in[3] < pos_r_in[2]:
-    seq_sus = genome_in.seq[pos_l_in[3] : pos_r_in[2]]
-else:
-    seq_sus = genome_in.seq[pos_r_in[3] : pos_l_in[2]]
-print(seq_sus)
-
-# %%
-
-import subprocess
-
-
-def disentangle_pos(pos_l, pos_r):
-    sdf = defaultdict(dict)
-    for occ, pos in pos_l.items():
-        sdf[occ[0]]["lb"] = pos[0]
-        sdf[occ[0]]["le"] = pos[1]
-        sdf[occ[0]]["ls"] = occ[2]
-    for occ, pos in pos_r.items():
-        sdf[occ[0]]["rb"] = pos[0]
-        sdf[occ[0]]["re"] = pos[1]
-        sdf[occ[0]]["rs"] = occ[2]
-    return pd.DataFrame(sdf).T
-
-
-def load_genome(iso):
-    with open(f"../../data/fa/{iso}.fa") as f:
-        genome = SeqIO.read(f, "fasta")
-    return genome.seq
-
-
-def extract_seq(seq, delta, pos):
-    avg_l = (pos["lb"] + pos["le"]) / 2
-    avg_r = (pos["rb"] + pos["re"]) / 2
-    assert np.abs(avg_l - avg_r) < 1e6, f"weird positions: {pos}"
-    fwd = avg_l < avg_r
-    beg = pos["le"] if fwd else pos["re"]
-    end = pos["rb"] if fwd else pos["lb"]
-    seq = seq[beg - delta : end + delta]
-    if not fwd:
-        seq = seq.reverse_complement()
-    return seq
-
-
-delta = 500
-for edge, sdf in sus.groupby("edge"):
-    print(sdf)
-
-    edge = ut.Edge.from_str_id(edge)
-    pos_l = pan.blocks[edge.left.id].alignment.pos
-    pos_r = pan.blocks[edge.right.id].alignment.pos
-    pos = disentangle_pos(pos_l, pos_r)
-    records = []
-    for iso, row in pos.iterrows():
-        genome = load_genome(iso)
-        seq = extract_seq(genome, delta, row)
-        records.append(SeqIO.SeqRecord(seq, id=iso))
-    fname = f"data/IS/{edge.to_unique_str_id()}.fa"
-    SeqIO.write(records, fname, "fasta")
-
-    # align usign mafft
-    fname_out = f"data/IS/{edge.to_unique_str_id()}.aln.fa"
-    subprocess.run(
-        f"mafft --quiet --auto {fname} > {fname_out}",
-        shell=True,
-    )
-    # remove unaligned file
-    subprocess.run(f"rm {fname}", shell=True)
-    break
 # %%
