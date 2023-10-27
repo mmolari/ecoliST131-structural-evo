@@ -86,10 +86,13 @@ def plot_core_len_vs_frequency(core_df):
     g.set_axis_labels("non-empty frequency", "average length of non-empty junctions")
     # add grid to the joint distribution
     g.ax_joint.grid(True, alpha=0.3)
+    # set title
+    g.fig.suptitle("backbone core edges survey")
 
 
 plot_core_len_vs_frequency(jdf_core)
 plt.tight_layout()
+plt.savefig("figs/missed_accessory/backbone_edges_survey.png")
 plt.show()
 
 # %%
@@ -118,6 +121,7 @@ def plot_accessory_vs_core(df_acc, df_core):
 
 plot_accessory_vs_core(jdf_acc, jdf_core)
 plt.tight_layout()
+plt.savefig("figs/missed_accessory/core_edges_gap_lengths.png")
 plt.show()
 
 # %%
@@ -133,11 +137,12 @@ def plot_offbackbone_PA(dfa):
     sns.heatmap(sdf.T, cbar=True, ax=ax, cmap="GnBu", cbar_kws={"shrink": 0.5})
     # add title
     ax.set_title("presence/absence of off-backbone core-genome edges")
-    plt.tight_layout()
-    plt.show()
 
 
 plot_offbackbone_PA(jdf_acc)
+plt.tight_layout()
+plt.savefig("figs/missed_accessory/offbackbone_PA.png")
+plt.show()
 
 
 # %%
@@ -206,6 +211,7 @@ def plot_impute_accessory(dfa):
     fig.suptitle("off-backbone edges")
     sns.despine(fig)
     plt.tight_layout()
+    plt.savefig("figs/missed_accessory/offbackbone_imputation.png")
     plt.show()
 
 
@@ -226,6 +232,8 @@ def plot_offbackbone_frequency(dfa):
 
     plt.xlabel("frequency of off-backbone edges")
     plt.ylabel("n. edges")
+    plt.tight_layout()
+    plt.savefig("figs/missed_accessory/offbackbone_frequency.png")
     plt.show()
 
 
