@@ -24,14 +24,15 @@ def parse_args():
     return parser.parse_args()
 
 
-fig_fld = pathlib.Path(
-    "/home/marco/ownCloud/neherlab/code/pangenome-evo/exploration/2309a_core_synteny/figs"
-)
-pg_file = "/home/marco/ownCloud/neherlab/code/pangenome-evo/results/ST131/pangraph/asm20-100-5-polished.json"
-tree_file = "/home/marco/ownCloud/neherlab/code/pangenome-evo/results/ST131/pangraph/asm20-100-5-filtered-coretree.nwk"
-svfig_synt = fig_fld / "core_synteny.pdf"
-svfig_tree = fig_fld / "tree.pdf"
-svfig_blocks = fig_fld / "blocks.pdf"
+len_thr = 1000
+dset = "ST131_full"
+abs_path = pathlib.Path("/home/marco/ownCloud/neherlab/code/pangenome-evo")
+fig_fld = abs_path / "exploration/2309a_core_synteny/figs"
+pg_file = abs_path / f"results/{dset}/pangraph/asm20-100-5-polished.json"
+tree_file = abs_path / f"results/{dset}/pangraph/asm20-100-5-filtered-coretree.nwk"
+svfig_synt = fig_fld / f"{dset}_core_synteny.svg"
+svfig_tree = fig_fld / f"{dset}_tree.svg"
+svfig_blocks = fig_fld / f"{dset}_blocks.svg"
 
 # %%
 pan = pp.Pangraph.load_json(pg_file)
@@ -40,12 +41,13 @@ bdf = pan.to_blockstats_df()
 
 
 def keep_f(bid):
-    return bdf.loc[bid, "core"]
+    return bdf.loc[bid, "core"] and (bdf.loc[bid, "len"] > len_thr)
 
 
 paths = ut.pangraph_to_path_dict(pan)
 paths = ut.filter_paths(paths, keep_f)
-bdf = bdf[bdf["core"]].copy().drop(["core", "duplicated", "n. strains"], axis=1)
+mask = bdf["core"] & (bdf["len"] > len_thr)
+bdf = bdf[mask].copy().drop(["core", "duplicated", "n. strains"], axis=1)
 
 # %%
 
@@ -226,6 +228,8 @@ plt.show()
 # %%
 
 tree = Phylo.read(tree_file, "newick")
+tree.root_at_midpoint()
+tree.ladderize()
 
 fig, ax = plt.subplots(figsize=(3.5, 10))
 
@@ -260,7 +264,7 @@ for node in common_path.nodes:
     y += 1
 ax.set_xticks(yticks)
 ax.set_xticklabels(ylabels, rotation=90)
-ax.set_ylim(1e3, 1e6)
+ax.set_ylim(500, 1e6)
 ax.set_yscale("log")
 sns.despine()
 ax.grid(which="major", axis="y", alpha=0.6)
@@ -273,8 +277,13 @@ plt.show()
 
 # total tree length
 tbl = tree.total_branch_length()
-n_events = 15
-aln_len = 3772479
+n_events = len(path_cats)
+aln_len = {
+    "ST131": 3772479,
+    "ST131_full": 2414954,
+}
 
-print(tbl * aln_len)
+print(tbl * aln_len[dset])
+# %%
+tbl
 # %%
