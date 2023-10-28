@@ -185,10 +185,27 @@ rule FG_coresynt:
         "../conda_env/bioinfo.yml"
     shell:
         """
-        python3 scripts/backbone_joints/core_synteny_fig.py \
+        python3 scripts/backbone_joints/fig_core_synteny.py \
             --pangraph {input.pg} \
             --tree {input.tree} \
             --len_thr {params.len_thr} \
+            --fig_fld {output}
+        """
+
+
+rule FG_junctions_survey:
+    input:
+        df=rules.BJ_extract_joints_df.output,
+    output:
+        directory("figs/{dset}/{opt}/junctions_survey"),
+    params:
+        len_thr=config["backbone-joints"]["len-thr"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/fig_junctions_survey.py \
+            --joints_df {input.df} \
             --fig_fld {output}
         """
 
@@ -210,3 +227,4 @@ rule FG_all:
         expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_distances.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_coresynt.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_junctions_survey.output, dset=dset_names, opt=kernel_opts),

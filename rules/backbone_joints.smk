@@ -3,6 +3,24 @@ import itertools as itt
 BJ_config = config["backbone-joints"]
 
 
+rule BJ_extract_joints_df:
+    input:
+        pan=rules.PG_polish.output,
+    output:
+        df="results/{dset}/backbone_joints/{opt}/len_df.csv",
+    params:
+        len_thr=BJ_config["len-thr"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/junctions_df_extract.py \
+            --pangraph {input.pan} \
+            --out_csv {output.df} \
+            --len_thr {params.len_thr}
+        """
+
+
 checkpoint BJ_find_edges:
     input:
         pan=rules.PG_polish.output,
