@@ -173,6 +173,43 @@ rule FG_distances:
         """
 
 
+rule FG_coresynt:
+    input:
+        pg=rules.PG_polish.output,
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+    output:
+        directory("figs/{dset}/{opt}/coresynt"),
+    params:
+        len_thr=config["backbone-joints"]["len-thr"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/fig_core_synteny.py \
+            --pangraph {input.pg} \
+            --tree {input.tree} \
+            --len_thr {params.len_thr} \
+            --fig_fld {output}
+        """
+
+
+rule FG_junctions_survey:
+    input:
+        df=rules.BJ_extract_joints_df.output,
+    output:
+        directory("figs/{dset}/{opt}/junctions_survey"),
+    params:
+        len_thr=config["backbone-joints"]["len-thr"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/fig_junctions_survey.py \
+            --joints_df {input.df} \
+            --fig_fld {output}
+        """
+
+
 rule FG_all:
     input:
         expand(rules.FG_assembly_qc.output, dset=dset_names),
@@ -189,3 +226,5 @@ rule FG_all:
         expand(rules.FG_plasmid_mlst.output, dset=plasmid_dsets.keys(), opt=kernel_opts),
         expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_distances.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_coresynt.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_junctions_survey.output, dset=dset_names, opt=kernel_opts),

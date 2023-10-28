@@ -250,7 +250,7 @@ tree.ladderize()
 import matplotlib.pyplot as plt
 
 names = [l.name for l in tree.get_terminals()]
-fig, ax = plt.subplots(figsize=(10, 30))
+fig, ax = plt.subplots(figsize=(10, len(names) * 0.14 + 1))
 Phylo.draw(
     tree,
     label_func=lambda x: x.name if x.name in names else "",

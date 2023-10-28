@@ -211,6 +211,23 @@ def metadata_tree(df_met, df_all, tree, svname_plot, svname_leg, **kwargs):
     plt.close(fig)
 
 
+def large_tree(tree, svname):
+    leaves = [l.name for l in tree.get_terminals()]
+    N = len(leaves)
+    fig, ax = plt.subplots(1, 1, figsize=(10, N * 0.14 + 1))
+    Phylo.draw(
+        tree,
+        label_func=lambda x: x.name if x.name in leaves else "",
+        do_show=False,
+        axes=ax,
+    )
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    plt.tight_layout()
+    plt.savefig(svname)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     # load input data
     args = parse_args()
@@ -236,3 +253,6 @@ if __name__ == "__main__":
         svfld / "metadata_tree.pdf",
         svfld / "metadata_tree_legend.pdf",
     )
+
+    # large tree
+    large_tree(tree, svfld / "tree.pdf")

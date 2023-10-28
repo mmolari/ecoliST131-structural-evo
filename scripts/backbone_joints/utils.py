@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 
 class Node:
@@ -92,8 +92,13 @@ class Edge:
     def __repr__(self) -> str:
         return f"{self.left} <--> {self.right}"
 
-    def to_str_id(self) -> list:
+    def __to_str_id(self) -> str:
         return "__".join([self.left.to_str_id(), self.right.to_str_id()])
+
+    def to_str_id(self) -> str:
+        A = self.__to_str_id()
+        B = self.invert().__to_str_id()
+        return A if A < B else B
 
     @staticmethod
     def from_str_id(t) -> "Edge":
@@ -133,6 +138,9 @@ class Junction:
     def to_list(self):
         return [self.left.to_str_id(), self.center.to_list(), self.right.to_str_id()]
 
+    def flanking_edge(self) -> Edge:
+        return Edge(self.left, self.right)
+
     @staticmethod
     def from_list(t) -> "Junction":
         return Junction(
@@ -163,7 +171,7 @@ def filter_paths(paths, keep_f):
 
 
 def path_categories(paths):
-    """Returns a list of tuples, one per non-empty path, with the following info:
+    """Returns a list of touples, one per non-empty path, with the following info:
     (count, path, [list of isolates])"""
     iso_list = defaultdict(list)
     n_paths = defaultdict(int)
@@ -178,3 +186,75 @@ def path_categories(paths):
     path_cat = [(count, nodes[path], iso_list[path]) for path, count in n_paths.items()]
     path_cat.sort(key=lambda x: x[0], reverse=True)
     return path_cat
+
+
+def path_junction_split(path, is_core):
+    """Given a path and a boolean function of node ids, it splits the path in a set of
+    Junctions, with flanking "core" blocks for which the condition is true."""
+    junctions = []
+
+    current = []
+    left_node = None
+    for node in path.nodes:
+        if is_core(node.id):
+            J = Junction(left_node, Path(current), node)
+            junctions.append(J)
+            left_node = node
+            current = []
+        else:
+            current.append(node)
+
+    # complete periodic boundary
+    J = junctions[0]
+    J.left = left_node
+    J.center = Path(current + J.center.nodes)
+    junctions[0] = J
+
+    return junctions
+
+
+def path_edge_count(paths):
+    """Count internal edges of paths"""
+    ct = Counter()
+    for iso, p in paths.items():
+        L = len(p.nodes)
+        for i in range(L):
+            e = Edge(p.nodes[i], p.nodes[(i + 1) % L])
+            ct.update([e])
+    return dict(ct)
+
+
+def path_block_count(paths):
+    """Count internal blocks of paths"""
+    ct = Counter()
+    for iso, p in paths.items():
+        for node in p.nodes:
+            ct.update([node.id])
+    return dict(ct)
+
+
+def find_mergers(paths):
+    """Create a dictionary source -> sinks of block-ids to be merged"""
+    edge_ct = path_edge_count(paths)
+    block_ct = path_block_count(paths)
+
+    mergers = {}
+    for e, ec in edge_ct.items():
+        bl, br = e.left.id, e.right.id
+        if (ec == block_ct[bl]) and (ec == block_ct[br]):
+            # merge
+            if bl in mergers:
+                if br in mergers:
+                    source = mergers[br]
+                    sink = mergers[bl]
+                    for k in mergers:
+                        if mergers[k] == source:
+                            mergers[k] = sink
+                else:
+                    mergers[br] = mergers[bl]
+            elif br in mergers:
+                mergers[bl] = mergers[br]
+            else:
+                mergers[br] = bl
+                mergers[bl] = bl
+    return mergers
