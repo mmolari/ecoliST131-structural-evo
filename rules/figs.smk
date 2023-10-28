@@ -173,6 +173,26 @@ rule FG_distances:
         """
 
 
+rule FG_coresynt:
+    input:
+        pg=rules.PG_polish.output,
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+    output:
+        directory("figs/{dset}/{opt}/coresynt"),
+    params:
+        len_thr=config["backbone-joints"]["len-thr"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/core_synteny_fig.py \
+            --pangraph {input.pg} \
+            --tree {input.tree} \
+            --len_thr {params.len_thr} \
+            --fig_fld {output}
+        """
+
+
 rule FG_all:
     input:
         expand(rules.FG_assembly_qc.output, dset=dset_names),
@@ -189,3 +209,4 @@ rule FG_all:
         expand(rules.FG_plasmid_mlst.output, dset=plasmid_dsets.keys(), opt=kernel_opts),
         expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_distances.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_coresynt.output, dset=dset_names, opt=kernel_opts),

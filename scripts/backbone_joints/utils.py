@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 
 class Node:
@@ -211,3 +211,50 @@ def path_junction_split(path, is_core):
     junctions[0] = J
 
     return junctions
+
+
+def path_edge_count(paths):
+    """Count internal edges of paths"""
+    ct = Counter()
+    for iso, p in paths.items():
+        L = len(p.nodes)
+        for i in range(L):
+            e = Edge(p.nodes[i], p.nodes[(i + 1) % L])
+            ct.update([e])
+    return dict(ct)
+
+
+def path_block_count(paths):
+    """Count internal blocks of paths"""
+    ct = Counter()
+    for iso, p in paths.items():
+        for node in p.nodes:
+            ct.update([node.id])
+    return dict(ct)
+
+
+def find_mergers(paths):
+    """Create a dictionary source -> sinks of block-ids to be merged"""
+    edge_ct = path_edge_count(paths)
+    block_ct = path_block_count(paths)
+
+    mergers = {}
+    for e, ec in edge_ct.items():
+        bl, br = e.left.id, e.right.id
+        if (ec == block_ct[bl]) and (ec == block_ct[br]):
+            # merge
+            if bl in mergers:
+                if br in mergers:
+                    source = mergers[br]
+                    sink = mergers[bl]
+                    for k in mergers:
+                        if mergers[k] == source:
+                            mergers[k] = sink
+                else:
+                    mergers[br] = mergers[bl]
+            elif br in mergers:
+                mergers[bl] = mergers[br]
+            else:
+                mergers[br] = bl
+                mergers[bl] = bl
+    return mergers
