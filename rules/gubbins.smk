@@ -19,7 +19,7 @@ rule GB_build_ska_alignment:
             rules.gbk_to_fa.output.fa, acc=config["datasets"][w.dset]["guide-strain"]
         ),
     output:
-        "results/{dset}/gubbins/ska_aln.fa",
+        "results/{dset}/gubbins/ska_aln_{dset}.fa",
     conda:
         "../conda_env/gubbins.yml"
     shell:
