@@ -1,5 +1,4 @@
 ,biosample_id,organism,subspecies,strain,host,host_taxid,isolation_source,env_local_scale,collected_by,geo_loc_name,collection_date,first_public,lat_lon,country,year
-NC_013654.1,SAMD00060923,Escherichia coli SE15,,SE15,,,,,,,,,,,
 NZ_HG941718.1,SAMEA2272019,Escherichia coli O25b:H4-ST131,,EC958,,,,,,,,19/12/2013,,,
 NC_022648.1,SAMN02603887,Escherichia coli JJ1886,,JJ1886,,,,,,,,,,,
 NZ_CP010876.1,SAMN03287565,Escherichia coli,,MNCRE44,human,,sputum,,Health care provider,USA: Minnesota,2012-04,,46 N 94 W,USA,2012
@@ -95,7 +94,6 @@ NZ_CP051659.1,SAMN14611938,Escherichia coli,,1162C,human,,urine,,"Sandra Gavilan
 NZ_CP051661.1,SAMN14611937,Escherichia coli,,1162T7,human,,urine,,"Sandra Gavilanes, UNAM",Mexico: Mexico City,2011-06,,,Mexico,2011
 NZ_CP051663.1,SAMN14611936,Escherichia coli,,1162invT2,human,,urine,,"Sandra Gavilanes, UNAM",Mexico: Mexico City,2010-11,,,Mexico,2010
 NZ_CP056114.1,SAMN15326090,Escherichia coli,,Ec394-330266,human,,urine,,,Germany,2019,,,Germany,2019
-NZ_CP093011.1,SAMN22456104,Escherichia coli,,131,human,,hospital,,Stellenbosch University,South Africa,2017,,33.9106 S 18.6129 E,South Africa,2017
 NZ_CP095137.1,SAMN17766590,Escherichia coli,,Iso00225,human,,Chronic wound,,,Ghana: Asante Akyem District,2016,,,Ghana,2016
 NZ_CP097367.1,SAMN28215601,Escherichia coli,,AGR6128,,,water,,,New Zealand: Tapuata Stream,23/02/2021,,,New Zealand,2021
 NZ_CP097360.1,SAMN28215599,Escherichia coli,,AGR4587,,,water,,,New Zealand: Tapuata Stream,02/03/2020,,,New Zealand,2020
@@ -158,7 +156,6 @@ NZ_CP124498.1,SAMN34360956,Escherichia coli,,AVS0655,,,environmental: river/lake
 NZ_CP124502.1,SAMN34360954,Escherichia coli,,AVS0970,,,wastewater,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,23/01/2022,,,Switzerland,2022
 NZ_CP124495.1,SAMN34360957,Escherichia coli,,AVS0662,,,environmental: river near WWTP effluent,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,02/08/2021,,,Switzerland,2021
 NZ_CP124492.1,SAMN34360958,Escherichia coli,,AVS0225,,,environmental: river near WWTP effluent,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,12/01/2021,,,Switzerland,2021
-NZ_CP124490.1,SAMN34360959,Escherichia coli,,AVS0456,,,environmental: river near WWTP effluent,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,20/05/2021,,,Switzerland,2021
 NZ_CP124487.1,SAMN34360960,Escherichia coli,,AVS0542,,,environmental: river near WWTP effluent,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,23/06/2021,,,Switzerland,2021
 NZ_CP124483.1,SAMN34360961,Escherichia coli,,AVS0575,,,environmental: river near WWTP effluent,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,07/07/2021,,,Switzerland,2021
 NZ_CP124481.1,SAMN34360962,Escherichia coli,,AVS0756,,,wastewater efflux,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,16/08/2021,,,Switzerland,2021

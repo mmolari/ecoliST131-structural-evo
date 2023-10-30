@@ -64,7 +64,6 @@ GCF_900497415.1_ASM90049741v1_genomic,NZ_LS999561.1,134692,plasmid,"NZ_LS999561.
 GCF_900497415.1_ASM90049741v1_genomic,NZ_LS999562.1,102557,plasmid,"NZ_LS999562.1 Escherichia coli isolate EC-TO143 plasmid 3, complete sequence"
 GCF_900497415.1_ASM90049741v1_genomic,NZ_LS999563.1,55148,plasmid,"NZ_LS999563.1 Escherichia coli isolate EC-TO143 plasmid 4, complete sequence"
 GCF_900497415.1_ASM90049741v1_genomic,NZ_LS999564.1,26531,plasmid,"NZ_LS999564.1 Escherichia coli isolate EC-TO143 plasmid 5, complete sequence"
-GCF_030036875.1_ASM3003687v1_genomic,NZ_CP124490.1,4830942,chromosome,"NZ_CP124490.1 Escherichia coli strain AVS0456 chromosome, complete genome"
 GCF_030036875.1_ASM3003687v1_genomic,NZ_CP124491.1,143034,plasmid,"NZ_CP124491.1 Escherichia coli strain AVS0456 plasmid pAVS0456-A, complete sequence"
 GCF_019915525.1_ASM1991552v1_genomic,NZ_CP082831.1,5449567,chromosome,"NZ_CP082831.1 Escherichia coli strain SCAID WND1-2021 (1/128) chromosome, complete genome"
 GCF_019915525.1_ASM1991552v1_genomic,NZ_CP082832.1,186443,plasmid,"NZ_CP082832.1 Escherichia coli strain SCAID WND1-2021 (1/128) plasmid unnamed, complete sequence"
@@ -691,8 +690,6 @@ GCF_029987955.1_ASM2998795v1_genomic,NZ_CP124329.1,149581,plasmid,"NZ_CP124329.1
 GCF_029987955.1_ASM2998795v1_genomic,NZ_CP124330.1,61165,plasmid,"NZ_CP124330.1 Escherichia coli strain AVS0787 plasmid pAVS0787-B, complete sequence"
 GCF_951802855.1_ARM32_genomic,NZ_OX637959.1,4922175,chromosome,"NZ_OX637959.1 Escherichia coli O25b:H4-ST131 isolate 32 chromosome C, complete sequence"
 GCF_951802855.1_ARM32_genomic,NZ_OX637960.1,162859,plasmid,NZ_OX637960.1 Escherichia coli O25b:H4-ST131 isolate 32 plasmid P1
-GCF_022569795.1_ASM2256979v1_genomic,NZ_CP093011.1,5219097,chromosome,"NZ_CP093011.1 Escherichia coli strain 131 chromosome, complete genome"
-GCF_000010485.1_ASM1048v1_genomic,NC_013654.1,4717338,chromosome,"NC_013654.1 Escherichia coli SE15, complete sequence"
 GCF_000010485.1_ASM1048v1_genomic,NC_013655.1,122345,plasmid,"NC_013655.1 Escherichia coli SE15 plasmid pECSF1, complete sequence"
 GCF_024918395.1_ASM2491839v1_genomic,NZ_CP103742.1,4890300,chromosome,"NZ_CP103742.1 Escherichia coli O25b:H4-ST131 strain 2822 chromosome, complete genome"
 GCF_024918395.1_ASM2491839v1_genomic,NZ_CP103743.1,136642,plasmid,"NZ_CP103743.1 Escherichia coli O25b:H4-ST131 strain 2822 plasmid pMB2855_1, complete sequence"
