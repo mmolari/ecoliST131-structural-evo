@@ -38,7 +38,7 @@ rule GB_run_gubbins:
         directory("results/{dset}/gubbins/results"),
     params:
         threads=4,
-        prefix=lambda w: f"gubbins_{w.dset}_",
+        prefix=lambda w: f"gubbins_{w.dset}",
     conda:
         "../conda_env/gubbins.yml"
     shell:
