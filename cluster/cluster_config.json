@@ -22,5 +22,11 @@
         "qos": "30min",
         "n": 1,
         "mem": "10G"
+    },
+    "GB_run_gubbins": {
+        "time": "05:30:00",
+        "qos": "6hours",
+        "n": 4,
+        "mem": "30G"
     }
 }
