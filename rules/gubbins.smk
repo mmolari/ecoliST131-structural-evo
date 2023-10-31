@@ -37,8 +37,7 @@ rule GB_run_gubbins:
     output:
         directory("results/{dset}/gubbins/results"),
     params:
-        threads=1,
-        tree_builder="fasttree",
+        threads=4,
         prefix=lambda w: f"gubbins_{w.dset}_",
     conda:
         "../conda_env/gubbins.yml"
@@ -46,7 +45,6 @@ rule GB_run_gubbins:
         """
         run_gubbins.py \
             --threads {params.threads} \
-            --tree-builder {params.tree_builder} \
             --prefix {params.prefix} \
             --verbose {input.aln}
         mkdir -p {output}
