@@ -52,6 +52,30 @@ rule GB_run_gubbins:
         """
 
 
+rule GB_run_gubbins_pangraph_aln:
+    input:
+        aln=rules.PG_full_corealn.output.fa,
+    output:
+        directory("results/{dset}/gubbins/pan_{opt}_results"),
+    params:
+        threads=4,
+        prefix=lambda w: f"pan_gubbins_{w.dset}",
+    conda:
+        "../conda_env/gubbins.yml"
+    shell:
+        """
+        run_gubbins.py \
+            --threads {params.threads} \
+            --prefix {params.prefix} \
+            --verbose {input.aln}
+        mkdir -p {output}
+        mv {params.prefix}* {output}
+        """
+
+
 rule GB_all:
     input:
         expand(rules.GB_run_gubbins.output, dset=dset_names),
+        expand(
+            rules.GB_run_gubbins_pangraph_aln.output, dset=dset_names, opt=kernel_opts
+        ),

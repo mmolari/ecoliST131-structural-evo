@@ -45,6 +45,22 @@ rule PG_export:
         """
 
 
+rule PG_full_corealn:
+    input:
+        pg=rules.PG_polish.output,
+    output:
+        fa=temp("results/{dset}/pangraph/{opt}-alignment/full_corealignment.fa"),
+    params:
+        ref=lambda w: dsets_config[w.dset]["guide-strain"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/pangraph/full_core_alignment.py \
+            --pangraph {input} --reference_iso {params.ref} --aln_out {output.fa}
+        """
+
+
 rule PG_corealignment:
     input:
         rules.PG_polish.output,
