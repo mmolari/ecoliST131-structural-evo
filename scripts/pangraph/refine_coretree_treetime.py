@@ -33,7 +33,6 @@ def aln_len(aln_file):
 
 
 if __name__ == "__main__":
-
     args = parse_args()
 
     # evaluate rescaling factor
@@ -68,6 +67,8 @@ if __name__ == "__main__":
     print("n. nonterminals:", len(myTree.tree.get_nonterminals()))
 
     # save tree
+    myTree.tree.root_at_midpoint()
+    myTree.tree.ladderize()
     Phylo.write(
         myTree.tree,
         args.tree_out,
