@@ -20,11 +20,14 @@ rule GB_build_ska_alignment:
         ),
     output:
         "results/{dset}/gubbins/ska_aln_{dset}.fa",
+    params:
+        threads=4,
     conda:
         "../conda_env/gubbins.yml"
     shell:
         """
         generate_ska_alignment.py \
+            --threads {params.threads} \
             --reference {input.ref} \
             --input {input.tsv} \
             --out {output}

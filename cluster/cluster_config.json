@@ -28,5 +28,11 @@
         "qos": "6hours",
         "n": 4,
         "mem": "30G"
+    },
+    "GB_build_ska_alignment": {
+        "time": "00:29:00",
+        "qos": "30min",
+        "n": 4,
+        "mem": "30G"
     }
 }
