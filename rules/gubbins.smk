@@ -55,14 +55,30 @@ rule GB_run_gubbins:
         """
 
 
+rule GB_full_corealn:
+    input:
+        pg=rules.PG_polish.output,
+    output:
+        fa=temp("results/{dset}/gubbins/full_aln_{dset}__{opt}.fa"),
+    params:
+        ref=lambda w: dsets_config[w.dset]["guide-strain"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/pangraph/full_core_alignment.py \
+            --pangraph {input} --reference_iso {params.ref} --aln_out {output.fa}
+        """
+
+
 rule GB_run_gubbins_pangraph_aln:
     input:
-        aln=rules.PG_full_corealn.output.fa,
+        aln=rules.GB_full_corealn.output.fa,
     output:
         directory("results/{dset}/gubbins/pan_{opt}_results"),
     params:
         threads=4,
-        prefix=lambda w: f"pan_gubbins_{w.dset}",
+        prefix=lambda w: f"pan_gubbins_{w.dset}__{w.opt}",
     conda:
         "../conda_env/gubbins.yml"
     shell:

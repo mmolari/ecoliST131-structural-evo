@@ -34,5 +34,11 @@
         "qos": "30min",
         "n": 4,
         "mem": "30G"
+    },
+    "GB_run_gubbins_pangraph_aln": {
+        "time": "05:30:00",
+        "qos": "6hours",
+        "n": 4,
+        "mem": "30G"
     }
 }
