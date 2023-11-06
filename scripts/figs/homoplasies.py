@@ -240,6 +240,7 @@ def fig_tree(df, res_a, svname):
         label="n. supporting bi-allelic SNPs",
         shrink=0.6,
         extend="min",
+        ax=ax,
     )
     sns.despine()
     plt.tight_layout()

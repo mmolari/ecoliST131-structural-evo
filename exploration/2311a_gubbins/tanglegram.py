@@ -6,9 +6,12 @@ import pandas as pd
 import numpy as np
 
 # %%
+
+ker = "asm20-100-5"
 dset = "ST131"
-tree_1_file = f"../../results/{dset}/gubbins/results/gubbins_{dset}_.final_tree.tre"
-tree_2_file = f"../../results/{dset}/pangraph/asm20-100-5-filtered-coretree.nwk"
+tree_1_file = f"../../results/{dset}/gubbins/results/gubbins_{dset}.final_tree.tre"
+tree_2_file = f"../../results/{dset}/gubbins/pan_{ker}_results/pan_gubbins_{dset}__{ker}.final_tree.tre"
+tree_ref_file = f"../../results/{dset}/pangraph/asm20-100-5-filtered-coretree.nwk"
 
 # %%
 tree_1 = Phylo.read(tree_1_file, "newick")
@@ -19,10 +22,15 @@ tree_2 = Phylo.read(tree_2_file, "newick")
 tree_2.root_at_midpoint()
 tree_2.ladderize()
 
+tree_ref = Phylo.read(tree_ref_file, "newick")
+tree_ref.root_at_midpoint()
+tree_ref.ladderize()
+
 # %%
-fig, ax = plt.subplots(1, 2, figsize=(20, 10))
+fig, ax = plt.subplots(1, 3, figsize=(30, 10))
 Phylo.draw(tree_1, axes=ax[0], do_show=False)
 Phylo.draw(tree_2, axes=ax[1], do_show=False)
+Phylo.draw(tree_ref, axes=ax[2], do_show=False)
 plt.show()
 
 
@@ -55,9 +63,10 @@ def draw_tree(tree, ax):
             ax.plot([x, x, x_child], [y, y_child, y_child], color="k")
 
 
-fig, ax = plt.subplots(1, 2, figsize=(20, 10))
+fig, ax = plt.subplots(1, 3, figsize=(20, 10))
 draw_tree(tree_1, ax[0])
 draw_tree(tree_2, ax[1])
+draw_tree(tree_ref, ax[2])
 plt.show()
 
 # %%
@@ -65,8 +74,21 @@ import os
 
 os.system(
     f"""
-    treeknit {tree_1_file} {tree_2_file} -o data/{dset} --auspice-view
+    treeknit {tree_ref_file} {tree_1_file} -o data/{dset}/ska --auspice-view
+    treeknit {tree_ref_file} {tree_2_file} -o data/{dset}/pan --auspice-view
+    treeknit {tree_1_file} {tree_2_file} -o data/{dset}/gub --auspice-view
     """
 )
 
-# %%
+# """
+# python3 scripts/figs/homoplasies.py \
+#     --tree results/ST131_ABC/pangraph/asm20-100-5-coretree.nwk \
+#     --aln results/ST131_ABC/pangraph/asm20-100-5-alignment/corealignment.fa \
+#     --aln_info results/ST131_ABC/pangraph/asm20-100-5-alignment/corealignment_info.json \
+#     --filt_tree results/ST131_ABC/gubbins/results/gubbins_ST131_ABC.final_tree.tre \
+#     --filt_aln results/ST131_ABC/pangraph/asm20-100-5-alignment/filtered_corealignment.fa \
+#     --filt_aln_info results/ST131_ABC/pangraph/asm20-100-5-alignment/filtered_corealignment_info_size.json \
+#     --hist_fig test/hist.pdf \
+#     --tree_fig test/tree.pdf \
+#     --homoplasies_fig test/homoplasies.pdf
+# """
