@@ -36,7 +36,7 @@ checkpoint BJ_extract_joints_df:
 rule BJ_extract_joints_pos:
     input:
         pan=rules.PG_polish.output,
-        edges=rules.BJ_extract_joints_df.output.dfc,
+        edges_len=rules.BJ_extract_joints_df.output.dfl,
     output:
         pos="results/{dset}/backbone_joints/{opt}/joints_pos.json",
     conda:
@@ -45,7 +45,7 @@ rule BJ_extract_joints_pos:
         """
         python3 scripts/backbone_joints/extract_joints_positions.py \
             --pangraph {input.pan} \
-            --edges {input.edges} \
+            --edge_len_df {input.edges_len} \
             --positions {output.pos}
         """
 
