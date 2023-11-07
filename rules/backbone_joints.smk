@@ -1,6 +1,16 @@
 import itertools as itt
 
+
 BJ_config = config["backbone-joints"]
+
+
+def read_csv_index(csv_fname):
+    idxs = []
+    with open(csv_fname, "r") as f:
+        lines = f.readlines()
+        for line in lines[1:]:
+            idxs.append(line.split(",")[0].strip())
+    return idxs
 
 
 checkpoint BJ_extract_joints_df:
@@ -57,53 +67,49 @@ rule BJ_extract_joints_pos:
 #         """
 
 
-# rule BJ_extract_joint_sequence:
-#     input:
-#         genomes=lambda w: expand(
-#             rules.gbk_to_fa.output.fa, acc=dset_chrom_accnums[w.dset]
-#         ),
-#         pos=rules.BJ_extract_joints_pos.output.pos,
-#     output:
-#         seq="results/{dset}/backbone_joints/{opt}/joints_seqs/{edge}.fa",
-#     conda:
-#         "../conda_env/bioinfo.yml"
-#     shell:
-#         """
-#         python3 scripts/backbone_joints/extract_joint_sequence.py \
-#             --edge_pos {input.pos} \
-#             --edge {wildcards.edge} \
-#             --out_fa {output.seq} \
-#             --genomes {input.genomes}
-#         """
+rule BJ_extract_joint_sequence:
+    input:
+        genomes=lambda w: expand(
+            rules.gbk_to_fa.output.fa, acc=dset_chrom_accnums[w.dset]
+        ),
+        pos=rules.BJ_extract_joints_pos.output.pos,
+    output:
+        seq="results/{dset}/backbone_joints/{opt}/joints_seqs/{edge}.fa",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/extract_joint_sequence.py \
+            --edge_pos {input.pos} \
+            --edge {wildcards.edge} \
+            --out_fa {output.seq} \
+            --genomes {input.genomes}
+        """
 
 
-# rule BJ_pangraph:
-#     input:
-#         seq=rules.BJ_extract_joint_sequence.output.seq,
-#     output:
-#         pan="results/{dset}/backbone_joints/{opt}/joints_pangraph/{edge}.json",
-#     params:
-#         opt_build=BJ_config["build-opt"],
-#         opt_polish=BJ_config["polish-opt"],
-#     conda:
-#         "../conda_env/pangraph.yml"
-#     shell:
-#         """
-#         export JULIA_NUM_THREADS=1
-#         pangraph build {params.opt_build} {input.seq} | \
-#         pangraph polish {params.opt_polish} > {output.pan}
-#         """
+rule BJ_pangraph:
+    input:
+        seq=rules.BJ_extract_joint_sequence.output.seq,
+    output:
+        pan="results/{dset}/backbone_joints/{opt}/joints_pangraph/{edge}.json",
+    params:
+        opt_build=BJ_config["build-opt"],
+        opt_polish=BJ_config["polish-opt"],
+    conda:
+        "../conda_env/pangraph.yml"
+    shell:
+        """
+        export JULIA_NUM_THREADS=1
+        pangraph build {params.opt_build} {input.seq} | \
+        pangraph polish {params.opt_polish} > {output.pan}
+        """
 
 
-# def all_junction_pangraphs(wildcards):
-#     edge_file = checkpoints.BJ_find_edges.get(**wildcards).output["edges"]
-#     with open(edge_file, "r") as f:
-#         edges = []
-#         for line in f.readlines():
-#             edge, n = line.strip().split(",")
-#             if n == str(len(dset_chrom_accnums[wildcards.dset])):
-#                 edges.append(edge)
-#     return expand(rules.BJ_pangraph.output.pan, edge=edges, **wildcards)
+def all_junction_pangraphs(wildcards):
+    edge_count_file = checkpoints.BJ_extract_joints_df.get(**wildcards).output["dfc"]
+    edges = read_csv_index(edge_count_file)
+    print(edges)
+    return expand(rules.BJ_pangraph.output.pan, edge=edges, **wildcards)
 
 
 # rule BJ_junct_stats:
@@ -154,28 +160,25 @@ rule BJ_extract_joints_pos:
 #         """
 
 
-# def BJ_all_joints_outputs(wildcards):
-#     files = []
-#     for dset, opt in itt.product(dset_names, kernel_opts):
-#         wc = {"dset": dset, "opt": opt}
+def BJ_all_joints_outputs(wildcards):
+    files = []
+    for dset, opt in itt.product(dset_names, kernel_opts):
+        wc = {"dset": dset, "opt": opt}
 
-#         # define list of edges
-#         edge_file = checkpoints.BJ_find_edges.get(**wc).output["edges"]
-#         with open(edge_file, "r") as f:
-#             edges = []
-#             for line in f.readlines():
-#                 edge, n = line.strip().split(",")
-#                 if n == str(len(dset_chrom_accnums[dset])):
-#                     edges.append(edge)
+        # define list of edges
+        edge_count_file = checkpoints.BJ_extract_joints_df.get(**wc).output["dfc"]
+        edges = read_csv_index(edge_count_file)
 
-#         # add desired output files
-#         files += expand(rules.BJ_plot_linear_repr.output.fig, edge=edges, **wc)
-#         files += expand(rules.BJ_mash_dist.output.dist, edge=edges, **wc)
-#     return files
+        # add desired output files
+        # files += expand(rules.BJ_plot_linear_repr.output.fig, edge=edges, **wc)
+        # files += expand(rules.BJ_mash_dist.output.dist, edge=edges, **wc)
+        files += expand(rules.BJ_pangraph.output, edge=edges, **wc)
+
+    return files
 
 
 rule BJ_all:
     input:
-        expand(rules.BJ_extract_joints_pos.output, dset=dset_names, opt=kernel_opts),
+        # expand(rules.BJ_extract_joints_pos.output, dset=dset_names, opt=kernel_opts),
         # expand(rules.BJ_junct_stats.output, dset=dset_names, opt=kernel_opts),
-        # BJ_all_joints_outputs,
+        BJ_all_joints_outputs,
