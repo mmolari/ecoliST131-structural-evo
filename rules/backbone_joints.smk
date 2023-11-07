@@ -4,12 +4,14 @@ import itertools as itt
 BJ_config = config["backbone-joints"]
 
 
-def read_csv_index(csv_fname):
+def read_edge_count(csv_fname):
     idxs = []
     with open(csv_fname, "r") as f:
         lines = f.readlines()
         for line in lines[1:]:
-            idxs.append(line.split(",")[0].strip())
+            edge, count = line.split(",")
+            if int(count) > 1:
+                idxs.append(edge.strip())
     return idxs
 
 
@@ -107,7 +109,7 @@ rule BJ_pangraph:
 
 def all_junction_pangraphs(wildcards):
     edge_count_file = checkpoints.BJ_extract_joints_df.get(**wildcards).output["dfc"]
-    edges = read_csv_index(edge_count_file)
+    edges = read_edge_count(edge_count_file)
     print(edges)
     return expand(rules.BJ_pangraph.output.pan, edge=edges, **wildcards)
 
@@ -167,7 +169,7 @@ def BJ_all_joints_outputs(wildcards):
 
         # define list of edges
         edge_count_file = checkpoints.BJ_extract_joints_df.get(**wc).output["dfc"]
-        edges = read_csv_index(edge_count_file)
+        edges = read_edge_count(edge_count_file)
 
         # add desired output files
         # files += expand(rules.BJ_plot_linear_repr.output.fig, edge=edges, **wc)
