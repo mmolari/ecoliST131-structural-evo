@@ -195,7 +195,7 @@ rule FG_coresynt:
 
 rule FG_junctions_survey:
     input:
-        df=rules.BJ_extract_joints_df.output,
+        df=rules.BJ_extract_joints_df.output.dfl,
     output:
         directory("figs/{dset}/{opt}/junctions_survey"),
     params:

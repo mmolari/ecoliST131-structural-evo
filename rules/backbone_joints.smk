@@ -8,7 +8,7 @@ checkpoint BJ_extract_joints_df:
         pan=rules.PG_polish.output,
     output:
         dfl="results/{dset}/backbone_joints/{opt}/edge_len.csv",
-        dff="results/{dset}/backbone_joints/{opt}/edge_count.csv",
+        dfc="results/{dset}/backbone_joints/{opt}/edge_count.csv",
     params:
         len_thr=BJ_config["len-thr"],
     conda:
@@ -19,25 +19,25 @@ checkpoint BJ_extract_joints_df:
             --pangraph {input.pan} \
             --len_thr {params.len_thr} \
             --df_len {output.dfl} \
-            --df_freq {output.dff}
+            --df_count {output.dfc}
         """
 
 
-# rule BJ_extract_joints_pos:
-#     input:
-#         pan=rules.PG_polish.output,
-#         edges=rules.BJ_find_edges.output.edges,
-#     output:
-#         pos="results/{dset}/backbone_joints/{opt}/joints_pos.json",
-#     conda:
-#         "../conda_env/bioinfo.yml"
-#     shell:
-#         """
-#         python3 scripts/backbone_joints/extract_joints_positions.py \
-#             --pangraph {input.pan} \
-#             --edges {input.edges} \
-#             --positions {output.pos}
-#         """
+rule BJ_extract_joints_pos:
+    input:
+        pan=rules.PG_polish.output,
+        edges=rules.BJ_extract_joints_df.output.dfc,
+    output:
+        pos="results/{dset}/backbone_joints/{opt}/joints_pos.json",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/extract_joints_positions.py \
+            --pangraph {input.pan} \
+            --edges {input.edges} \
+            --positions {output.pos}
+        """
 
 
 # rule BJ_extract_raw_paths:
@@ -176,6 +176,6 @@ checkpoint BJ_extract_joints_df:
 
 rule BJ_all:
     input:
-        expand(rules.BJ_extract_joints_df.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.BJ_extract_joints_pos.output, dset=dset_names, opt=kernel_opts),
         # expand(rules.BJ_junct_stats.output, dset=dset_names, opt=kernel_opts),
         # BJ_all_joints_outputs,

@@ -12,7 +12,7 @@ def parse_args():
     parser.add_argument("--pangraph", type=str, required=True)
     parser.add_argument("--len_thr", type=int, required=True)
     parser.add_argument("--df_len", type=str, required=True)
-    parser.add_argument("--df_freq", type=str, required=True)
+    parser.add_argument("--df_count", type=str, required=True)
     return parser.parse_args()
 
 
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # extract edge frequency
     edge_freq = jdf.notna().sum(axis=0).sort_values(ascending=False)
     edge_freq.name = "count"
-    edge_freq.to_csv(args.df_freq)
+    edge_freq.to_csv(args.df_count)
 
     # sort by edge frequency and save
     jdf = jdf[edge_freq.index]
