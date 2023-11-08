@@ -30,7 +30,7 @@ def find_edges_pos(pan, edge, isolates):
     """
     ln, rn = edge.left, edge.right
     pos_l, pos_r = pan.blocks[ln.id].alignment.pos, pan.blocks[rn.id].alignment.pos
-    pos_dict = defaultdict(lambda: [None, None, None, None, None])
+    pos_dict = defaultdict(dict)
 
     for aln_key in pos_l:
         iso, occ, strand = aln_key
@@ -39,10 +39,10 @@ def find_edges_pos(pan, edge, isolates):
         beg, end = pos_l[aln_key]
         assert occ == 1
         same_strand = ln.strand == strand
-        bidx, eidx = (0, 1) if same_strand else (2, 3)
-        pos_dict[iso][bidx] = beg
-        pos_dict[iso][eidx] = end
-        pos_dict[iso][4] = same_strand
+        side = "left" if same_strand else "right"
+        pos_dict[iso][side + "_beg"] = beg
+        pos_dict[iso][side + "_end"] = end
+        pos_dict[iso]["strand"] = same_strand
 
     for aln_key in pos_r:
         iso, occ, strand = aln_key
@@ -51,12 +51,15 @@ def find_edges_pos(pan, edge, isolates):
         beg, end = pos_r[aln_key]
         assert occ == 1
         same_strand = rn.strand == strand
-        bidx, eidx = (2, 3) if same_strand else (0, 1)
-        pos_dict[iso][bidx] = beg
-        pos_dict[iso][eidx] = end
-        assert pos_dict[iso][4] == same_strand
+        side = "right" if same_strand else "left"
+        pos_dict[iso][side + "_beg"] = beg
+        pos_dict[iso][side + "_end"] = end
+        assert pos_dict[iso]["strand"] == same_strand
 
-    return dict(pos_dict)
+    return {
+        iso: (d["left_beg"], d["left_end"], d["right_beg"], d["right_end"], d["strand"])
+        for iso, d in pos_dict.items()
+    }
 
 
 if __name__ == "__main__":
