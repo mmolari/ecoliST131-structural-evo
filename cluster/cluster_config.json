@@ -40,5 +40,11 @@
         "qos": "6hours",
         "n": 4,
         "mem": "30G"
+    },
+    "BJ_pangraph": {
+        "time": "02:00:00",
+        "qos": "6hours",
+        "n": 4,
+        "mem": "10G"
     }
 }

@@ -101,7 +101,7 @@ rule BJ_pangraph:
         "../conda_env/pangraph.yml"
     shell:
         """
-        export JULIA_NUM_THREADS=1
+        export JULIA_NUM_THREADS=4
         pangraph build {params.opt_build} {input.seq} | \
         pangraph polish {params.opt_polish} > {output.pan}
         """
@@ -110,7 +110,6 @@ rule BJ_pangraph:
 def all_junction_pangraphs(wildcards):
     edge_count_file = checkpoints.BJ_extract_joints_df.get(**wildcards).output["dfc"]
     edges = read_edge_count(edge_count_file)
-    print(edges)
     return expand(rules.BJ_pangraph.output.pan, edge=edges, **wildcards)
 
 
