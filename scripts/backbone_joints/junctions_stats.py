@@ -23,30 +23,13 @@ def parse_args():
     return parser.parse_args()
 
 
-def path_categories(paths):
-    """Returns a list of touples, one per non-empty path, with the following info:
-    (count, path, [list of isolates])"""
-    iso_list = defaultdict(list)
-    n_paths = defaultdict(int)
-    nodes = {}
-    for iso, path in paths.items():
-        if len(path.nodes) > 0:
-            n_paths[path] += 1
-            iso_list[path].append(iso)
-            nodes[path] = path.nodes
-
-    # sort by count
-    path_cat = [(count, nodes[path], iso_list[path]) for path, count in n_paths.items()]
-    path_cat.sort(key=lambda x: x[0], reverse=True)
-    return path_cat
-
-
 def get_stats(pan_file):
     """
     Evaluate the following statistics:
     - n. blocks
     - n. nodes
     - n. path categories
+    - n. isolates
     - majority category
     - whether there is only one path differing from the rest (sigleton)
     - how many paths only contain core blocks.
@@ -64,6 +47,7 @@ def get_stats(pan_file):
     pan = pp.Pangraph.load_json(pan_file)
     bdf = pan.to_blockstats_df()
     N = len(pan.strains())
+    stats["n_iso"] = N
 
     # number of blocks
     stats["n_blocks"] = len(bdf)
@@ -71,7 +55,7 @@ def get_stats(pan_file):
 
     # number of categories
     paths = ut.pangraph_to_path_dict(pan)
-    path_cat = path_categories(paths)
+    path_cat = ut.path_categories(paths)
     stats["n_categories"] = len(path_cat)
     stats["majority_category"] = path_cat[0][0]
     stats["singleton"] = path_cat[0][0] == N - 1

@@ -114,19 +114,19 @@ def all_junction_pangraphs(wildcards):
     return expand(rules.BJ_pangraph.output.pan, edge=edges, **wildcards)
 
 
-# rule BJ_junct_stats:
-#     input:
-#         pans=all_junction_pangraphs,
-#     output:
-#         stats="results/{dset}/backbone_joints/{opt}/junctions_stats.csv",
-#     conda:
-#         "../conda_env/bioinfo.yml"
-#     shell:
-#         """
-#         python3 scripts/backbone_joints/junctions_stats.py \
-#             --junct_pangraphs {input.pans} \
-#             --df_csv {output.stats}
-#         """
+rule BJ_junct_stats:
+    input:
+        pans=all_junction_pangraphs,
+    output:
+        stats="results/{dset}/backbone_joints/{opt}/junctions_stats.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/junctions_stats.py \
+            --junct_pangraphs {input.pans} \
+            --df_csv {output.stats}
+        """
 
 
 # rule BJ_mash_dist:
@@ -182,5 +182,5 @@ def BJ_all_joints_outputs(wildcards):
 rule BJ_all:
     input:
         # expand(rules.BJ_extract_joints_pos.output, dset=dset_names, opt=kernel_opts),
-        # expand(rules.BJ_junct_stats.output, dset=dset_names, opt=kernel_opts),
-        BJ_all_joints_outputs,
+        expand(rules.BJ_junct_stats.output, dset=dset_names, opt=kernel_opts),
+        # BJ_all_joints_outputs,
