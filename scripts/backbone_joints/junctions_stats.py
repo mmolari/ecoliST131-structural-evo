@@ -8,7 +8,6 @@ import pypangraph as pp
 import utils as ut
 
 from scipy.stats import entropy
-from collections import defaultdict
 
 
 def parse_args():
