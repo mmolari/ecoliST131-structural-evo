@@ -33,7 +33,6 @@ with open(pos_file) as f:
     jp = json.load(f)
 df = pd.read_csv(df_file, index_col=0)
 df_el = pd.read_csv(df_edge_len, index_col=0)
-df = df[df["n_iso"] > 50]
 df["delta_len"] = df["max_length"] - df["min_length"]
 
 # %%
@@ -122,48 +121,65 @@ plt.tight_layout()
 svfig("edge_cats")
 plt.show()
 # %%
-fig = plt.figure(figsize=(10, 10))
-sns.scatterplot(
-    data=df,
-    x="nonempty_freq",
-    y="nonempty_acc_len",
-    hue=df["n_categories"] > 10,
-    palette="RdBu_r",
+
+sdf = df[df["n_iso"] == 222]
+
+g = sns.JointGrid(
+    data=sdf, x="nonempty_freq", y="nonempty_acc_len", marginal_ticks=True
 )
-plt.yscale("log")
+g.ax_joint.set(yscale="log")
+g.plot_joint(sns.scatterplot, alpha=0.1, color="#03012d")
+g.plot_marginals(sns.histplot, element="step", color="#03012d", bins=50)
+g.ax_joint.set_xlabel("edge occupation frequency")
+g.ax_joint.set_ylabel("occupied edge average length (bp)")
+g.ax_joint.grid(alpha=0.3)
+# set title
+title = f"n. isolates = {sdf.shape[0]}"
+plt.tight_layout()
+svfig("edge_freq_len_joint")
+plt.show()
+# %%
+freq_1 = (df_el > 0).sum(axis=0) / df_el.notna().sum(axis=0)
+len_1 = df_el.sum(axis=0) / (df_el > 0).sum(axis=0)
+freq_2 = df["nonempty_freq"]
+len_2 = df["nonempty_acc_len"]
+
+sdf = pd.DataFrame(
+    {
+        "freq_1": freq_1,
+        "len_1": len_1,
+        "freq_2": freq_2,
+        "len_2": len_2,
+        "transitive": df["transitive"],
+    },
+    index=freq_1.index,
+)
+
+# only_iso = df[df["n_iso"] > 50].index
+# sdf = sdf.loc[only_iso]
+
+sdf["weird"] = sdf["freq_1"] - sdf["freq_2"] > 0.5
+# sdf["weird"] = sdf["len_2"] / sdf["len_1"] > 200
+
+fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+sns.scatterplot(
+    data=sdf, x="freq_1", y="freq_2", ax=axs[0], alpha=0.1, color="#03012d", hue="weird"
+)
+ax = axs[1]
+sns.scatterplot(
+    data=sdf, x="len_1", y="len_2", ax=ax, alpha=0.1, color="#03012d", hue="weird"
+)
+ax.grid(alpha=0.3)
+ax.set_xscale("log")
+ax.set_yscale("log")
+ax.set_xlim(left=0)
+ax.set_ylim(bottom=0)
+ax
+plt.tight_layout()
 plt.show()
 
-# %%
-fig = plt.figure(figsize=(10, 10))
-sns.scatterplot(
-    data=df,
-    x="nonempty_freq",
-    y="nonempty_acc_len",
-    hue=df["n_iso"] < 222,
-    palette="RdBu_r",
-)
-plt.yscale("log")
-plt.show()
 
 # %%
-fig = plt.figure(figsize=(10, 10))
-sns.scatterplot(
-    data=df,
-    x="delta_len",
-    y="n_categories",
-    hue=df["n_iso"] < 222,
-    palette="RdBu_r",
-)
-plt.xscale("symlog", linthresh=100)
-plt.yscale("log")
-plt.show()
-
-# %%
-mask = (df["nonempty_freq"] < 0.02) & (np.abs(df["nonempty_acc_len"] - 38000) < 1000)
-df[mask]
-# %%
-df_el["KSXZRIJFEH_r__SIHIJVBWQQ_r"].sort_values()
-# %%
-jp["KSXZRIJFEH_r__SIHIJVBWQQ_r"]["NZ_CP133927.1"]
-
+ssdf = sdf[sdf["weird"]]
+(ssdf["len_2"] / ssdf["len_1"]).hist()
 # %%
