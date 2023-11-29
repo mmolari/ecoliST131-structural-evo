@@ -35,30 +35,33 @@ df = pd.read_csv(df_file, index_col=0)
 df_el = pd.read_csv(df_edge_len, index_col=0)
 df["delta_len"] = df["max_length"] - df["min_length"]
 
-# %%
-cols = [
-    "n_iso",
-    "n_blocks",
-    "has_dupl",
-    "n_categories",
-    "majority_category",
-    "singleton",
-    "cat_entropy",
-    "n_nodes",
-    "min_length",
-    "max_length",
-    "mean_length",
-    "n_all_cores",
-    "core_left_length",
-    "core_right_length",
-    "transitive",
-    "nonempty_acc_len",
-    "nonempty_freq",
-]
+
+def extend_df(df, df_el):
+    new_df = {}
+    # FG = full graph
+    # frequency of edges
+    new_df["edge_freq_FG"] = df_el.notna().sum(axis=0) / df_el.shape[0]
+    new_df["nonempty_freq_FG"] = (df_el > 0).sum(axis=0) / df_el.notna().sum(axis=0)
+    new_df["n_iso_FG"] = df_el.notna().sum(axis=0)
+    new_df["nonempty_acc_len_FG"] = df_el.sum(axis=0) / (df_el > 0).sum(axis=0)
+    new_df = pd.DataFrame(new_df)
+    new_df.index.name = "edge"
+    df = df.join(new_df, how="outer").sort_values("n_iso_FG", ascending=False)
+    return df
+
+
+df = extend_df(df, df_el)
+df
+
+# %% stats
+
+mask = df["nonempty_acc_len_FG"].isna()
+# mask = df["edge_freq_FG"].isna()
+df[mask]
 
 # %% edge frequency
 
-freqs = df_el.notna().sum(axis=0).value_counts()
+freqs = df["n_iso_FG"].value_counts()
 
 fig, ax = plt.subplots(1, 1, figsize=(5, 5))
 sns.barplot(x=freqs.index, y=freqs.values, ax=ax, color="gray", log=True)
@@ -67,7 +70,7 @@ ax.set_title("edge frequency")
 ax.set_xlabel("n. isolates")
 ax.set_ylabel("n. edges")
 plt.tight_layout()
-svfig("edge_freq")
+svfig("edge_freq_FG")
 plt.show()
 
 # %% edge length and occupation frequency, stratified by category
@@ -86,43 +89,39 @@ def edge_cat(freq):
         raise ValueError(f"invalid freq: {freq}")
 
 
-counts = df_el.notna().sum(axis=0)
-cats = (counts / df_el.shape[0]).apply(edge_cat)
-nonempty_l = df_el.mean(axis=0)
-nonempty_freq = (df_el > 0).sum(axis=0) / counts
-sdf = pd.DataFrame(
-    {"nonempty_freq": nonempty_freq, "cat": cats, "nonempty_acc_len": nonempty_l},
-    index=nonempty_freq.index,
-)
+df["edge_cat"] = df["edge_freq_FG"].apply(edge_cat)
 
-bins = (np.linspace(0, 1, 51), [-0.5, 0.5] + list(np.logspace(0, 6, 51)))
 g = sns.displot(
-    data=sdf,
-    x="nonempty_freq",
-    y="nonempty_acc_len",
+    data=df,
+    x="nonempty_freq_FG",
+    y="nonempty_acc_len_FG",
     kind="hist",
-    bins=bins,
-    col="cat",
+    bins=50,
+    col="edge_cat",
     height=4,
     aspect=0.8,
+    log_scale=(False, True),
 )
 for ax in g.axes.flat:
-    ax.set_yscale("symlog", linthresh=1)
-    ax.set_ylim(bottom=0)
+    # ax.set_yscale("symlog", linthresh=1)
+    # ax.set_ylim(bottom=0)
+    # ax.set_yscale("log")
     # ax.set_xlim(left=0)
     ax.set_xlabel("edge occupation frequency")
     ax.set_ylabel("occupied edge average length (bp)")
     title = ax.get_title().split("=")[1].strip()
-    title += f" (n={(cats == title).sum()})"
+    n_points = df["edge_cat"] == title
+    n_points &= df["nonempty_acc_len_FG"].notna()
+    title += f" (n={n_points.sum()})"
     ax.set_title(title)
     ax.grid(alpha=0.3)
 
 plt.tight_layout()
-svfig("edge_cats")
+svfig("edge_cats_FG")
 plt.show()
 # %%
 
-sdf = df[df["n_iso"] == 222]
+sdf = df[df["n_iso"] > 50]
 
 g = sns.JointGrid(
     data=sdf, x="nonempty_freq", y="nonempty_acc_len", marginal_ticks=True
@@ -162,13 +161,9 @@ sdf["weird"] = sdf["freq_1"] - sdf["freq_2"] > 0.5
 # sdf["weird"] = sdf["len_2"] / sdf["len_1"] > 200
 
 fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-sns.scatterplot(
-    data=sdf, x="freq_1", y="freq_2", ax=axs[0], alpha=0.1, color="#03012d", hue="weird"
-)
+sns.scatterplot(data=sdf, x="freq_1", y="freq_2", ax=axs[0], alpha=0.1, hue="weird")
 ax = axs[1]
-sns.scatterplot(
-    data=sdf, x="len_1", y="len_2", ax=ax, alpha=0.1, color="#03012d", hue="weird"
-)
+sns.scatterplot(data=sdf, x="len_1", y="len_2", ax=ax, alpha=0.1, hue="weird")
 ax.grid(alpha=0.3)
 ax.set_xscale("log")
 ax.set_yscale("log")
@@ -180,6 +175,10 @@ plt.show()
 
 
 # %%
-ssdf = sdf[sdf["weird"]]
-(ssdf["len_2"] / ssdf["len_1"]).hist()
+ssdf = df[sdf["weird"]]
+ssdf
+# %%
+sdf[sdf["len_2"].isna()]["len_1"].hist(bins=np.logspace(0, 5, 50))
+plt.xscale("log")
+plt.show()
 # %%
