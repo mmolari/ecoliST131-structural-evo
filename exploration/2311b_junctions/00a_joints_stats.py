@@ -14,7 +14,7 @@ from Bio import Phylo
 
 
 dset = "ST131_ABC"
-fig_fld = pathlib.Path(f"figs/n0/{dset}")
+fig_fld = pathlib.Path(f"figs/n00a/{dset}")
 fig_fld.mkdir(exist_ok=True, parents=True)
 
 
@@ -51,12 +51,34 @@ def extend_df(df, df_el):
 
 
 df = extend_df(df, df_el)
+
+
+def edge_cat(freq):
+    if freq < 0.1:
+        return "rare"
+    elif freq < 0.9:
+        return "intermediate"
+    elif freq < 1.0:
+        return "common"
+    elif freq == 1.0:
+        return "backbone"
+    else:
+        raise ValueError(f"invalid freq: {freq}")
+
+
+df["edge_cat"] = df["edge_freq_FG"].apply(edge_cat)
+
 df
 
 # %% stats
 
 mask = df["nonempty_acc_len_FG"].isna()
 # mask = df["edge_freq_FG"].isna()
+df[mask]
+# %% transitive
+
+mask = df["n_categories"] == 1
+df[mask].to_csv(f"data/{dset}/transitive.csv")
 df[mask]
 
 # %% edge frequency
@@ -75,22 +97,6 @@ plt.show()
 
 # %% edge length and occupation frequency, stratified by category
 
-
-def edge_cat(freq):
-    if freq < 0.1:
-        return "rare"
-    elif freq < 0.9:
-        return "intermediate"
-    elif freq < 1.0:
-        return "common"
-    elif freq == 1.0:
-        return "backbone"
-    else:
-        raise ValueError(f"invalid freq: {freq}")
-
-
-df["edge_cat"] = df["edge_freq_FG"].apply(edge_cat)
-
 g = sns.displot(
     data=df,
     x="nonempty_freq_FG",
@@ -103,10 +109,6 @@ g = sns.displot(
     log_scale=(False, True),
 )
 for ax in g.axes.flat:
-    # ax.set_yscale("symlog", linthresh=1)
-    # ax.set_ylim(bottom=0)
-    # ax.set_yscale("log")
-    # ax.set_xlim(left=0)
     ax.set_xlabel("edge occupation frequency")
     ax.set_ylabel("occupied edge average length (bp)")
     title = ax.get_title().split("=")[1].strip()
@@ -121,64 +123,70 @@ svfig("edge_cats_FG")
 plt.show()
 # %%
 
-sdf = df[df["n_iso"] > 50]
+mask = df["n_iso"] > 50
+mask &= df["n_categories"] > 1
+sdf = df[mask].copy()
 
 g = sns.JointGrid(
     data=sdf, x="nonempty_freq", y="nonempty_acc_len", marginal_ticks=True
 )
 g.ax_joint.set(yscale="log")
-g.plot_joint(sns.scatterplot, alpha=0.1, color="#03012d")
-g.plot_marginals(sns.histplot, element="step", color="#03012d", bins=50)
+g.plot_joint(sns.scatterplot, alpha=0.1)
+g.plot_marginals(sns.histplot, element="step", bins=50)
 g.ax_joint.set_xlabel("edge occupation frequency")
 g.ax_joint.set_ylabel("occupied edge average length (bp)")
 g.ax_joint.grid(alpha=0.3)
-# set title
-title = f"n. isolates = {sdf.shape[0]}"
-plt.tight_layout()
+# plt.tight_layout()
 svfig("edge_freq_len_joint")
 plt.show()
 # %%
-freq_1 = (df_el > 0).sum(axis=0) / df_el.notna().sum(axis=0)
-len_1 = df_el.sum(axis=0) / (df_el > 0).sum(axis=0)
-freq_2 = df["nonempty_freq"]
-len_2 = df["nonempty_acc_len"]
 
-sdf = pd.DataFrame(
-    {
-        "freq_1": freq_1,
-        "len_1": len_1,
-        "freq_2": freq_2,
-        "len_2": len_2,
-        "transitive": df["transitive"],
-    },
-    index=freq_1.index,
+f1, f2 = "nonempty_freq", "nonempty_freq_FG"
+l1, l2 = "nonempty_acc_len", "nonempty_acc_len_FG"
+
+sdf["weird"] = np.abs(np.log10(sdf[l2] / sdf[l1])) > 0.1
+
+for svname, kwargs in [["weird", {"hue": "weird"}], ["comparison", {}]]:
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+    ax = axs[0]
+    sns.scatterplot(data=sdf, x=f1, y=f2, ax=ax, alpha=0.1, **kwargs)
+    ax.grid(alpha=0.3)
+    ax.set_xlabel("edge occupation frequency (refined)")
+    ax.set_ylabel("edge occupation frequency (full graph)")
+    ax = axs[1]
+    sns.scatterplot(data=sdf, x=l1, y=l2, ax=ax, alpha=0.1, **kwargs)
+    ax.grid(alpha=0.3)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_ylabel("occupied edge average length (bp) (full graph)")
+    ax.set_xlabel("occupied edge average length (bp) (refined)")
+    plt.tight_layout()
+    svfig(svname)
+    plt.show()
+
+
+sdf[sdf["weird"]].to_csv(f"data/{dset}/weird.csv")
+sdf[sdf["weird"]]
+
+
+# %%
+
+g = sns.jointplot(
+    data=sdf,
+    x="delta_len",
+    y="n_categories",
+    kind="scatter",
+    marginal_kws={"log_scale": True},
+    joint_kws={"alpha": 0.2},
+    space=0,
 )
+g.ax_joint.set_xlabel("len max - len min (bp)")
+g.ax_joint.set_ylabel("n. categories")
+g.ax_joint.grid(alpha=0.3)
+g.ax_joint.set_ylim(bottom=1)
 
-# only_iso = df[df["n_iso"] > 50].index
-# sdf = sdf.loc[only_iso]
-
-sdf["weird"] = sdf["freq_1"] - sdf["freq_2"] > 0.5
-# sdf["weird"] = sdf["len_2"] / sdf["len_1"] > 200
-
-fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-sns.scatterplot(data=sdf, x="freq_1", y="freq_2", ax=axs[0], alpha=0.1, hue="weird")
-ax = axs[1]
-sns.scatterplot(data=sdf, x="len_1", y="len_2", ax=ax, alpha=0.1, hue="weird")
-ax.grid(alpha=0.3)
-ax.set_xscale("log")
-ax.set_yscale("log")
-ax.set_xlim(left=0)
-ax.set_ylim(bottom=0)
-ax
-plt.tight_layout()
+# plt.tight_layout()
+svfig("delta_len_vs_ncats")
 plt.show()
 
-
-# %%
-ssdf = df[sdf["weird"]]
-ssdf
-# %%
-sdf[sdf["len_2"].isna()]["len_1"].hist(bins=np.logspace(0, 5, 50))
-plt.xscale("log")
-plt.show()
 # %%
