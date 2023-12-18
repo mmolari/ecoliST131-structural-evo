@@ -100,16 +100,22 @@ edf
 
 # %%
 # event rates
+aln_len = 2427416
 tot_terminal_branch_len = edf["branch_length"].sum()
 tot_n_gains = edf["gain"].sum()
 tot_n_losses = edf["loss"].sum()
 tot_n_others = edf["other"].sum()
 tot_n_events = tot_n_gains + tot_n_losses + tot_n_others
 
-gain_rate = tot_n_gains / tot_terminal_branch_len
-loss_rate = tot_n_losses / tot_terminal_branch_len
-other_rate = tot_n_others / tot_terminal_branch_len
-event_rate = tot_n_events / tot_terminal_branch_len
+gain_rate = tot_terminal_branch_len / tot_n_gains
+loss_rate = tot_terminal_branch_len / tot_n_losses
+other_rate = tot_terminal_branch_len / tot_n_others
+event_rate = tot_terminal_branch_len / tot_n_events
+
+n_muts_gains = gain_rate * aln_len
+n_muts_losses = loss_rate * aln_len
+n_muts_others = other_rate * aln_len
+n_muts_events = event_rate * aln_len
 
 print(f"total terminal branch length: {tot_terminal_branch_len}")
 print(f"total n. of gains: {tot_n_gains}")
@@ -120,6 +126,10 @@ print(f"gain rate: {gain_rate}")
 print(f"loss rate: {loss_rate}")
 print(f"other rate: {other_rate}")
 print(f"event rate: {event_rate}")
+print(f"n. mutations in gains: {n_muts_gains}")
+print(f"n. mutations in losses: {n_muts_losses}")
+print(f"n. mutations in others: {n_muts_others}")
+print(f"n. mutations in events: {n_muts_events}")
 
 
 # %%
@@ -222,7 +232,7 @@ ax.barh(
 ax.barh(y=edf.index, width=edf["other"], color="grey", label="other")
 ax.set_ylim(len(edf), -1)
 ax.set_yticks([])
-ax.set_xlabel("n. of events on terminal branch")
+ax.set_xlabel("n. events on terminal branch")
 
 plt.xticks(rotation=90)
 plt.legend()
