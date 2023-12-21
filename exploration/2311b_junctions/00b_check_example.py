@@ -15,7 +15,7 @@ from Bio.SeqFeature import SeqFeature, FeatureLocation
 
 
 dset = "ST131_ABC"
-edge = "OSURYAORCR_f__RVLRLPDSYQ_r"
+edge = "VCAVVOUNDI_f__XIWJABIXEM_f"
 fig_fld = pathlib.Path(f"figs/n00b/{dset}/{edge}")
 fig_fld.mkdir(exist_ok=True, parents=True)
 

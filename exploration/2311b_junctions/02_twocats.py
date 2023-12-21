@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pathlib
+
 import numpy as np
 import os
 import json
@@ -132,6 +133,11 @@ for k in two_cat_isolates:
 branch_df["n. events"] = "> 0"
 branch_df.loc[branch_df["n_events"] == 0, "n. events"] = "= 0"
 idf = pd.DataFrame.from_dict(event_info, orient="index")
+
+# save dataframe
+df_file = data_fld / "internal_branch_events.csv"
+idf.to_csv(df_file)
+
 idf
 # %%
 # %%
@@ -223,8 +229,9 @@ plt.show()
 # %%
 
 aln_len = 2427416
-tot_internal_branch_len = branch_df[~branch_df["terminal"]]["branch_length"].sum()
-tot_n_internal_events = branch_df[~branch_df["terminal"]]["n_events"].sum()
+sbdf = branch_df[~branch_df["terminal"]]
+tot_internal_branch_len = sbdf["branch_length"].sum()
+tot_n_internal_events = sbdf["n_events"].sum()
 rate = tot_internal_branch_len / tot_n_internal_events
 per_mut = rate * aln_len
 
