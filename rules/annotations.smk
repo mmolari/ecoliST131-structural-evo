@@ -19,7 +19,7 @@ rule GM_run:
         "../conda_env/genomad.yml"
     shell:
         """
-        genomad run {input.fa} {output} {input.db} \
+        genomad end-to-end {input.fa} {output} {input.db} \
             --cleanup \
             --threads 4 \
             --splits 0
