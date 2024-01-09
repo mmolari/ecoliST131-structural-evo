@@ -65,8 +65,10 @@ include: "rules/gubbins.smk"
 include: "rules/backbone_joints.smk"
 include: "rules/plasmids.smk"
 include: "rules/figs.smk"
+include: "rules/annotations.smk"
 
 
 localrules:
     download_gbk,
+    GM_download_db,
     QC_busco_download,
