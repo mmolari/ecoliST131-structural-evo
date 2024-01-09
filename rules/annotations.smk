@@ -26,6 +26,9 @@ rule GM_run:
         """
 
 
-rule ANN_all:
+rule AN_all:
     input:
-        expand(rules.GM_run.output, acc=dset_chrom_accnums["w.dset"]),
+        [
+            expand(rules.GM_run.output, acc=dset_chrom_accnums[k])
+            for k in dset_chrom_accnums.keys()
+        ],

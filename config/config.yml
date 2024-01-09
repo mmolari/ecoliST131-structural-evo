@@ -1,15 +1,15 @@
 datasets:
-  ST131:
-    chromosomes: "config/datasets/ST131_refseq/chromosomes.txt"
-    excluded: "config/datasets/ST131_refseq/excluded.txt"
-    metadata: "config/datasets/ST131_refseq/metadata.csv"
-    guide-strain: "NZ_CP049077"
   ST131_ABC:
     chromosomes: "config/datasets/ST131_ABC/chromosomes.txt"
     excluded: "config/datasets/ST131_ABC/excluded.txt"
     plasmids: "config/datasets/ST131_ABC/plasmids.json"
     metadata: "config/datasets/ST131_ABC/metadata.csv"
     guide-strain: "NZ_CP096110.1"
+  # ST131:
+  #   chromosomes: "config/datasets/ST131_refseq/chromosomes.txt"
+  #   excluded: "config/datasets/ST131_refseq/excluded.txt"
+  #   metadata: "config/datasets/ST131_refseq/metadata.csv"
+  #   guide-strain: "NZ_CP049077"
   # ST131_full:
   #   chromosomes: "config/datasets/ST131_full/chromosomes.txt"
   #   excluded: "config/datasets/ST131_full/excluded.txt"
