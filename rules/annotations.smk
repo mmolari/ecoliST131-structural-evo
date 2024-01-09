@@ -14,15 +14,14 @@ rule GM_run:
         db=rules.GM_download_db.output.db,
         fa=rules.gbk_to_fa.output.fa,
     output:
-        "data/genomad/{acc}",
+        directory("data/genomad/{acc}"),
     conda:
         "../conda_env/genomad.yml"
     shell:
         """
         genomad end-to-end {input.fa} {output} {input.db} \
             --cleanup \
-            --threads 4 \
-            --splits 0
+            --threads 4
         """
 
 
