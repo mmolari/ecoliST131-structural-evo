@@ -25,9 +25,27 @@ rule GM_run:
         """
 
 
+rule GM_summary:
+    input:
+        lambda w: expand(rules.GM_run.output, acc=dset_chrom_accnums[w.dset]),
+    output:
+        "results/{dset}/annotations/genomad/prophage_summary.tsv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        ACC=$(basename {input[0]})
+        FNAME="{input[0]}/${{ACC}}_summary/${{ACC}}_virus_summary.tsv"
+        head -n 1 $FNAME > {output}
+
+        for input_file in {input}; do
+            ACC=$(basename $input_file)
+            FNAME="$input_file/${{ACC}}_summary/${{ACC}}_virus_summary.tsv"
+            tail -n +2 $FNAME >> {output}
+        done
+        """
+
+
 rule AN_all:
     input:
-        [
-            expand(rules.GM_run.output, acc=dset_chrom_accnums[k])
-            for k in dset_chrom_accnums.keys()
-        ],
+        expand(rules.GM_summary.output, dset="ST131_ABC"),
