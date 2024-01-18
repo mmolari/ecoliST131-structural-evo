@@ -160,14 +160,22 @@ plt.show()
 # %%
 df_j["n_prophages"] = pp_to_j["junction"].value_counts()
 df_j["n_prophages"].fillna(0, inplace=True)
-df_j["n_prophages_rand"] = rand_pp_to_j["junction"].value_counts()
-df_j["n_prophages_rand"].fillna(0, inplace=True)
 df_j["has_prophage"] = df_j["n_prophages"] > 0
 df_j["prophage_freq"] = (
     pp_to_j.groupby("junction").apply(lambda x: len(np.unique(x["iso"])))
     / df_j["n_iso"]
 )
 df_j["prophage_freq"].fillna(0, inplace=True)
+
+df_j["n_prophages_rand"] = rand_pp_to_j["junction"].value_counts()
+df_j["n_prophages_rand"].fillna(0, inplace=True)
+df_j["has_prophage_rand"] = df_j["n_prophages_rand"] > 0
+df_j["prophage_freq_rand"] = (
+    rand_pp_to_j.groupby("junction").apply(lambda x: len(np.unique(x["iso"])))
+    / df_j["n_iso"]
+)
+df_j["prophage_freq_rand"].fillna(0, inplace=True)
+
 
 sns.histplot(
     data=df_j, x="n_prophages", discrete=True, element="step", label="geNomad joints"
@@ -207,6 +215,29 @@ sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "phage_vs_nonempty_freq.png", dpi=300)
 plt.show()
+
+# sns.scatterplot(
+#     data=df_j,
+#     x="nonempty_freq",
+#     y="prophage_freq",
+#     alpha=0.3,
+#     label="geNomad annotations",
+# )
+# sns.scatterplot(
+#     data=df_j,
+#     x="nonempty_freq",
+#     y="prophage_freq_rand",
+#     alpha=0.3,
+#     label="shuffled annotations",
+# )
+# plt.plot([0, 1], [0, 1], color="gray", linestyle="--", zorder=-3, alpha=0.2)
+# plt.xlabel("nonempty frequency")
+# plt.ylabel("prophage frequency")
+# plt.legend()
+# sns.despine()
+# plt.tight_layout()
+# plt.savefig(fig_fld / "phage_vs_nonempty_freq_rand.png", dpi=300)
+# plt.show()
 
 # %%
 
