@@ -85,6 +85,7 @@ for pp, row in df_ph.iterrows():
                 "jce": ce,
                 "jab": ab,
                 "jae": ae,
+                "strand": strand,
             }
         )
     # locate on random joints
@@ -118,6 +119,7 @@ for pp, row in df_ph.iterrows():
                 "jce": ce,
                 "jab": ab,
                 "jae": ae,
+                "strand": strand,
             }
         )
 
