@@ -80,6 +80,7 @@ plt.show()
 df_j[mask].sort_values("n_categories", ascending=False).head(20)
 # %%
 
+junction = "ANHYQUDQAA_r__IMAMHFLCWS_f"
 # junction = "GPXHVRRZLC_f__ZLAJFQLBFQ_r"
 # junction = "CGQZOLYSTD_r__ZLLQQUXUIP_r"
 # junction = "KAIPBNCIHR_r__WXCHSHHCDT_f"
@@ -91,7 +92,7 @@ df_j[mask].sort_values("n_categories", ascending=False).head(20)
 # junction = "XXVMWZCEKI_r__YUOECYBHUS_r"  # hotspot
 # junction = "JVNRLCFAVD_f__PLTCZQCVRD_r"  # hotspot
 # junction = "EJPOGALASQ_f__KUIFCLFQSI_r"  # hotspot
-junction = "BWEZXGGFBK_r__MVMOFPVELT_r"  # hotspot
+# junction = "BWEZXGGFBK_r__MVMOFPVELT_r"  # hotspot
 
 j_pos = jp[junction]
 
@@ -115,17 +116,22 @@ cmap = mpl.colormaps.get_cmap("tab20")
 y = 0
 for iso in strains:
     y += 1
+    L = iso_L[iso]
     if not iso in j_pos:
         continue
     Cb, Ab, Ae, Ce, strand = j_pos[iso]
     if Ce < Cb:
         print(f"Iso: {iso} Ce < Cb")
-        continue
 
     if not strand:
         Cb, Ab, Ae, Ce = -Ce, -Ae, -Ab, -Cb
     delta = Cb
-    Cb, Ab, Ae, Ce = Cb - delta, Ab - delta, Ae - delta, Ce - delta
+    Cb, Ab, Ae, Ce = (
+        (Cb - delta) % L,
+        (Ab - delta) % L,
+        (Ae - delta) % L,
+        (Ce - delta) % L,
+    )
     axs[1].plot([Cb, Ab], [y, y], lw=3, color="C0")
     axs[1].plot([Ab, Ae], [y, y], lw=3, color="lightgray")
     axs[1].plot([Ae, Ce], [y, y], lw=3, color="C1")
@@ -141,7 +147,11 @@ for iso in strains:
             continue
         if not strand:
             pe, pb = -pb, -pe
-        pe, pb = pe - delta, pb - delta
+        pe, pb = (pe - delta) % L, (pb - delta) % L
+        if np.abs(pe - L) < np.abs(pe):
+            pe -= L
+        if np.abs(pb - L) < np.abs(pb):
+            pb -= L
 
         yp = y
         axs[1].plot([pb, pe], [yp, yp], "|-", color="red", alpha=0.5)
@@ -149,7 +159,7 @@ for iso in strains:
     # plot block structure
     path = pan.paths[iso]
     x = 0
-    yb = y + 0.6
+    yb = y
     for block_id in path.block_ids:
         l = bdf.loc[block_id, "len"]
         if block_id in block_color:
@@ -169,4 +179,9 @@ axs[2].set_xlabel("position (bp)")
 plt.tight_layout()
 plt.savefig(fig_fld / f"J_structure_{junction}.png", dpi=200)
 plt.show()
+
+# save colors
+block_color = {k: mpl.colors.to_hex(v) for k, v in block_color.items()}
+cdf = pd.DataFrame.from_dict(block_color, orient="index", columns=["Color"])
+cdf.to_csv(fig_fld / f"J_structure_{junction}_colors.csv")
 # %%
