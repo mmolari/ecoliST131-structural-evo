@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     records = []
     for iso, pos in edge_pos.items():
-        beg, end, strand = pos
+        beg, _, _, end, strand = pos
 
         # load genome
         with open(genomes_fdict[iso], "r") as f:

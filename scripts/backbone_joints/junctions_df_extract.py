@@ -6,11 +6,13 @@ import utils as ut
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Given a pangraph, generates a dataframe with information on core-edges."
+        description="""Given a pangraph, generates dataframes with information on core-edge
+        length and frequency."""
     )
     parser.add_argument("--pangraph", type=str, required=True)
     parser.add_argument("--len_thr", type=int, required=True)
-    parser.add_argument("--out_csv", type=str, required=True)
+    parser.add_argument("--df_len", type=str, required=True)
+    parser.add_argument("--df_count", type=str, required=True)
     return parser.parse_args()
 
 
@@ -35,7 +37,11 @@ if __name__ == "__main__":
     jdf = pd.DataFrame(jdf)
     jdf = jdf.pivot_table(index="iso", columns="edge", values="len")
 
-    # sort by edge frequency
-    edge_order = jdf.notna().sum(axis=0).sort_values(ascending=False).index
-    jdf = jdf[edge_order]
-    jdf.to_csv(args.out_csv)
+    # extract edge frequency
+    edge_freq = jdf.notna().sum(axis=0).sort_values(ascending=False)
+    edge_freq.name = "count"
+    edge_freq.to_csv(args.df_count)
+
+    # sort by edge frequency and save
+    jdf = jdf[edge_freq.index]
+    jdf.to_csv(args.df_len)
