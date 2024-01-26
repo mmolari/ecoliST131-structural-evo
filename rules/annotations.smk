@@ -78,6 +78,25 @@ rule IF_summary:
         i_ann="results/{dset}/annotations/integron_finder/integron_annotations.tsv",
     conda:
         "../conda_env/bioinfo.yml"
+    params:
+        tsv_cols="\t".join(
+            [
+                "ID_integron",
+                "ID_replicon",
+                "element",
+                "pos_beg",
+                "pos_end",
+                "strand",
+                "evalue",
+                "type_elt",
+                "annotation",
+                "model",
+                "type",
+                "default",
+                "distance_2attC",
+                "considered_topology",
+            ]
+        ),
     shell:
         """
         ACC=$(basename {input[0]})
@@ -92,10 +111,8 @@ rule IF_summary:
             tail -n +3 $FNAME >> {output.i_summ}
         done
 
-        ACC=$(basename {input[0]})
-        ACC=${{ACC#Results_Integron_Finder_}}
-        FNAME="{input[0]}/${{ACC}}.integrons"
-        sed -n '2p' $FNAME > {output.i_ann}
+        
+        echo "{params.tsv_cols}" > {output.i_ann}
 
         for input_file in {input}; do
             ACC=$(basename $input_file)
