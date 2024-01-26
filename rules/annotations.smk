@@ -64,6 +64,8 @@ rule IF_annotate:
             --mute \
             --cpu 1 \
             --pdf \
+            --func-annot \
+            --promoter-attI \
             {input.fa}
         """
 
