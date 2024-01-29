@@ -123,9 +123,60 @@ for integron, row in df_int.iterrows():
 
 
 pp_to_j = pd.DataFrame(pp_to_j)
+pp_to_j = pp_to_j.merge(
+    df_int["type"], left_on="integron", right_index=True, how="left"
+)
 pp_to_j.to_csv(data_fld / "integrons_to_joints.csv")
 rand_pp_to_j = pd.DataFrame(rand_pp_to_j)
 pp_to_j
+# %% general stats
+sdf = pp_to_j.groupby(["junction", "type"]).count()["integron"].reset_index()
+n_iso_per_edge = df_el.notna().sum(axis=0)
+sdf["n_iso"] = sdf["junction"].map(n_iso_per_edge)
+nunique_iso = pp_to_j.groupby(["junction", "type"])["iso"].nunique()
+sdf = sdf.merge(nunique_iso, left_on=["junction", "type"], right_index=True, how="left")
+sdf = sdf.rename(columns={"iso": "n_iso_unique"})
+sdf = sdf.merge(df_j["delta_len"], left_on="junction", right_index=True, how="left")
+sdf = sdf.merge(df_j["n_categories"], left_on="junction", right_index=True, how="left")
+
+sdf
+
+# %%
+nipe = pd.DataFrame(n_iso_per_edge, columns=["n_iso"])
+nipe["has integron"] = nipe.index.isin(sdf["junction"])
+M = nipe["n_iso"].max()
+nipe["joint freq."] = nipe["n_iso"].apply(
+    lambda x: "singleton"
+    if x == 1
+    else "rare"
+    if x < M // 2
+    else "backbone"
+    if x == M
+    else "common"
+)
+# categorical value order
+nipe["joint freq."] = pd.Categorical(
+    nipe["joint freq."],
+    categories=["singleton", "rare", "common", "backbone"],
+    ordered=True,
+)
+
+fig, ax = plt.subplots(1, 1, figsize=(5, 4))
+sns.countplot(
+    nipe,
+    x="joint freq.",
+    hue="has integron",
+    ax=ax,
+)
+ax.bar_label(ax.containers[0], label_type="edge")
+ax.bar_label(ax.containers[1], label_type="edge")
+# ax.set_yscale("log")
+sns.despine()
+plt.tight_layout()
+plt.savefig(fig_fld / "integron_joint_frequency.png", dpi=300)
+plt.show()
+
+
 # %%
 
 df_int["assigned"] = pp_to_j["integron"].value_counts()
@@ -159,6 +210,7 @@ plt.show()
 
 # %%
 df_j["n_integrons"] = pp_to_j["junction"].value_counts()
+df_j["integron type"] = pp_to_j.groupby("junction")["type"].first()
 df_j["n_integrons"].fillna(0, inplace=True)
 df_j["has_integron"] = df_j["n_integrons"] > 0
 df_j["integron_freq"] = (
@@ -216,30 +268,19 @@ plt.tight_layout()
 plt.savefig(fig_fld / "integron_vs_nonempty_freq.png", dpi=300)
 plt.show()
 
-# sns.scatterplot(
-#     data=df_j,
-#     x="nonempty_freq",
-#     y="integron_freq",
-#     alpha=0.3,
-#     label="geNomad annotations",
-# )
-# sns.scatterplot(
-#     data=df_j,
-#     x="nonempty_freq",
-#     y="integron_freq_rand",
-#     alpha=0.3,
-#     label="shuffled annotations",
-# )
-# plt.plot([0, 1], [0, 1], color="gray", linestyle="--", zorder=-3, alpha=0.2)
-# plt.xlabel("nonempty frequency")
-# plt.ylabel("integron frequency")
-# plt.legend()
-# sns.despine()
-# plt.tight_layout()
-# plt.savefig(fig_fld / "integron_vs_nonempty_freq_rand.png", dpi=300)
-# plt.show()
-
 # %%
+df_j["backbone"] = df_j["n_iso"] == df_j["n_iso"].max()
+df_j["type"] = df_j.apply(
+    lambda x: {
+        (True, "complete"): "backbone|complete",
+        (True, "CALIN"): "backbone|CALIN",
+        (False, "complete"): "non-backbone|complete",
+        (False, "CALIN"): "non-backbone|CALIN",
+    }[(x["backbone"], x["integron type"])]
+    if x["has_integron"]
+    else "no integron",
+    axis=1,
+)
 
 # joint plot
 fig, axs = plt.subplots(
@@ -256,6 +297,7 @@ sns.scatterplot(
     data=df_j,
     x="delta_len",
     y="n_categories",
+    color="gray",
     alpha=0.2,
     ax=ax,
 )
@@ -263,12 +305,14 @@ sns.scatterplot(
     data=df_j[df_j["has_integron"]],
     x="delta_len",
     y="n_categories",
-    hue="integron_freq",
-    palette="viridis",
+    hue="type",
+    palette="bright",
+    edgecolors="black",
+    linewidth=0.8,
     ax=ax,
 )
-ax.set_xlabel("delta length")
-ax.set_ylabel("n categories")
+ax.set_xlabel(r"$\Delta \, L$ (bp)")
+ax.set_ylabel("n. path categories")
 
 sns.histplot(
     data=df_j,
@@ -278,6 +322,7 @@ sns.histplot(
     log_scale=True,
     bins=25,
     element="step",
+    color="gray",
 )
 
 sns.histplot(
@@ -288,6 +333,7 @@ sns.histplot(
     log_scale=True,
     bins=25,
     element="step",
+    color="gray",
 )
 
 axs[0, 1].set_visible(False)
@@ -295,5 +341,6 @@ sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "joint_plot_integrons.png", dpi=300)
 plt.show()
+
 
 # %%

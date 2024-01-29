@@ -80,10 +80,10 @@ df_j[mask].sort_values("n_categories", ascending=False).head(20)
 # junction = "EQHTXGCHGZ_r__KGJXRPELGX_f"  #    1
 
 Junctions = [
-    # "KGJXRPELGX_r__KIVDDRSTJR_r",
-    # "UXPSNWWHML_f__YHLTNASHXN_f",
-    # "DSLXSJZSTL_r__KGJXRPELGX_f",
-    # "DSLXSJZSTL_r__QQSILILDBT_r",
+    "KGJXRPELGX_r__KIVDDRSTJR_r",
+    "UXPSNWWHML_f__YHLTNASHXN_f",
+    "DSLXSJZSTL_r__KGJXRPELGX_f",
+    "DSLXSJZSTL_r__QQSILILDBT_r",
     "RYYAQMEJGY_r__ZTHKZYHPIX_f",
 ]
 
