@@ -47,7 +47,7 @@ with open(mash_infile, "w") as f:
 # %%
 # mash distance
 msh_file = data_fld / "integrons.msh"
-cmd = f"mash triangle -i -k 21 -s 5000 {mash_infile} > {msh_file}"
+cmd = f"mash triangle -i -k 21 -s 10000 {mash_infile} > {msh_file}"
 subprocess.run(cmd, shell=True, check=True)
 
 
@@ -114,6 +114,9 @@ ax.set_xticks([0, 1, 2])
 ax.set_xticklabels(["type", "junction", "iso"])
 ax.set_xlim(-0.5, 2.5)
 
+# symlog norm
+# norm = mpl.colors.SymLogNorm(linthresh=0.001, vmin=0, vmax=0.1)
+
 ax = axs[-1]
 N = len(order)
 new_ax = ax.inset_axes([0.8, 0.3, 0.02, 0.6])
@@ -126,6 +129,7 @@ sns.heatmap(
     cbar_kws={"shrink": 0.5, "label": "Mash distance"},
     vmin=0,
     vmax=0.1,
+    # norm=norm,
     cbar_ax=new_ax,
 )
 ax.set_xticklabels([], rotation=90)
