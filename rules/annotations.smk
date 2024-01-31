@@ -46,6 +46,20 @@ rule GM_summary:
         """
 
 
+rule ISEScan_run:
+    input:
+        fa=rules.gbk_to_fa.output.fa,
+    output:
+        directory("data/ISEScan/{acc}"),
+    conda:
+        "../conda_env/isescan.yml"
+    shell:
+        """
+        isescan.py --seqfile {input.fa} --output {output} --nthread 6
+        """
+
+
 rule AN_all:
     input:
         expand(rules.GM_summary.output, dset="ST131_ABC"),
+        expand(rules.ISEScan_run.output, acc=dset_chrom_accnums["ST131_ABC"]),
