@@ -96,6 +96,21 @@ rule IF_summary:
         """
 
 
+rule IF_preformat:
+    input:
+        rules.IF_summary.output.i_ann,
+    output:
+        "results/{dset}/annotations/loc/integronfinder.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/integronfinder_df_preformat.py \
+            --input_df {input} \
+            --output_df {output}
+        """
+
+
 rule ISEScan_run:
     input:
         fa=rules.gbk_to_fa.output.fa,
@@ -141,6 +156,7 @@ rule ISEScan_preformat:
 zero_based_tools = {
     "ISEScan": False,
     "genomad": False,
+    "integronfinder": False,  # to be checked
 }
 
 
@@ -175,7 +191,7 @@ rule AN_all:
         expand(
             rules.AN_assign_positions.output,
             dset="ST131_ABC",
-            tool=["ISEScan", "genomad"],
+            tool=["ISEScan", "genomad", "integronfinder"],
             opt=["asm20-100-5"],
             K=["rand", "real"],
         ),
