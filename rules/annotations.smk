@@ -108,8 +108,23 @@ rule ISEScan_summary:
         """
 
 
+rule ISEScan_preformat:
+    input:
+        rules.ISEScan_summary.output,
+    output:
+        "results/{dset}/annotations/annotations/is_loc.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/IS_df_preformat.py \
+            --input_df {input} \
+            --output_df {output}
+        """
+
+
 rule AN_all:
     input:
         expand(rules.GM_summary.output, dset="ST131_ABC"),
         expand(rules.IF_summary.output, dset="ST131_ABC"),
-        expand(rules.ISEScan_summary.output, dset="ST131_ABC"),
+        expand(rules.ISEScan_preformat.output, dset="ST131_ABC"),
