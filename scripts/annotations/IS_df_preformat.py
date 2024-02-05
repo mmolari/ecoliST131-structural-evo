@@ -53,6 +53,7 @@ if __name__ == "__main__":
 
     sdf = df[list(cols.keys())].rename(columns=cols)
     sdf["type"] = "IS"
+    sdf["strand"] = sdf["strand"].map({"+": True, "-": False})
     sdf["id"] = sdf["iso"] + "|" + sdf["id"] + "|" + sdf.index.astype(str)
     sdf.set_index("id", inplace=True, verify_integrity=True)
 

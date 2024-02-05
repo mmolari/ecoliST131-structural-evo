@@ -112,7 +112,7 @@ rule ISEScan_preformat:
     input:
         rules.ISEScan_summary.output,
     output:
-        "results/{dset}/annotations/annotations/is_loc.csv",
+        "results/{dset}/annotations/loc/ISEScan.csv",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
@@ -123,8 +123,43 @@ rule ISEScan_preformat:
         """
 
 
+zero_based_tools = {
+    "ISEScan": False,
+}
+
+
+rule AN_assign_positions:
+    input:
+        el="results/{dset}/annotations/loc/{tool}.csv",
+        j_pos=rules.BJ_extract_joints_pos.output.pos,
+        iso_len=rules.PG_genome_lengths.output,
+    output:
+        "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    params:
+        zero_based=lambda w: "--zero_based" if zero_based_tools[w.tool] else "",
+        random=lambda w: "--random" if w.K == "rand" else "",
+    shell:
+        """
+        python3 scripts/annotations/assing_junction.py \
+            --iso_len {input.iso_len} \
+            --junction_pos_json {input.j_pos} \
+            --element_pos_df {input.el} \
+            --output_pos {output} \
+            {params.zero_based} \
+            {params.random}
+        """
+
+
 rule AN_all:
     input:
         expand(rules.GM_summary.output, dset="ST131_ABC"),
         expand(rules.IF_summary.output, dset="ST131_ABC"),
-        expand(rules.ISEScan_preformat.output, dset="ST131_ABC"),
+        expand(
+            rules.AN_assign_positions.output,
+            dset="ST131_ABC",
+            tool=["ISEScan"],
+            opt=["asm20-100-5"],
+            K=["rand", "real"],
+        ),
