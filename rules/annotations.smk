@@ -39,6 +39,21 @@ rule GM_summary:
         """
 
 
+rule GM_preformat:
+    input:
+        rules.GM_summary.output,
+    output:
+        "results/{dset}/annotations/loc/genomad.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/genomad_df_preformat.py \
+            --input_df {input} \
+            --output_df {output}
+        """
+
+
 rule IF_annotate:
     input:
         fa=rules.gbk_to_fa.output.fa,
@@ -125,6 +140,7 @@ rule ISEScan_preformat:
 
 zero_based_tools = {
     "ISEScan": False,
+    "genomad": False,
 }
 
 
@@ -159,7 +175,7 @@ rule AN_all:
         expand(
             rules.AN_assign_positions.output,
             dset="ST131_ABC",
-            tool=["ISEScan"],
+            tool=["ISEScan", "genomad"],
             opt=["asm20-100-5"],
             K=["rand", "real"],
         ),

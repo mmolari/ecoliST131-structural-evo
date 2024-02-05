@@ -35,7 +35,6 @@ def parse_args():
 #     "ov",
 #     "tir",
 # ]
-# columns_final = ["id", "type", "iso", "beg", "end", "strand"]
 
 
 if __name__ == "__main__":
@@ -43,18 +42,14 @@ if __name__ == "__main__":
     args = parse_args()
     df = pd.read_csv(args.input_df, sep="\t")
 
-    cols = {
-        "seqID": "iso",
-        "family": "id",
-        "isBegin": "beg",
-        "isEnd": "end",
-        "strand": "strand",
-    }
+    df["iso"] = df["seqID"]
+    df["beg"] = df["isBegin"]
+    df["end"] = df["isEnd"]
+    df["id"] = df["iso"] + "|" + df["family"] + "|" + df.index.astype(str)
+    df["type"] = "IS"
 
-    sdf = df[list(cols.keys())].rename(columns=cols)
-    sdf["type"] = "IS"
-    sdf["strand"] = sdf["strand"].map({"+": True, "-": False})
-    sdf["id"] = sdf["iso"] + "|" + sdf["id"] + "|" + sdf.index.astype(str)
+    cols = ["id", "iso", "beg", "end", "type"]
+    sdf = df[cols].copy()
     sdf.set_index("id", inplace=True, verify_integrity=True)
 
     sdf.to_csv(args.output_df)
