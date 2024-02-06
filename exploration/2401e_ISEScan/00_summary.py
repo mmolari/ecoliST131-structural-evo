@@ -16,6 +16,7 @@ strains = [x.name for x in tree.get_terminals()]
 # %%
 df_file = "../../results/ST131_ABC/annotations/isescan/is_summary.tsv"
 df = pd.read_csv(df_file, sep="\t")
+df["type"] = df["type"].map({"c": "complete", "p": "partial"})
 df.head()
 
 fam_order = df["family"].value_counts().index.to_list()
@@ -38,22 +39,9 @@ plt.tight_layout()
 plt.savefig(fig_fld / "is_hist.png")
 plt.show()
 
-# %%
-sns.violinplot(data=df, x="family", y="isLen", inner=None, density_norm="width", cut=0)
-# sns.boxplot(data=df, x="family", y="isLen", color="gray", width=0.3, fliersize=0.5)
-plt.ylim(0, 8000)
-plt.grid(True, alpha=0.3)
-plt.xticks(rotation=90)
-plt.xlabel("IS Family")
-plt.ylabel("IS Length")
-plt.tight_layout()
-plt.savefig(fig_fld / "is_len_violin.png")
-plt.show()
 
 # %%
-sns.stripplot(
-    data=df, x="family", y="isLen", color="gray", size=1, alpha=0.5, jitter=0.3
-)
+sns.stripplot(data=df, x="family", y="isLen", hue="type", size=1, alpha=0.5, jitter=0.3)
 plt.ylim(0, 8000)
 plt.grid(True, alpha=0.3)
 plt.xticks(rotation=90)

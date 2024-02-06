@@ -41,7 +41,8 @@ if __name__ == "__main__":
 
     args = parse_args()
     df = pd.read_csv(args.input_df, sep="\t")
-
+    # mask = df["type"] == "c"
+    # df = df[mask].copy()
     df["iso"] = df["seqID"]
     df["beg"] = df["isBegin"]
     df["end"] = df["isEnd"]
