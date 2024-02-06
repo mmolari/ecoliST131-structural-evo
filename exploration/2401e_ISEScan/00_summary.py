@@ -47,6 +47,19 @@ plt.xticks(rotation=90)
 plt.xlabel("IS Family")
 plt.ylabel("IS Length")
 plt.tight_layout()
+plt.savefig(fig_fld / "is_len_violin.png")
+plt.show()
+
+# %%
+sns.stripplot(
+    data=df, x="family", y="isLen", color="gray", size=1, alpha=0.5, jitter=0.3
+)
+plt.ylim(0, 8000)
+plt.grid(True, alpha=0.3)
+plt.xticks(rotation=90)
+plt.xlabel("IS Family")
+plt.ylabel("IS Length")
+plt.tight_layout()
 plt.savefig(fig_fld / "is_len.png")
 plt.show()
 
