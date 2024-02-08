@@ -138,6 +138,21 @@ rule PG_filtered_coregenome_tree:
         """
 
 
+rule PG_genome_lengths:
+    input:
+        lambda w: expand(rules.gbk_to_fa.output.fa, acc=dset_chrom_accnums[w.dset]),
+    output:
+        "results/{dset}/pangraph/genome_lengths.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/utils/len_df.py \
+            --df {output} \
+            --fastas {input}
+        """
+
+
 rule PG_all:
     input:
         expand(rules.PG_coregenome_tree.output, dset=dset_names, opt=kernel_opts),
@@ -145,3 +160,4 @@ rule PG_all:
             rules.PG_filtered_coregenome_tree.output, dset=dset_names, opt=kernel_opts
         ),
         expand(rules.PG_export.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.PG_genome_lengths.output, dset=dset_names),

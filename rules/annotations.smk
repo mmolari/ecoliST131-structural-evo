@@ -14,12 +14,13 @@ rule GM_run:
         db=rules.GM_download_db.output.db,
         fa=rules.gbk_to_fa.output.fa,
     output:
-        directory("data/genomad/{acc}"),
+        d=directory("data/genomad/{acc}"),
+        s="data/genomad/{acc}/{acc}_summary/{acc}_virus_summary.tsv",
     conda:
         "../conda_env/genomad.yml"
     shell:
         """
-        genomad end-to-end {input.fa} {output} {input.db} \
+        genomad end-to-end {input.fa} {output.d} {input.db} \
             --cleanup \
             --threads 4
         """
@@ -27,22 +28,29 @@ rule GM_run:
 
 rule GM_summary:
     input:
-        lambda w: expand(rules.GM_run.output, acc=dset_chrom_accnums[w.dset]),
+        lambda w: expand(rules.GM_run.output.s, acc=dset_chrom_accnums[w.dset]),
     output:
         "results/{dset}/annotations/genomad/prophage_summary.tsv",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
         """
-        ACC=$(basename {input[0]})
-        FNAME="{input[0]}/${{ACC}}_summary/${{ACC}}_virus_summary.tsv"
-        head -n 1 $FNAME > {output}
+        tsv-append -H {input} > {output}
+        """
 
-        for input_file in {input}; do
-            ACC=$(basename $input_file)
-            FNAME="$input_file/${{ACC}}_summary/${{ACC}}_virus_summary.tsv"
-            tail -n +2 $FNAME >> {output}
-        done
+
+rule GM_preformat:
+    input:
+        rules.GM_summary.output,
+    output:
+        "results/{dset}/annotations/loc/genomad.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/genomad_df_preformat.py \
+            --input_df {input} \
+            --output_df {output}
         """
 
 
@@ -51,6 +59,8 @@ rule IF_annotate:
         fa=rules.gbk_to_fa.output.fa,
     output:
         if_dir=directory("data/integron_finder/Results_Integron_Finder_{acc}"),
+        I="data/integron_finder/Results_Integron_Finder_{acc}/{acc}.integrons",
+        S="data/integron_finder/Results_Integron_Finder_{acc}/{acc}.summary",
     params:
         outdir="data/integron_finder",
     conda:
@@ -72,56 +82,105 @@ rule IF_annotate:
 
 rule IF_summary:
     input:
-        lambda w: expand(
-            rules.IF_annotate.output.if_dir, acc=dset_chrom_accnums[w.dset]
-        ),
+        S=lambda w: expand(rules.IF_annotate.output.S, acc=dset_chrom_accnums[w.dset]),
+        I=lambda w: expand(rules.IF_annotate.output.I, acc=dset_chrom_accnums[w.dset]),
     output:
         i_summ="results/{dset}/annotations/integron_finder/integron_summary.tsv",
         i_ann="results/{dset}/annotations/integron_finder/integron_annotations.tsv",
     conda:
         "../conda_env/bioinfo.yml"
-    params:
-        tsv_cols="\t".join(
-            [
-                "ID_integron",
-                "ID_replicon",
-                "element",
-                "pos_beg",
-                "pos_end",
-                "strand",
-                "evalue",
-                "type_elt",
-                "annotation",
-                "model",
-                "type",
-                "default",
-                "distance_2attC",
-                "considered_topology",
-            ]
-        ),
     shell:
         """
-        ACC=$(basename {input[0]})
-        ACC=${{ACC#Results_Integron_Finder_}}
-        FNAME="{input[0]}/${{ACC}}.summary"
-        sed -n '2p' $FNAME > {output.i_summ}
+        cat {input.S} | grep -v '^#' | tsv-uniq > {output.i_summ}
+        cat {input.I} | grep -v '^#' | tsv-uniq > {output.i_ann}
+        """
 
-        for input_file in {input}; do
-            ACC=$(basename $input_file)
-            ACC=${{ACC#Results_Integron_Finder_}}
-            FNAME="$input_file/${{ACC}}.summary"
-            tail -n +3 $FNAME >> {output.i_summ}
-        done
 
-        
-        echo "{params.tsv_cols}" > {output.i_ann}
+rule IF_preformat:
+    input:
+        rules.IF_summary.output.i_ann,
+    output:
+        "results/{dset}/annotations/loc/integronfinder.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/integronfinder_df_preformat.py \
+            --input_df {input} \
+            --output_df {output}
+        """
 
-        for input_file in {input}; do
-            ACC=$(basename $input_file)
-            ACC=${{ACC#Results_Integron_Finder_}}
-            FNAME="$input_file/${{ACC}}.integrons"
-            tail -n +3 $FNAME >> {output.i_ann}
-        done
+
+rule ISEScan_run:
+    input:
+        fa=rules.gbk_to_fa.output.fa,
+    output:
+        d=directory("data/ISEScan/{acc}"),
+        s="data/ISEScan/{acc}/fa/{acc}.fa.tsv",
+    conda:
+        "../conda_env/isescan.yml"
+    shell:
+        """
+        isescan.py --seqfile {input.fa} --output {output.d} --nthread 6
+        """
+
+
+rule ISEScan_summary:
+    input:
+        lambda w: expand(rules.ISEScan_run.output.s, acc=dset_chrom_accnums[w.dset]),
+    output:
+        "results/{dset}/annotations/isescan/is_summary.tsv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        tsv-append -H {input} > {output}
+        """
+
+
+rule ISEScan_preformat:
+    input:
+        rules.ISEScan_summary.output,
+    output:
+        "results/{dset}/annotations/loc/ISEScan.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/IS_df_preformat.py \
+            --input_df {input} \
+            --output_df {output}
+        """
+
+
+zero_based_tools = {
+    "ISEScan": False,
+    "genomad": False,
+    "integronfinder": False,  # to be checked
+}
+
+
+rule AN_assign_positions:
+    input:
+        el="results/{dset}/annotations/loc/{tool}.csv",
+        j_pos=rules.BJ_extract_joints_pos.output.pos,
+        iso_len=rules.PG_genome_lengths.output,
+    output:
+        "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    params:
+        zero_based=lambda w: "--zero_based" if zero_based_tools[w.tool] else "",
+        random=lambda w: "--random" if w.K == "rand" else "",
+    shell:
+        """
+        python3 scripts/annotations/assing_junction.py \
+            --iso_len {input.iso_len} \
+            --junction_pos_json {input.j_pos} \
+            --element_pos_df {input.el} \
+            --output_pos {output} \
+            {params.zero_based} \
+            {params.random}
         """
 
 
@@ -129,3 +188,10 @@ rule AN_all:
     input:
         expand(rules.GM_summary.output, dset="ST131_ABC"),
         expand(rules.IF_summary.output, dset="ST131_ABC"),
+        expand(
+            rules.AN_assign_positions.output,
+            dset="ST131_ABC",
+            tool=["ISEScan", "genomad", "integronfinder"],
+            opt=["asm20-100-5"],
+            K=["rand", "real"],
+        ),
