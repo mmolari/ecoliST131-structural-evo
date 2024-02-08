@@ -156,7 +156,7 @@ def draw_layer(layer, x, w, tot, connect, ax):
         ax.text(
             x - 0.5 * (1 - w),
             y + v / 2,
-            f"{v} ({v/tot:.2%})\n{lab}",
+            f"{v} ({v/tot:.1%})\n{lab}",
             ha="center",
             va="center",
         )
@@ -184,8 +184,8 @@ def draw_layer(layer, x, w, tot, connect, ax):
     return Y
 
 
-def draw_flowplot(tot, layers, w=0.2):
-    fig, ax = plt.subplots(figsize=(8, 5))
+def draw_flowplot(tot, layers, w=0.2, figsize=(8, 5)):
+    fig, ax = plt.subplots(figsize=figsize)
 
     x = 0
     T = tot["total"]
@@ -215,4 +215,75 @@ plt.show()
 # %%
 mask = summary_df["nonempty_is_IS"] & (summary_df["n_products"] == 1)
 summary_df[mask]["annotations"].to_csv(data_fld / "broken_products.csv")
+# %%
+
+
+# flow plot
+
+# backbone coldspots
+mask = df_j["n_categories"] == 2
+mask &= df_j["n_iso"] == 222
+
+
+tot = {
+    "total": mask.sum(),
+    "color": "slateblue",
+    "title": "backbone coldspots",
+}
+
+Iass = len(summary_df)
+NIass = mask.sum() - Iass
+layer_0 = {
+    "values": [Iass, NIass],
+    "labels": ["IS", "no IS"],
+    "colors": ["C0", "gray"],
+    "title": "IS-association",
+    "from": [[(0, Iass)], [(0, NIass)]],
+}
+
+consistent = summary_df["nonempty_is_IS"].value_counts().to_dict()
+C, NC = consistent[True], consistent[False]
+layer_1 = {
+    "values": [C, NC],
+    "labels": ["consistent", "inconsistent"],
+    "colors": ["C0", "gray"],
+    "title": "IS/non-empty consistency",
+    "from": [[(0, C)], [(0, NC)]],
+}
+products = (
+    summary_df[["nonempty_is_IS", "n_products"]].value_counts(dropna=False).to_dict()
+)
+C0 = products[(True, 0)]
+C1 = products[(True, 1)]
+C2 = products[(True, 2)]
+N0 = products[(False, 0)]
+
+layer_2 = {
+    "values": [C1 + C2, C0],
+    "labels": ["yes", "no"],
+    "colors": ["C2", "C3"],
+    "title": "has annotations",
+    "from": [[(0, C1 + C2)], [(0, C0)]],
+}
+
+layer_3 = {
+    "values": [C1, C2],
+    "labels": ["n=1", "n=2"],
+    "colors": ["limegreen", "darkgreen"],
+    "title": "n. products",
+    "from": [[(0, C1)], [(0, C2)]],
+}
+
+layers = [layer_0, layer_1, layer_2, layer_3]
+
+# %%
+
+
+fig, ax = draw_flowplot(tot, layers, figsize=(9, 5))
+ax.set_ylabel("n. junctions")
+sns.despine()
+plt.tight_layout()
+plt.savefig(fig_fld / "flowplot_coldspots.png")
+plt.show()
+
 # %%
