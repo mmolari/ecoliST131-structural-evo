@@ -1,9 +1,6 @@
 # %%
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 import numpy as np
-import seaborn as sns
 import pathlib
 import json
 from Bio import Phylo, SeqIO
@@ -11,7 +8,7 @@ from Bio import Phylo, SeqIO
 # fig_fld = pathlib.Path("figs/f04")
 # fig_fld.mkdir(exist_ok=True, parents=True)
 
-data_fld = pathlib.Path("data/f04")
+data_fld = pathlib.Path("data/f04/junctions_ann")
 data_fld.mkdir(exist_ok=True, parents=True)
 
 dset = "ST131_ABC"
@@ -38,11 +35,6 @@ with open(pos_file) as f:
 df_file = fld / "backbone_joints/asm20-100-5/junctions_stats.csv"
 df_j = pd.read_csv(df_file, index_col=0)
 df_j["delta_len"] = df_j["max_length"] - df_j["min_length"]
-
-# load tree
-tree_file = fld / "pangraph/asm20-100-5-filtered-coretree.nwk"
-tree = Phylo.read(tree_file, "newick")
-strains = [x.name for x in tree.get_terminals()]
 
 # genome lengths
 iso_L_file = fld / "pangraph/genome_lengths.csv"
@@ -263,6 +255,6 @@ with multiprocessing.Pool(20) as pool:
     summary_df = pool.map(process_junction, Js)
 
 summary_df = pd.DataFrame(summary_df)
-summary_df.to_csv(data_fld / "summary.csv")
+summary_df.to_csv(data_fld.parent / "summary.csv")
 
 # %%
