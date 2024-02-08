@@ -127,23 +127,32 @@ def extract_gbk_annotation(gbk_file, pos):
     record = SeqIO.read(gbk_file, "genbank")
     hits = []
     for feature in record.features:
-        if feature.type == "CDS":
-            if pos in feature.location:
-                s, e = feature.location.start, feature.location.end
-                L = np.abs(e - s)
-                if s > e:
-                    s, e = e, s
-                hits.append(
-                    {
-                        "product": feature.qualifiers.get("product", [""])[0],
-                        "start": s,
-                        "end": e,
-                        "strand": feature.location.strand,
-                        "length": L,
-                        "iso": record.id,
-                        "pos": pos,
-                    }
-                )
+        if feature.type == "source":
+            continue
+        s, e = int(feature.location.start), int(feature.location.end)
+        if s > e:
+            s, e = e, s
+        L = np.abs(e - s)
+        isin = False
+        if L < 1e5:
+            isin = (pos > s) and (pos < e)
+        else:
+            isin = pos in feature.location
+        if isin:
+            hits.append(
+                {
+                    "type": feature.type,
+                    "start": s,
+                    "end": e,
+                    "strand": feature.location.strand,
+                    "iso": record.id,
+                    "pos": pos,
+                    "gene": feature.qualifiers.get("gene", [None])[0],
+                    "product": feature.qualifiers.get("product", [None])[0],
+                    "GO_function": feature.qualifiers.get("GO_function", [None])[0],
+                    "GO_process": feature.qualifiers.get("GO_process", [None])[0],
+                }
+            )
     return hits
 
 
@@ -183,62 +192,64 @@ def process_junction(j, sdf=sdf, jp=jp, iso_L=iso_L, is_df=is_df):
         print("nonempty != IS clones --- check failed /// skipping\n")
         return s_res
 
-    # check gene interruption
-    res = []
+    # check gene interruption)
+    hits = []
     for iso, p in empty_pos.items():
         gbk_file = f"../../data/gbk/{iso}.gbk"
-        hits = extract_gbk_annotation(gbk_file, p)
-        res += hits
-    res = pd.DataFrame(res)
-    res.to_csv(data_fld / f"hits_{j}.csv")
-
-    s_res["n_hits"] = len(res)
+        hits += extract_gbk_annotation(gbk_file, p)
+    hits = pd.DataFrame(hits)
 
     # if no hits
-    if len(res) == 0:
+    if len(hits) == 0:
         print("no hits found /// skipping\n")
         return s_res
-    print(f"hits found - {len(res)}")
+    print(f"hits found - {len(hits)}")
 
+    for tp, n in hits["type"].value_counts().items():
+        s_res[f"n_hits_{tp}"] = n
+        print(f"n. hits {tp}: {n}")
+    hits.to_csv(data_fld / f"hits_{j}.csv")
+
+    cds_hits = hits[hits["type"] == "CDS"]
     # check annotation consistency
-    if res["product"].nunique() == 1:
+    if cds_hits["product"].nunique() == 1:
         tp = "consistent"
         print("annotation consistency check passed")
     else:
         tp = "inconsistent"
         print("annotation consistency check failed")
-    s_res["n_products"] = res["product"].nunique()
+    s_res["n_products"] = cds_hits["product"].nunique()
     s_res["annotation_consistency"] = tp
-    s_res["annotations"] = "|".join(res["product"].unique())
+    s_res["annotations"] = "|".join(cds_hits["product"].unique())
 
-    print(f"annotations: {res['product'].unique()}\n")
+    print(f"annotations: {cds_hits['product'].unique()}\n")
     tf = time.time()
     print(f"Elapsed time: {tf - t0:.2f} s\n")
     return s_res
 
 
-def progressbar(it, prefix="", size=60, out=sys.stdout):  # Python3.6+
-    count = len(it)
-    start = time.time()
+# def progressbar(it, prefix="", size=60, out=sys.stdout):  # Python3.6+
+#     count = len(it)
+#     start = time.time()
 
-    def show(j):
-        x = int(size * j / count)
-        remaining = ((time.time() - start) / j) * (count - j)
+#     def show(j):
+#         x = int(size * j / count)
+#         remaining = ((time.time() - start) / j) * (count - j)
 
-        mins, sec = divmod(remaining, 60)
-        time_str = f"{int(mins):02}:{sec:05.2f}"
+#         mins, sec = divmod(remaining, 60)
+#         time_str = f"{int(mins):02}:{sec:05.2f}"
 
-        print(
-            f"{prefix}[{u'█'*x}{('.'*(size-x))}] {j}/{count} Est wait {time_str}",
-            end="\r",
-            file=out,
-            flush=True,
-        )
+#         print(
+#             f"{prefix}[{u'█'*x}{('.'*(size-x))}] {j}/{count} Est wait {time_str}",
+#             end="\r",
+#             file=out,
+#             flush=True,
+#         )
 
-    for i, item in enumerate(it):
-        yield item
-        show(i + 1)
-    print("\n", flush=True, file=out)
+#     for i, item in enumerate(it):
+#         yield item
+#         show(i + 1)
+#     print("\n", flush=True, file=out)
 
 
 # summary_df = []
@@ -248,9 +259,10 @@ def progressbar(it, prefix="", size=60, out=sys.stdout):  # Python3.6+
 
 import multiprocessing
 
-with multiprocessing.Pool(6) as pool:
+with multiprocessing.Pool(20) as pool:
     summary_df = pool.map(process_junction, Js)
 
 summary_df = pd.DataFrame(summary_df)
 summary_df.to_csv(data_fld / "summary.csv")
+
 # %%
