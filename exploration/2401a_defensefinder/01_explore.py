@@ -41,7 +41,7 @@ plt.show()
 # %%
 
 fig, ax = plt.subplots(1, 1, figsize=(8, 6))
-vc = Sdf["type"].value_counts().iloc[:20]
+vc = Sdf["subtype"].value_counts().iloc[:20]
 sns.barplot(vc)
 ax.set_xticklabels(ax.get_xticklabels(), rotation=40, horizontalalignment="right")
 plt.tight_layout()
@@ -52,7 +52,7 @@ plt.show()
 # %%
 
 fig, axs = plt.subplots(
-    1, 3, figsize=(10, 10), sharey=True, gridspec_kw={"width_ratios": [1, 3, 1]}
+    1, 3, figsize=(10, 10), sharey=True, gridspec_kw={"width_ratios": [1, 4, 1]}
 )
 
 Ys = np.arange(len(strains)) + 1
@@ -61,19 +61,19 @@ ax = axs[0]
 Phylo.draw(tree, do_show=False, show_confidence=False, axes=ax, label_func=lambda x: "")
 
 ax = axs[1]
-vc = Sdf["type"].value_counts().iloc[:15]
+vc = Sdf["subtype"].value_counts().iloc[:18]
 i = 0
 for k, v in vc.items():
-    print(k)
-    mask = Sdf["type"] == k
+    mask = Sdf["subtype"] == k
     iso_ct = Sdf[mask]["iso"].value_counts().to_dict()
     Ns = np.array([iso_ct[s] if s in iso_ct else 0 for s in strains])
-    delta = Ns / 8
+    print(k, Ns.max())
+    delta = Ns / 5
     ax.barh(y=Ys, width=delta, left=i, height=1.0, color="gray")
     i += 1
 
 ax.set_xticks(np.arange(len(vc)))
-ax.set_xticklabels(vc.index, rotation=45, horizontalalignment="right")
+ax.set_xticklabels(vc.index, rotation=90, horizontalalignment="center")
 ax.grid(axis="x", alpha=0.4)
 
 
