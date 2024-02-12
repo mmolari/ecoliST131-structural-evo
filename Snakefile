@@ -72,3 +72,4 @@ localrules:
     download_gbk,
     GM_download_db,
     QC_busco_download,
+    Dfinder_models_download,

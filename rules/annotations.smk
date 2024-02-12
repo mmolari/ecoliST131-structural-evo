@@ -153,7 +153,7 @@ rule ISEScan_preformat:
         """
 
 
-rule Dfinder_models:
+rule Dfinder_models_download:
     output:
         directory("data/defensefinder_models"),
     conda:
@@ -167,7 +167,7 @@ rule Dfinder_models:
 rule Dfinder_find:
     input:
         fa=rules.gbk_to_fa.output.fa,
-        mod=rules.Dfinder_models.output,
+        mod=rules.Dfinder_models_download.output,
     output:
         a=directory("data/defense_finder/{acc}"),
         g="data/defense_finder/{acc}/{acc}_defense_finder_genes.tsv",
