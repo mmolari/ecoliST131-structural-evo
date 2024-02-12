@@ -160,7 +160,10 @@ rule Dfinder_models_download:
         "../conda_env/defensefinder.yml"
     shell:
         """
+        TMPDIR=$(mktemp -d -t defensefinder_model_download_XXXXXXXXX)
+        echo "created temporary directory $TMPDIR"
         defense-finder update --models-dir {output}
+        rm -r $TMPDIR
         """
 
 
