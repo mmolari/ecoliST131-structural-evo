@@ -153,6 +153,52 @@ rule ISEScan_preformat:
         """
 
 
+rule Dfinder_models:
+    output:
+        directory("data/defensefinder_models"),
+    conda:
+        "../conda_env/defensefinder.yml"
+    shell:
+        """
+        defense-finder update --models-dir {output}
+        """
+
+
+rule Dfinder_find:
+    input:
+        fa=rules.gbk_to_fa.output.fa,
+        mod=rules.Dfinder_models.output,
+    output:
+        a=directory("data/defense_finder/{acc}"),
+        g="data/defense_finder/{acc}/{acc}_defense_finder_genes.tsv",
+        s="data/defense_finder/{acc}/{acc}_defense_finder_systems.tsv",
+    conda:
+        "../conda_env/defensefinder.yml"
+    shell:
+        """
+        defense-finder run \
+            -o {output.a} \
+            --models-dir {input.mod} \
+            {input.fa}
+        """
+
+
+rule Dfinder_summary:
+    input:
+        s=lambda w: expand(rules.Dfinder_find.output.s, acc=dset_chrom_accnums[w.dset]),
+        g=lambda w: expand(rules.Dfinder_find.output.g, acc=dset_chrom_accnums[w.dset]),
+    output:
+        s="results/{dset}/annotations/defense_finder/systems_summary.tsv",
+        g="results/{dset}/annotations/defense_finder/genes_summary.tsv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        tsv-append -H {input.s} > {output.s}
+        tsv-append -H {input.g} > {output.g}
+        """
+
+
 zero_based_tools = {
     "ISEScan": False,
     "genomad": False,
@@ -188,6 +234,7 @@ rule AN_all:
     input:
         expand(rules.GM_summary.output, dset="ST131_ABC"),
         expand(rules.IF_summary.output, dset="ST131_ABC"),
+        expand(rules.Dfinder_summary.output, dset="ST131_ABC"),
         expand(
             rules.AN_assign_positions.output,
             dset="ST131_ABC",
