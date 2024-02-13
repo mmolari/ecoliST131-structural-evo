@@ -172,9 +172,9 @@ rule Dfinder_find:
         fa=rules.gbk_to_fa.output.fa,
         mod=rules.Dfinder_models_download.output,
     output:
-        a=directory("data/defense_finder/{acc}"),
         g="data/defense_finder/{acc}/{acc}_defense_finder_genes.tsv",
         s="data/defense_finder/{acc}/{acc}_defense_finder_systems.tsv",
+        p="data/defense_finder/{acc}/{acc}.prt",
     conda:
         "../conda_env/defensefinder.yml"
     shell:
@@ -186,10 +186,29 @@ rule Dfinder_find:
         """
 
 
+rule Dfinder_gene_location:
+    input:
+        g=rules.Dfinder_find.output.g,
+        p=rules.Dfinder_find.output.p,
+    output:
+        temp("data/defense_finder/{acc}/{acc}_genes_loc.tsv"),
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/defensefinder_gene_location.py \
+            --input_gene_df {input.g} \
+            --proteins {input.p} \
+            --output_gene_df {output}
+        """
+
+
 rule Dfinder_summary:
     input:
         s=lambda w: expand(rules.Dfinder_find.output.s, acc=dset_chrom_accnums[w.dset]),
-        g=lambda w: expand(rules.Dfinder_find.output.g, acc=dset_chrom_accnums[w.dset]),
+        g=lambda w: expand(
+            rules.Dfinder_gene_location.output, acc=dset_chrom_accnums[w.dset]
+        ),
     output:
         s="results/{dset}/annotations/defense_finder/systems_summary.tsv",
         g="results/{dset}/annotations/defense_finder/genes_summary.tsv",
