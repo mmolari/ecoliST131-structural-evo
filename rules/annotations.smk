@@ -221,10 +221,28 @@ rule Dfinder_summary:
         """
 
 
+rule Dfinder_preformat:
+    input:
+        g=rules.Dfinder_summary.output.g,
+        s=rules.Dfinder_summary.output.s,
+    output:
+        "results/{dset}/annotations/loc/defensefinder.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/defensefinder_df_preformat.py \
+            --input_genes {input.g} \
+            --input_systems {input.s} \
+            --output_df {output}
+        """
+
+
 zero_based_tools = {
     "ISEScan": False,
     "genomad": False,
     "integronfinder": False,  # to be checked
+    "defensefinder": False,  # to be checked
 }
 
 
@@ -260,7 +278,7 @@ rule AN_all:
         expand(
             rules.AN_assign_positions.output,
             dset="ST131_ABC",
-            tool=["ISEScan", "genomad", "integronfinder"],
+            tool=["ISEScan", "genomad", "integronfinder", "defensefinder"],
             opt=["asm20-100-5"],
             K=["rand", "real"],
         ),
