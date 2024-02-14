@@ -18,14 +18,40 @@ def system_beg_end(sdf, gdf):
         s_end_id = row["sys_end"]
         bs, be = gdf.loc[s_beg_id, "gene_beg"], gdf.loc[s_beg_id, "gene_end"]
         es, ee = gdf.loc[s_end_id, "gene_beg"], gdf.loc[s_end_id, "gene_end"]
-        if es > be:
-            S, E = bs, ee
-        elif ee < be:
-            print("inverse gene order")
-            S, E = es, be
+        assert bs < be, f"Error: {sys_id=} {s_beg_id=} {bs=} {be=}"
+        assert es < ee, f"Error: {sys_id=} {s_end_id=} {es=} {ee=}"
+        S, E = -1, -1
+
+        if s_beg_id == s_end_id:
+            S, E = bs, be
+        else:
+            if es > be:
+                S, E = bs, ee
+            elif ee < be:
+                print("inverse gene order")
+                S, E = es, be
+            elif (bs < es) and (be < ee):
+                print(
+                    f"possibly overlapping genes: {sys_id=} {bs=}, {be=}, {es=}, {ee=}"
+                )
+                S, E = bs, ee
+
         assert (
             np.abs(E - S) < 1e5
         ), f"Error: system too long (wrap-around?) | {sys_id=} {S=} {E=}"
+        assert S != -1, f"Error unassigned: {sys_id=} {S=} {E=}"
+        assert E != -1, f"Error unassigned: {sys_id=} {S=} {E=}"
+        # if sys_id in s_beg:
+        #     raise ValueError(f"Error: {sys_id=} already in {s_beg=}")
+        # if sys_id in s_end:
+        #     raise ValueError(f"Error: {sys_id=} already in {s_end=}")
+
+        # iso = row["iso"]
+        # if iso == "NZ_CP076693.1":
+        #     print(f"{sys_id=} {iso=} {S=} {E=}")
+        #     print(f"{s_beg_id=} {s_end_id=}")
+        #     print(f"{bs=} {be=} {es=} {ee=}")
+
         s_beg[sys_id] = S
         s_end[sys_id] = E
     return s_beg, s_end
