@@ -153,10 +153,96 @@ rule ISEScan_preformat:
         """
 
 
+rule Dfinder_models_download:
+    output:
+        directory("data/defensefinder_models"),
+    conda:
+        "../conda_env/defensefinder.yml"
+    shell:
+        """
+        TMPDIR=$(mktemp -d -t defensefinder_model_download_XXXXXXXXX)
+        echo "created temporary directory $TMPDIR"
+        defense-finder update --models-dir {output}
+        rm -r $TMPDIR
+        """
+
+
+rule Dfinder_find:
+    input:
+        fa=rules.gbk_to_fa.output.fa,
+        mod=rules.Dfinder_models_download.output,
+    output:
+        g="data/defense_finder/{acc}/{acc}_defense_finder_genes.tsv",
+        s="data/defense_finder/{acc}/{acc}_defense_finder_systems.tsv",
+        p="data/defense_finder/{acc}/{acc}.prt",
+    conda:
+        "../conda_env/defensefinder.yml"
+    shell:
+        """
+        defense-finder run \
+            -o {output.a} \
+            --models-dir {input.mod} \
+            {input.fa}
+        """
+
+
+rule Dfinder_gene_location:
+    input:
+        g=rules.Dfinder_find.output.g,
+        p=rules.Dfinder_find.output.p,
+    output:
+        temp("data/defense_finder/{acc}/{acc}_genes_loc.tsv"),
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/defensefinder_gene_location.py \
+            --input_gene_df {input.g} \
+            --proteins {input.p} \
+            --output_gene_df {output}
+        """
+
+
+rule Dfinder_summary:
+    input:
+        s=lambda w: expand(rules.Dfinder_find.output.s, acc=dset_chrom_accnums[w.dset]),
+        g=lambda w: expand(
+            rules.Dfinder_gene_location.output, acc=dset_chrom_accnums[w.dset]
+        ),
+    output:
+        s="results/{dset}/annotations/defense_finder/systems_summary.tsv",
+        g="results/{dset}/annotations/defense_finder/genes_summary.tsv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        tsv-append -H {input.s} > {output.s}
+        tsv-append -H {input.g} > {output.g}
+        """
+
+
+rule Dfinder_preformat:
+    input:
+        g=rules.Dfinder_summary.output.g,
+        s=rules.Dfinder_summary.output.s,
+    output:
+        "results/{dset}/annotations/loc/defensefinder.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/annotations/defensefinder_df_preformat.py \
+            --input_genes {input.g} \
+            --input_systems {input.s} \
+            --output_df {output}
+        """
+
+
 zero_based_tools = {
     "ISEScan": False,
     "genomad": False,
     "integronfinder": False,  # to be checked
+    "defensefinder": False,  # to be checked
 }
 
 
@@ -188,10 +274,11 @@ rule AN_all:
     input:
         expand(rules.GM_summary.output, dset="ST131_ABC"),
         expand(rules.IF_summary.output, dset="ST131_ABC"),
+        expand(rules.Dfinder_summary.output, dset="ST131_ABC"),
         expand(
             rules.AN_assign_positions.output,
             dset="ST131_ABC",
-            tool=["ISEScan", "genomad", "integronfinder"],
+            tool=["ISEScan", "genomad", "integronfinder", "defensefinder"],
             opt=["asm20-100-5"],
             K=["rand", "real"],
         ),
