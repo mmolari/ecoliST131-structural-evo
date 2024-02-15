@@ -23,7 +23,7 @@ loc_fname = fld / "annotations/loc/defensefinder.csv"
 df_el_loc = pd.read_csv(loc_fname, index_col=0)
 # %%
 
-# IS per junction
+# systems per junction
 
 sys_per_J = pd.DataFrame(edges, columns=["junctions"]).set_index(
     "junctions", verify_integrity=True
@@ -66,6 +66,48 @@ ax.legend()
 
 plt.tight_layout()
 plt.savefig(fig_fld / "systems_per_junction.png")
+plt.show()
+
+# %%
+
+# systems per junction 2
+
+sys_per_J = pd.DataFrame(edges, columns=["junctions"]).set_index(
+    "junctions", verify_integrity=True
+)
+sys_per_J["real"] = df_el["junction"].value_counts()
+sys_per_J["random"] = df_el_rand["junction"].value_counts()
+sys_per_J.fillna(0, inplace=True)
+
+fig, ax = plt.subplots(1, 1, figsize=(7, 3.5))
+
+for c, s, l, a in [
+    ("C0", sys_per_J["real"], "real", 0.8),
+    ("gray", sys_per_J["random"], "random", 0.4),
+]:
+    sns.histplot(
+        x=s[s <= 10],
+        ax=ax,
+        label=l,
+        # element="step",
+        # cumulative=False,
+        # fill=False,
+        # stat="count",
+        discrete=True,
+        color=c,
+        alpha=a,
+    )
+# ax.set_xscale("symlog", linthresh=1)
+# ax.set_yscale("log")
+ax.set_xlabel("n. of systems in junction")
+ax.set_ylabel("n. of junctions")
+# ax.set_xlim(0, sys_per_J["real"].max() + 1)
+ax.set_xlim(-0.5, 10)
+ax.legend()
+
+sns.despine()
+plt.tight_layout()
+plt.savefig(fig_fld / "systems_per_junction_2.png")
 plt.show()
 
 

@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 import pathlib
 import re
 
@@ -105,13 +106,61 @@ for y, tool in enumerate(categories):
     for x, j_cat in enumerate(vc.index):
         if categories[tool] in j_cat:
             xs.append(x)
-    ax.plot(xs, [y] * len(xs), "o-", label=tool, markersize=10)
+    ax.plot(xs, [y] * len(xs), "o-", label=tool, markersize=10, markeredgecolor="black")
 ax.grid(axis="x")
 ax.set_yticks(range(len(categories)))
 ax.set_yticklabels(categories.keys())
 
 plt.tight_layout()
 plt.savefig(fig_fld / "MGEs_colocalization.png")
+plt.show()
+
+# %%
+
+fig, axs = plt.subplots(
+    2,
+    1,
+    figsize=(8, 7),
+    sharex=True,
+    gridspec_kw={"height_ratios": [2, 1]},
+)
+
+# barplot
+ax = axs[0]
+sns.barplot(x=vc.index, y=vc, ax=ax, color="gray")
+ax.bar_label(ax.containers[0])
+ax.set_yscale("log")
+ax.set_ylabel("n. of junctions")
+
+
+# dot on categories
+ax = axs[1]
+for y, tool in enumerate(categories):
+    xs = []
+    fractions = []
+    N_tool = Js[tool].sum()
+    for x, j_cat in enumerate(vc.index):
+        if categories[tool] in j_cat:
+            xs.append(x)
+            n = Js[Js["MGEs"] == j_cat][tool].sum()
+            fractions.append(n / N_tool)
+    ax.plot(xs, [y] * len(xs), "-", label=tool, color=f"C{y}")
+    ax.scatter(
+        xs,
+        [y] * len(xs),
+        s=1000 * np.array(fractions),
+        label=tool,
+        zorder=5,
+        color=f"C{y}",
+        edgecolor="black",
+    )
+ax.grid(axis="x", alpha=0.5)
+ax.set_yticks(range(len(categories)))
+ax.set_yticklabels(categories.keys())
+ax.set_ylim(-0.5, len(categories) - 0.5)
+
+plt.tight_layout()
+plt.savefig(fig_fld / "MGEs_colocalization_2.png")
 plt.show()
 
 

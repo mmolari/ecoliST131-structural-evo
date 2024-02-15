@@ -189,3 +189,28 @@ plt.show()
 
 
 # %%
+
+import os
+
+src = "/home/marco/ownCloud/neherlab/code/pangenome-evo/exploration/2401a_defensefinder/figs/f04"
+dest = "/home/marco/ownCloud/neherlab/notes/ST131_notes/assets/n25"
+
+files = [
+    "SFNIQHXIST_r__TJOBMLQRFA_r",
+    "STWSZJXKDU_f__TBXDQEZMBI_f",
+    "HKKMVAAVLK_r__KJFGXXNSDH_r",
+    "LGOKMQPFVQ_f__XNYZXWCUST_r",
+    "IHKFSQQUKE_r__KPBYGJHRZJ_f",
+    "LELSLSXUJD_f__MXGPCKRKDO_f",
+    "ETMEUQAZWU_f__QSPABZAPOJ_f",
+    "JVNRLCFAVD_f__PLTCZQCVRD_r",
+    "RYYAQMEJGY_r__ZTHKZYHPIX_f",
+]
+
+# copy files
+for f in files:
+    src_file = pathlib.Path(src) / f"J_{f}.png"
+    dest_file = pathlib.Path(dest) / f"{f}.png"
+    os.system(f"cp {src_file} {dest_file}")
+
+# %%
