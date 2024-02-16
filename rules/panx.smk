@@ -40,3 +40,8 @@ rule PX_run:
             -sl {wildcards.dset} \
             > {output.log} 2> {output.err}
         """
+
+
+rule PX_all:
+    input:
+        expand(rules.PX_run.output, dset="ST131_ABC"),
