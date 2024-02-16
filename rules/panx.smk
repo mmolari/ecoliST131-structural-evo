@@ -15,7 +15,7 @@ rule PX_link_gbk_file:
         """
         mkdir -p {output}
         for f in {input.gbk}; do
-            ln -s $f {output}/$(basename $f)
+            ln -s $(realpath $f) {output}/$(basename $f)
         done
         """
 
