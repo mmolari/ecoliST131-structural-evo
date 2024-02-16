@@ -2,7 +2,7 @@ rule PX_download_repo:
     output:
         "data/panX/README.md",
     shell:
-        "git clone git@github.com:neherlab/pan-genome-analysis.git $(dirname {output})"
+        "git clone https://github.com/neherlab/pan-genome-analysis.git $(dirname {output})"
 
 
 rule PX_link_gbk_file:
