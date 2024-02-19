@@ -172,6 +172,7 @@ rule Dfinder_find:
         fa=rules.gbk_to_fa.output.fa,
         mod=rules.Dfinder_models_download.output,
     output:
+        a=directory("data/defense_finder/{acc}"),
         g="data/defense_finder/{acc}/{acc}_defense_finder_genes.tsv",
         s="data/defense_finder/{acc}/{acc}_defense_finder_systems.tsv",
         p="data/defense_finder/{acc}/{acc}.prt",

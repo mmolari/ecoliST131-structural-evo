@@ -54,6 +54,7 @@ kernel_opts = list(config["pangraph"]["kernel-options"].keys())
 wildcard_constraints:
     opt=f"({'|'.join(kernel_opts)})",
     dset=f"({'|'.join(dset_names)})",
+    acc=r"[^/]+",
 
 
 include: "rules/downloads.smk"
