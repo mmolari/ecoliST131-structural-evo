@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pypangraph as pp
 from Bio import SeqIO, AlignIO, Phylo
 import pathlib
 
@@ -122,5 +123,68 @@ plt.savefig(fig_fld / "gene_cluster_stats.png")
 plt.show()
 
 # %%
+
+pan_file = "../../results/ST131_ABC/pangraph/asm20-100-5-polished.json"
+pan = pp.Pangraph.load_json(pan_file)
+bdf = pan.to_blockstats_df()
+# %%
+
+fig, ax = plt.subplots(1, 1, figsize=(8, 4))
+
+N = len(strains)
+bins = np.arange(0, N + 1, 1) + 0.5
+
+ax.hist(
+    bdf["n. strains"],
+    weights=bdf["len"],
+    bins=bins,
+    color="k",
+    alpha=0.5,
+    cumulative=True,
+    density=True,
+    histtype="step",
+    label="pangraph",
+)
+
+ax.hist(
+    gdf["count"],
+    weights=gdf["geneLen"],
+    bins=bins,
+    color="r",
+    alpha=0.5,
+    cumulative=True,
+    density=True,
+    histtype="step",
+    label="panx",
+)
+ax.set_xlim(0, N + 1)
+ax.set_xlabel("n. strains")
+ax.set_ylabel("pangenome fraction")
+
+ax.legend(loc="upper left")
+sns.despine()
+
+
+plt.tight_layout()
+plt.savefig(fig_fld / "panx_pangraph_pangenome_freq.png")
+plt.show()
+# %%
+
+pg_l = bdf["len"].sum()
+print(f"pangraph pangenome size = {pg_l:_}")
+
+panx_l = gdf["geneLen"].sum()
+print(f"panx pangenome size = {panx_l:_}")
+
+print("total number of gene clusters:")
+print(len(gdf))
+
+print("number of gene clusters:")
+print(gdf["dupli"].value_counts())
+
+print("number of singletons:")
+mask = gdf["count"] == 1
+mask &= gdf["dupli"] == "no"
+print(mask.sum())
 
 # %%
