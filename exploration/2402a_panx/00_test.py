@@ -188,3 +188,12 @@ mask &= gdf["dupli"] == "no"
 print(mask.sum())
 
 # %%
+bins = [0,1, 222*0.05, 222*0.30, 222*0.70, 222*0.95, 221, 222]
+
+# split in count categories
+mask = gdf["dupli"] == "no"
+ct = pd.cut(gdf["count"][mask], bins=bins).value_counts()
+pd.DataFrame([ct, ct/ct.sum()*100]).T
+
+
+# %%
