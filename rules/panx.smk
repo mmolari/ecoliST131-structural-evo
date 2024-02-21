@@ -42,6 +42,18 @@ rule PX_run:
         """
 
 
+rule PX_loci_df:
+    input:
+        gbk=rules.download_gbk.output,
+    output:
+        "data/loci_df/{acc}.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        "python scripts/panx/loci_df.py --in_gbk {input.gbk} --out_df {output}"
+
+
 rule PX_all:
     input:
         expand(rules.PX_run.output, dset="ST131_ABC"),
+        expand(rules.PX_loci_df.output, acc=dset_chrom_accnums["ST131_ABC"]),
