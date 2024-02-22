@@ -73,14 +73,45 @@ rule PX_gc_loc_df:
         """
 
 
+rule PX_gc_assign_junction:
+    message:
+        "Assigning junctions to gene cluster {wildcards.gid} | kind: {wildcards.K}"
+    input:
+        loc=rules.PX_gc_loc_df.output,
+        j_pos=rules.BJ_extract_joints_pos.output.pos,
+        iso_len=rules.PG_genome_lengths.output,
+    output:
+        "results/{dset}/panx/gc_j_pos/{opt}/{K}/genecl_{gid}.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    params:
+        random=lambda w: "--random" if w.K == "rand" else "",
+    shell:
+        """
+        python scripts/annotations/assing_junction.py \
+            --iso_len {input.iso_len} \
+            --junction_pos_json {input.j_pos} \
+            --element_pos_df {input.loc} \
+            --output_pos {output} \
+            --zero-based \
+            {params.random}
+        """
+
+
 def get_geneclusters_ids(wildcards):
     with checkpoints.PX_run.get(**wildcards).output["gcj"].open() as f:
         gcj = json.load(f)
     gene_ids = [x["geneId"] for x in gcj]
-    return expand(rules.PX_gc_loc_df.output, gid=gene_ids, **wildcards)
+    return expand(rules.PX_gc_assign_junction.output, gid=gene_ids, **wildcards)
 
 
 rule PX_all:
     input:
         expand(rules.PX_run.output, dset="ST131_ABC"),
-        lambda w: get_geneclusters_ids({"dset": "ST131_ABC"}),
+        lambda w: get_geneclusters_ids(
+            {
+                "dset": "ST131_ABC",
+                "K": ["rand", "real"],
+                "opt": "asm20-100-5",
+            }
+        ),
