@@ -31,6 +31,9 @@ gene_cluster_json = "../../data/panX/data/ST131_ABC/vis/geneCluster.json"
 with open(gene_cluster_json, "r") as f:
     gdf = pd.DataFrame(json.load(f))
 gdf["divers"] = gdf["divers"].astype(float)
+gdf["count"] = gdf["count"].astype(int)
+gdf["geneLen"] = gdf["geneLen"].astype(int)
+gdf["event"] = gdf["event"].astype(int)
 
 
 # %%
@@ -88,10 +91,10 @@ pg_unfiltered_tree_file = "../../results/ST131_ABC/pangraph/asm20-100-5-coretree
 
 import subprocess
 
-cmd = f"treeknit {panx_tree_file} {pangraph_tree_file} -o tk_test --better-MCCs --auspice-view"
+cmd = f"treeknit {panx_tree_file} {pangraph_tree_file} -o data/f00/tk_test --better-MCCs --auspice-view"
 subprocess.run(cmd, shell=True)
 
-cmd = f"treeknit {panx_tree_file} {pg_unfiltered_tree_file} -o tk_test_unf --better-MCCs --auspice-view"
+cmd = f"treeknit {panx_tree_file} {pg_unfiltered_tree_file} -o data/f00/tk_test_unf --better-MCCs --auspice-view"
 subprocess.run(cmd, shell=True)
 
 # %%
@@ -188,12 +191,36 @@ mask &= gdf["dupli"] == "no"
 print(mask.sum())
 
 # %%
-bins = [0,1, 222*0.05, 222*0.30, 222*0.70, 222*0.95, 221, 222]
+bins = [0, 1, 222 * 0.05, 222 * 0.30, 222 * 0.70, 222 * 0.95, 221, 222]
 
 # split in count categories
 mask = gdf["dupli"] == "no"
 ct = pd.cut(gdf["count"][mask], bins=bins).value_counts()
-pd.DataFrame([ct, ct/ct.sum()*100]).T
+pd.DataFrame([ct, ct / ct.sum() * 100]).T
 
 
+# %%
+import matplotlib as mpl
+
+fig, ax = plt.subplots(1, 1, figsize=(8, 4))
+sns.histplot(
+    gdf[gdf["dupli"] == "no"],
+    y="event",
+    x="count",
+    discrete=True,
+    ax=ax,
+    cbar=True,
+    cbar_kws={"label": "n. gene clusters", "extend": "max"},
+    vmin=0,
+    vmax=50,
+)
+plt.plot([0, N / 2, N], [0, N / 2, 0], ":", c="gray", alpha=0.3)
+ax.set_xlabel("n. isolates")
+ax.set_ylabel("n. events")
+sns.despine()
+ax.set_xlim(0, N)
+ax.set_ylim(0, N / 2)
+plt.tight_layout()
+plt.savefig(fig_fld / "gene_cluster_event_count.png")
+plt.show()
 # %%

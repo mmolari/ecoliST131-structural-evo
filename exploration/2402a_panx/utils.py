@@ -1,5 +1,7 @@
 from Bio import SeqIO
 import pandas as pd
+import json
+
 
 def gbk_to_loci_df(gbk_file):
     gb = SeqIO.read(gbk_file, "genbank")
@@ -31,3 +33,15 @@ def gbk_to_loci_df(gbk_file):
             )
     loci = pd.DataFrame(loci)
     return loci
+
+
+def load_genecluster_json(fname):
+    with open(fname, "r") as f:
+        jc = pd.DataFrame(json.load(f))
+    jc["geneId"] = jc["geneId"].astype(int)
+    jc["divers"] = jc["divers"].astype(float)
+    jc["count"] = jc["count"].astype(int)
+    jc["geneLen"] = jc["geneLen"].astype(int)
+    jc["event"] = jc["event"].astype(int)
+    jc.set_index("geneId", inplace=True)
+    return jc

@@ -20,14 +20,14 @@ rule PX_link_gbk_file:
         """
 
 
-rule PX_run:
+checkpoint PX_run:
     input:
         rp=rules.PX_download_repo.output,
         d=rules.PX_link_gbk_file.output,
     output:
         gcj="data/panX/data/{dset}/vis/geneCluster.json",
         tree="data/panX/data/{dset}/vis/strain_tree.nwk",
-        gcd=directory("data/panX/data/{dset}/vis/geneCluster"),
+        acf="data/panX/data/{dset}/allclusters_final.tsv",
         log="data/panX/data/{dset}/log.txt",
         err="data/panX/data/{dset}/err.txt",
     conda:
@@ -53,7 +53,34 @@ rule PX_loci_df:
         "python scripts/panx/loci_df.py --in_gbk {input.gbk} --out_df {output}"
 
 
+rule PX_gc_loc_df:
+    message:
+        "Processing gene cluster {wildcards.gid}"
+    input:
+        ldf=lambda w: expand(rules.PX_loci_df.output, acc=dset_chrom_accnums[w.dset]),
+        gcj=lambda w: expand(rules.PX_run.output.gcj, dset=w.dset),
+    output:
+        "results/{dset}/panx/gc_loci/genecl_{gid}.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python scripts/panx/gc_location_df.py \
+            --in_loci_dfs {input.ldf} \
+            --in_gc_json {input.gcj} \
+            --gid {wildcards.gid} \
+            --out_df {output}
+        """
+
+
+def get_geneclusters_ids(wildcards):
+    with checkpoints.PX_run.get(**wildcards).output["gcj"].open() as f:
+        gcj = json.load(f)
+    gene_ids = [x["geneId"] for x in gcj]
+    return expand(rules.PX_gc_loc_df.output, gid=gene_ids, **wildcards)
+
+
 rule PX_all:
     input:
         expand(rules.PX_run.output, dset="ST131_ABC"),
-        expand(rules.PX_loci_df.output, acc=dset_chrom_accnums["ST131_ABC"]),
+        lambda w: get_geneclusters_ids({"dset": "ST131_ABC"}),
