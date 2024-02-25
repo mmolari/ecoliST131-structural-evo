@@ -90,7 +90,11 @@ ax.set_title("core genes - real annotations")
 
 ax = axs[1]
 sns.histplot(
-    gci_rand[core_mask]["j_nuniq"], discrete=True, ax=ax, element="step", color="C1"
+    gci_rand[core_mask]["j_nuniq"],
+    discrete=True,
+    ax=ax,
+    element="step",
+    color="C1",
 )
 ax.set_title("core genes - random annotations")
 
@@ -103,37 +107,105 @@ plt.tight_layout()
 plt.savefig(fig_fld / "core_gc_junctions.png")
 plt.show()
 # %%
+weird_mask = core_mask & (gci["j_nuniq"] == 1)
+sns.histplot(gci[weird_mask]["acc"], discrete=True, element="step")
+wid = gci[weird_mask].index
+
+for gid in wid:
+    print(gc.loc[gid]["locus"])
+    print(gc.loc[gid]["ann"])
+    print()
+    pf = f"../../results/ST131_ABC/panx/gc_j_pos/asm20-100-5/real/genecl_{gid}.csv"
+    df = pd.read_csv(pf)
+    fig, ax = plt.subplots(1, 1, figsize=(12, 20))
+    for i, row in df.iterrows():
+        As, Ae = row["jab"], row["jae"]
+        Gb, Ge = row["ib"], row["ie"]
+
+        s = row["j_strand"]
+        if not s:
+            S, E = 0, As - Ae
+            Gb, Ge = -Ge + Ae, -Gb + Ae
+        else:
+            S, E = As - As, Ae - Ae
+            Gb, Ge = Gb - As, Ge - As
+        ax.plot([S, E], [i, i], "k", lw=4, alpha=0.5)
+        ax.plot([Gb, Ge], [i, i], "-|", color="r")
+    ax.set_title(f"Gene cluster {gid}")
+    plt.show()
+    break
 
 # %%
 
-mask = gci["dupl"] == False
-mask &= gci["n_loci"] == 221
-gci[mask]
+intermediate_mask = gci["dupl"] == False
+intermediate_mask &= gci["n_loci"] < 222
+gci[intermediate_mask]
 
-fig, axs = plt.subplots(1, 2, figsize=(12, 6))
-sns.histplot(gci[mask]["j_nuniq"], discrete=True, ax=axs[0])
-sns.histplot(gci_rand[mask]["j_nuniq"], discrete=True, ax=axs[1])
+fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+ax = axs[0]
+sns.histplot(
+    gci[intermediate_mask]["j_nuniq"], discrete=True, ax=ax, element="step", color="C0"
+)
+ax.set_title("non-core genes - real annotations")
+
+ax = axs[1]
+sns.histplot(
+    gci_rand[intermediate_mask]["j_nuniq"],
+    discrete=True,
+    ax=ax,
+    element="step",
+    color="C1",
+)
+ax.set_title("non-core genes - random annotations")
+
+for ax in axs:
+    ax.set_xlabel("n. of associated junctions")
+    ax.set_ylabel("n. of gene clusters")
+
+sns.despine()
 plt.tight_layout()
+plt.savefig(fig_fld / "intermediate_gc_junctions.png")
 plt.show()
 
 # %%
 
 # %%
 
-mask = gci["dupl"] == True
-gci[mask]
 
-fig, axs = plt.subplots(1, 2, figsize=(12, 6))
-sns.histplot(gci[mask]["j_nuniq"], discrete=True, ax=axs[0])
-sns.histplot(gci_rand[mask]["j_nuniq"], discrete=True, ax=axs[1])
+dupl_mask = gci["dupl"] == True
+gci[dupl_mask]
+
+fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+ax = axs[0]
+sns.histplot(
+    gci[dupl_mask]["j_nuniq"], discrete=True, ax=ax, element="step", color="C0"
+)
+ax.set_title("core genes - real annotations")
+
+ax = axs[1]
+sns.histplot(
+    gci_rand[dupl_mask]["j_nuniq"],
+    discrete=True,
+    ax=ax,
+    element="step",
+    color="C1",
+)
+ax.set_title("core genes - random annotations")
+
+for ax in axs:
+    ax.set_xlabel("n. of associated junctions")
+    ax.set_ylabel("n. of gene clusters")
+
+sns.despine()
 plt.tight_layout()
+plt.savefig(fig_fld / "duplicated_gc_junctions.png")
 plt.show()
+
 
 # %%
 
 
-mask = gci["dupl"] == True
-gci[mask].sort_values("j_nuniq", ascending=False).head(10)
+gci[dupl_mask].sort_values("j_nuniq", ascending=False).head(10)["ann"].iloc[4]
 
 # never present in a core region
 # mostly transposases
