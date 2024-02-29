@@ -99,7 +99,7 @@ info = {
     "is": ("insertion sequences", "C0", 4),
     "if": ("integrons", "C1", 5),
     "gm": ("prophages", "C2", 6),
-    "df": ("defense islands", "C3", 7),
+    "df": ("defense systems", "C3", 7),
 }
 
 fig, ax = plt.subplots(1, 1, figsize=(7, 5))
