@@ -62,6 +62,7 @@ if __name__ == "__main__":
     }
 
     edf_len = pd.DataFrame(edge_acc_pangenome).T
-    edf_len.columns = ["pangnome_len", "pangenome_n_blocks"]
+    edf_len.columns = ["pangenome_len", "pangenome_n_blocks"]
+    edf_len.index.name = "edge"
 
     edf_len.to_csv(args.out_edge_len_df)
