@@ -54,6 +54,7 @@ kernel_opts = list(config["pangraph"]["kernel-options"].keys())
 wildcard_constraints:
     opt=f"({'|'.join(kernel_opts)})",
     dset=f"({'|'.join(dset_names)})",
+    acc=r"[^/]+",
 
 
 include: "rules/downloads.smk"
@@ -66,6 +67,7 @@ include: "rules/backbone_joints.smk"
 include: "rules/plasmids.smk"
 include: "rules/figs.smk"
 include: "rules/annotations.smk"
+include: "rules/panx.smk"
 
 
 localrules:
@@ -73,3 +75,4 @@ localrules:
     GM_download_db,
     QC_busco_download,
     Dfinder_models_download,
+    PX_download_repo,

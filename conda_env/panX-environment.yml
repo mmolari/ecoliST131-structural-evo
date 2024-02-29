@@ -1,0 +1,21 @@
+name: panX
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - python==2.7.*
+  - python-dateutil>=2.5.0
+  - biopython
+  - numpy
+  - scipy
+  - pandas
+  - diamond
+  - fasttree
+  - mafft
+  - mcl
+  - raxml
+  - treetime==0.6.*
+  - pip
+  - pip:
+    - ete2

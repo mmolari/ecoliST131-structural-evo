@@ -69,6 +69,23 @@ rule BJ_extract_joints_pos:
 #         """
 
 
+rule BJ_extract_pangenome_info:
+    input:
+        pan=rules.PG_polish.output,
+        dfl=rules.BJ_extract_joints_df.output.dfl,
+    output:
+        info="results/{dset}/backbone_joints/{opt}/edge_pangenome.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/extract_joints_pangenome.py \
+            --pangraph {input.pan} \
+            --edge_df {input.dfl} \
+            --out_edge_len_df {output.info}
+        """
+
+
 rule BJ_extract_joint_sequence:
     input:
         genomes=lambda w: expand(
@@ -180,6 +197,6 @@ def BJ_all_joints_outputs(wildcards):
 
 rule BJ_all:
     input:
-        # expand(rules.BJ_extract_joints_pos.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.BJ_extract_pangenome_info.output, dset=dset_names, opt=kernel_opts),
         expand(rules.BJ_junct_stats.output, dset=dset_names, opt=kernel_opts),
         # BJ_all_joints_outputs,
