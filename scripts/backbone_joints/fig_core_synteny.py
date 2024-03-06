@@ -9,6 +9,40 @@ import pathlib
 import utils as ut
 
 
+def armytage_cmap():
+    colors = [
+        "#f0a3ff",
+        "#0075dc",
+        "#993f00",
+        # "#191919",
+        "#4c005c",
+        "#005c31",
+        "#2bce48",
+        "#ffcc99",
+        "#808080",
+        "#94ffb5",
+        "#8f7c00",
+        "#9dcc00",
+        "#c20088",
+        "#003380",
+        "#ffa405",
+        "#ffa8bb",
+        "#426600",
+        "#ff0010",
+        "#5ef1f2",
+        "#00998f",
+        # "#e0ff66",
+        "#740aff",
+        "#990000",
+        "#ff5005",
+        "#ffff00",
+    ]
+    for c in colors:
+        yield c
+    while True:
+        yield "k"
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="""Given a pangraph, generates a list of core edges and their frequencies.
@@ -68,19 +102,10 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
     cmap = plt.cm.get_cmap("nipy_spectral")(np.linspace(0, 1, len(bdf)))
     block_colors = defaultdict(lambda: cmap[len(block_colors)])
 
-    def cmap_iso_generator():
-        cm = plt.cm.get_cmap("tab20")
-        i = 0
-        while True:
-            yield cm(i)
-            i += 1
-
-    cmap_iso = cmap_iso_generator()
+    cmap_iso = armytage_cmap()
 
     iso_color = {}
     xpos = defaultdict(list)
-    ylabels = []
-    yticks = []
     y = 0
     for path, isolates in path_cats.items():
         for i, node in enumerate(path.nodes):
@@ -102,7 +127,7 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
         if len(isolates) > 2:
             yl = f"n = {len(isolates)}"
         else:
-            yl = ", ".join(isolates)
+            yl = "\n".join(isolates)
 
         if len(isolates) > 10:
             ic = "k"
@@ -135,25 +160,42 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
         spine.set_visible(False)
 
     plt.tight_layout()
-    plt.savefig(svname)
+    plt.savefig(str(svname) + ".pdf")
+    plt.savefig(str(svname) + ".svg")
     plt.close(fig)
     return iso_color, block_colors
 
 
 def fig_tree(tree, iso_color, svname):
-    fig, ax = plt.subplots(figsize=(3.5, 10))
+    fig, ax = plt.subplots(figsize=(3.8, 10))
 
     Phylo.draw(
         tree,
         axes=ax,
         do_show=False,
         show_confidence=False,
-        label_func=lambda x: x.name if x.name in iso_color else "",
-        label_colors=lambda name: iso_color[name] if name in iso_color else "k",
+        label_func=lambda x: "",
+        # label_func=lambda x: x.name if x.name in iso_color else "",
+        # label_colors=lambda name: iso_color[name] if name in iso_color else "k",
     )
+
+    y_strain = {l.name: n + 1 for n, l in enumerate(tree.get_terminals())}
+
+    xl = ax.get_xlim()[1]
+    for iso in iso_color:
+        x = tree.distance(iso)
+        y = y_strain[iso]
+        xf = x + 0.2 * xl
+        ax.scatter(xf, y, s=30, c=iso_color[iso], edgecolor="k", zorder=10)
+        ax.plot([x, xf], [y, y], c="gray", ls=":")
+
     sns.despine()
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.set_xticks([0, 5e-5, 1e-4])
     plt.tight_layout()
-    plt.savefig(svname)
+    plt.savefig(str(svname) + ".pdf")
+    plt.savefig(str(svname) + ".svg")
     plt.close()
 
 
@@ -177,7 +219,8 @@ def fig_blocks(common_path, bdf, block_colors, svname):
     ax.grid(which="major", axis="y", alpha=0.6)
     # ax.grid(which="minor", axis="y", alpha=0.3)
     plt.tight_layout()
-    plt.savefig(svname)
+    plt.savefig(str(svname) + ".pdf")
+    plt.savefig(str(svname) + ".svg")
     plt.close()
 
 
@@ -188,9 +231,9 @@ if __name__ == "__main__":
     fig_fld = pathlib.Path(args.fig_fld)
     fig_fld.mkdir(exist_ok=True)
 
-    svfig_synt = fig_fld / f"core_synteny.pdf"
-    svfig_tree = fig_fld / f"tree.pdf"
-    svfig_blocks = fig_fld / f"blocks.pdf"
+    svfig_synt = fig_fld / f"core_synteny"
+    svfig_tree = fig_fld / f"tree"
+    svfig_blocks = fig_fld / f"blocks"
 
     len_thr = args.len_thr
 
@@ -202,6 +245,7 @@ if __name__ == "__main__":
     tree = Phylo.read(args.tree, "newick")
     tree.root_at_midpoint()
     tree.ladderize()
+    strains = [l.name for l in tree.get_terminals()]
 
     # extract paths and filter to core paths
     def keep_f(bid):
@@ -221,7 +265,8 @@ if __name__ == "__main__":
 
     # path categories
     path_cats = defaultdict(list)
-    for iso, path in paths.items():
+    for iso in strains:
+        path = paths[iso]
         path_cats[path].append(iso)
 
     path_cats = dict(path_cats)
