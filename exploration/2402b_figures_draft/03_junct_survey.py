@@ -156,7 +156,7 @@ for lab, ax, bw, col, cm, tt in [
         y="n_categories",
         alpha=0.8,
         color="firebrick",
-        marker="x",
+        marker="o",
         size=8,
         legend=False,
         ax=ax,
@@ -208,8 +208,8 @@ for lab, ax, bw, col, cm, tt in [
         data=df[mask],
         x="pangenome_len",
         y="n_categories",
-        fill=False,
-        # levels=10,
+        fill=True,
+        levels=8,
         cmap=cm,
         log_scale=(True, True),
         ax=ax,
@@ -234,8 +234,8 @@ for lab, ax, bw, col, cm, tt in [
         y="n_categories",
         alpha=0.8,
         color="firebrick",
-        marker="x",
-        size=8,
+        marker="o",
+        size=4,
         legend=False,
         ax=ax,
         zorder=10,
@@ -255,11 +255,11 @@ plt.show()
 
 # %%
 
-for lab, ax, bw, col, cm, tt in [
-    ("gm", axs[0, 0], 0.5, "C0", "Blues", "prophages"),
-    ("if", axs[0, 1], 0.5, "C1", "Oranges", "integrons"),
-    ("df", axs[1, 0], 0.5, "C2", "Greens", "defense systems"),
-    ("is", axs[1, 1], 0.5, "C3", "Purples", "insertion sequences"),
+for lab, col, tt in [
+    ("is", "C0", "insertion sequences"),
+    ("if", "C3", "integrons"),
+    ("df", "C2", "defense systems"),
+    ("gm", "C4", "prophages"),
 ]:
 
     mask = df[lab] > 0
