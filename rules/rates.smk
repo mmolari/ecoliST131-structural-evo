@@ -41,10 +41,31 @@ rule RT_coldspot_df:
         """
 
 
+rule RT_terminal_coldspots:
+    input:
+        df=rules.RT_coldspot_df.output.df,
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+        jpg=all_junction_pangraphs,
+    output:
+        cdf="results/{dset}/rates/{opt}/terminal_coldspot.csv",
+        edf="results/{dset}/rates/{opt}/terminal_edges.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/rates/terminal_coldspot_analysis.py \
+            --coldspots_df {input.df} \
+            --tree {input.tree} \
+            --junction_pangraphs {input.jpg} \
+            --out_coldspot_df {output.cdf} \
+            --out_events_df {output.edf} \
+        """
+
+
 rule RT_all:
     input:
         expand(
-            rules.RT_coldspot_df.output,
+            rules.RT_terminal_coldspots.output,
             dset=config["datasets"],
             opt=config["pangraph"]["kernel-options"],
         ),
