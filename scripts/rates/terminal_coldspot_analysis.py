@@ -91,5 +91,5 @@ if __name__ == "__main__":
         cdf.loc[j, "event_type"] = tp
         cdf.loc[j, "event_iso"] = iso
 
-    edf.to_csv(args.out_coldspot_df)
-    cdf.to_csv(args.out_events_df)
+    edf.to_csv(args.out_events_df)
+    cdf.to_csv(args.out_coldspot_df)

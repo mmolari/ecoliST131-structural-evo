@@ -48,7 +48,7 @@ rule RT_terminal_coldspots:
         jpg=all_junction_pangraphs,
     output:
         cdf="results/{dset}/rates/{opt}/terminal_coldspot.csv",
-        edf="results/{dset}/rates/{opt}/terminal_edges.csv",
+        edf="results/{dset}/rates/{opt}/terminal_branches.csv",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
