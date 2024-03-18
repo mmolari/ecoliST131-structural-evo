@@ -45,15 +45,6 @@ def count_events(path_cats):
         return i2, "other", (n1 | n2) - (n1 & n2)
 
 
-def create_pangraph_file_dict(pg_filenames):
-    """
-    Takes a list of pangraph junction filenames and returns a dictionary
-    with the junction name as key and the pangraph filename as value.
-    """
-    pg_filenames = [pathlib.Path(p) for p in pg_filenames]
-    return {p.stem: p for p in pg_filenames}
-
-
 if __name__ == "__main__":
     args = parse_args()
 
@@ -69,7 +60,7 @@ if __name__ == "__main__":
     terminal_len = {b.name: b.branch_length for b in tree.get_terminals()}
 
     # pangraph filenames
-    pangraph_files = create_pangraph_file_dict(args.junction_pangraphs)
+    pangraph_files = ut.create_pangraph_file_dict(args.junction_pangraphs)
 
     edf = pd.DataFrame.from_dict(
         terminal_len, orient="index", columns=["branch_length"]
