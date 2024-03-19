@@ -2,6 +2,7 @@ import argparse
 import pathlib
 import subprocess
 import tempfile
+import numpy as np
 
 import pandas as pd
 
@@ -83,7 +84,11 @@ def initialize_branch_df(tree):
         branch_len, orient="index", columns=["branch_length"]
     )
     branch_df["n_events"] = 0
+    branch_df["n_gain"] = 0
+    branch_df["n_loss"] = 0
     branch_df["terminal"] = False
+    for b in tree.get_terminals():
+        branch_df.loc[b.name, "terminal"] = True
     return branch_df
 
 
@@ -101,18 +106,29 @@ def analyze_mugration_output(tree, inf, AB_nestedness, AB_states):
         info["undetermined"] = False
         for n, kind in events:
             branch_df.loc[n, "n_events"] += 1
+            ev_type = None
             if nestedness == "A?B":
-                info["undetermined"] = True
+                ev_type = "undetermined"
             elif nestedness == "A<B":
                 if kind == "A|B":
-                    info["loss"] += 1
+                    ev_type = "loss"
                 elif kind == "B|A":
-                    info["gain"] += 1
+                    ev_type = "gain"
             elif nestedness == "A>B":
                 if kind == "A|B":
-                    info["gain"] += 1
+                    ev_type = "gain"
                 elif kind == "B|A":
+                    ev_type = "loss"
+
+            match ev_type:
+                case "undetermined":
+                    info["undetermined"] = True
+                case "gain":
+                    info["gain"] += 1
+                    branch_df.loc[n, "n_gain"] += 1
+                case "loss":
                     info["loss"] += 1
+                    branch_df.loc[n, "n_loss"] += 1
 
         event_info[j] = info
     idf = pd.DataFrame.from_dict(event_info, orient="index")
