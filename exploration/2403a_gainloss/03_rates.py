@@ -103,7 +103,6 @@ plt.savefig(fig_fld / "nmut_red_heatmap.png", dpi=150)
 plt.show()
 # %%
 
-
 tree_color = {
     "terminal": "C0",
     "internal": "C1",
@@ -120,23 +119,32 @@ for stat, plot_ylab in [
     xlabs = ["gain", "loss", "other"]
     for x, et in enumerate(xlabs):
         mask = rdf["type"] == et
+        dx = -0.35
         for row in rdf[mask].itertuples():
             mec = None
             if "corr" in row.stat:
                 mec = "k"
             elif "raw" in row.stat:
                 mec = "gray"
-            kwargs = {"color": tree_color[row.tree_part], "markeredgecolor": mec}
-            # add wiggle
-            dx = 0.2 * (np.random.rand() - 0.5)
+
+            marker = "o"
+            if "singleton" in row.stat:
+                marker = "*"
+            kwargs = {
+                "color": tree_color[row.tree_part],
+                "markeredgecolor": mec,
+                "marker": marker,
+            }
             y = getattr(row, stat)
-            ax.plot([x + dx], [y], "o", **kwargs)
+            ax.plot([x + dx], [y], **kwargs)
+            dx += 0.1
 
     # make legend
     for k, v in tree_color.items():
         ax.plot([], [], "o", color=v, label=k)
-    for k, mec in [("raw", "k"), ("corrected", "gray")]:
+    for k, mec in [("raw", "gray"), ("corrected", "k")]:
         ax.plot([], [], "o", color="white", markeredgecolor=mec, label=k)
+    ax.plot([], [], "*", color="C0", label="singleton")
     ax.legend()
 
     if stat.startswith("nmut"):
