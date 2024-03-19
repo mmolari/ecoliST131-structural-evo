@@ -18,6 +18,18 @@ bdf["n_events"] = bdf["gain"] + bdf["loss"] + bdf["other"]
 
 cdf = ut.assign_category(cdf)
 
+aln_len = 2427416  # filtered
+# aln_len = 3585386 # full
+
+# %%
+
+
+def terminal_freqs(bdf):
+    ter_len = bdf["branch_length"].sum()
+    freqs = {k: ter_len / bdf[k].sum() for k in ["gain", "loss", "other"]}
+    return freqs
+
+
 # %%
 colors = {
     "IS": "C0",
@@ -30,6 +42,8 @@ fig, ax = plt.subplots(1, 1, figsize=(4, 5))
 vc = cdf[["event_type", "cat"]].value_counts()
 
 xlab = ["gain", "loss", "other"]
+freqs = terminal_freqs(bdf)
+
 for x, k in enumerate(xlab):
     y = 0
     for c in ["IS", "prophage", "integron", "none"]:
@@ -39,7 +53,8 @@ for x, k in enumerate(xlab):
             kwargs["label"] = c
         ax.bar(x, dy, **kwargs)
         y += dy
-    ax.text(x, y, f"{y}", ha="center", va="bottom")
+    f = freqs[k]
+    ax.text(x, y, f"{f:.1e} /ev\n({f*aln_len:.0f} mut/ev)", ha="center", va="bottom")
 ax.legend()
 
 ax.set_xticks(range(len(xlab)))
