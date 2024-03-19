@@ -32,6 +32,13 @@ def assign_mge_category(df):
     # check that no "NaN" is left
     assert df["cat"].isna().sum() == 0, "some categories are not assigned"
 
+    # make ordered categorical variable
+    df["cat"] = pd.Categorical(
+        df["cat"],
+        categories=["IS", "integron", "prophage", "defense", "none"],
+        ordered=True,
+    )
+
     return df
 
 
@@ -68,6 +75,7 @@ if __name__ == "__main__":
             if N == 0:
                 continue
             branches = row[f"{ev}_branches"].split("|")
+            n = 0
             for b in branches:
                 info = {
                     "junction": j,
@@ -78,7 +86,8 @@ if __name__ == "__main__":
                     "singleton": False,
                 }
                 events.append(info)
-
+                n += 1
+            assert n == N, f"n. branches ({n}) does not match n. events ({N})"
     df = pd.DataFrame(events)
     df.to_csv(args.out_df, index=False)
 

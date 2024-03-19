@@ -15,35 +15,11 @@ fname = "../../results/ST131_ABC/rates/asm20-100-5/nonsingleton_branch_df.csv"
 bdf = pd.read_csv(fname, index_col=0)
 cdf["n_events"] = cdf["gain"] + cdf["loss"]
 
-mask = ~cdf["undetermined"]
-print(f"n. undetermined: {(~mask).sum()} / {mask.size}")
-cdf = cdf[mask]
-
-cdf = ut.assign_category(cdf)
-
-aln_len = 2427416  # filtered
-# aln_len = 3585386 # full
-
-# %%
-
-
-def internal_freqs(bdf, n_events):
-    int_len = bdf[~bdf["terminal"]]["branch_length"].sum()
-    freq = int_len / n_events
-    return freq
+cdf = ut.assign_mge_category(cdf)
 
 
 # %%
 def plot_events(cdf, bdf, fname):
-
-    cdf["cat"] = pd.Categorical(
-        cdf["cat"], categories=["IS", "prophage", "integron", "none"], ordered=True
-    )
-
-    freqs = {
-        "gain": internal_freqs(bdf, cdf["gain"].sum()),
-        "loss": internal_freqs(bdf, cdf["loss"].sum()),
-    }
 
     fig, axs = plt.subplots(1, 2, figsize=(8, 4))
 
@@ -55,37 +31,29 @@ def plot_events(cdf, bdf, fname):
     ax.set_xlim(left=0)
     ax.set_ylim(bottom=0)
     # ax.set_aspect("equal")
-    ax.set_xlabel("n. minority")
+    ax.set_xlabel("n. isolates with minority pattern")
     ax.set_ylabel("n. events")
 
     ax = axs[1]
-    colors = {
-        "IS": "C0",
-        "prophage": "C4",
-        "integron": "C1",
-        "none": "#b8b8b8",
-    }
-    for x, et in enumerate(["gain", "loss"]):
+    xlabs = ["gain", "loss", "other"]
+    for x, et in enumerate(xlabs):
         y = 0
         for cat in cdf["cat"].unique().sort_values():
             mask = cdf["cat"] == cat
             dy = cdf[mask][et].sum()
             kwargs = {
-                "color": colors[cat],
+                "color": ut.cat_colors[cat],
                 "width": 0.8,
             }
             if x == 0:
                 kwargs["label"] = cat
             ax.bar(x, dy, bottom=y, **kwargs)
             y += dy
-            f = freqs[et]
-        ax.text(
-            x, y, f"{f:.2e} /ev\n({f*aln_len:.0f} muts/ev)", ha="center", va="bottom"
-        )
+        ax.text(x, y, y, ha="center", va="bottom")
     ax.legend()
     ax.set_ylabel("n. events")
-    ax.set_xticks([0, 1])
-    ax.set_xticklabels(["gain", "loss"])
+    ax.set_xticks(range(len(xlabs)))
+    ax.set_xticklabels(xlabs)
 
     sns.despine()
     plt.tight_layout()
@@ -100,28 +68,27 @@ plot_events(cdf, bdf, "internal_gainloss.png")
 def plot_branches(df, fname):
     fig, axs = plt.subplots(1, 2, figsize=(8, 4))
 
-    df["n_gainloss"] = df["n_gain"] + df["n_loss"]
+    df["n_gainloss"] = df["n_gain"] + df["n_loss"] + df["n_other"]
     mask = ~df["terminal"]
+    sdf = df[mask]
 
     ax = axs[0]
     sns.histplot(
-        df[mask],
+        sdf,
         x="branch_length",
         y="n_gainloss",
         ax=ax,
         discrete=(False, True),
     )
     ax.set_xlabel("branch length")
-    ax.set_ylabel("n. gain/loss events")
+    ax.set_ylabel("n. events")
 
     ax = axs[1]
     g = sns.histplot(
-        data=df[mask],
+        data=sdf,
         x="branch_length",
-        hue=df["n_gainloss"] > 0,
+        hue=sdf["n_gainloss"] > 0,
         element="step",
-        # stat="probability",
-        # common_norm=False,
         ax=ax,
     )
     ax.set_xlabel("branch length")
