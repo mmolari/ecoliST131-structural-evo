@@ -57,7 +57,7 @@ def plot_events(cdf, bdf, fname):
 
     sns.despine()
     plt.tight_layout()
-    plt.savefig(fig_fld / fname)
+    plt.savefig(fig_fld / fname, dpi=150)
     plt.show()
 
 
@@ -101,7 +101,7 @@ def plot_branches(df, fname):
 
     sns.despine()
     plt.tight_layout()
-    plt.savefig(fig_fld / fname)
+    plt.savefig(fig_fld / fname, dpi=150)
     plt.show()
 
 

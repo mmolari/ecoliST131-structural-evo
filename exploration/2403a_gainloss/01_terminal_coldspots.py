@@ -43,7 +43,7 @@ ax.set_title("terminal coldspots")
 ax.set_ylabel("n. events")
 sns.despine()
 plt.tight_layout()
-plt.savefig(fig_fld / f"terminal_coldspots.png")
+plt.savefig(fig_fld / f"terminal_coldspots.png", dpi=150)
 plt.show()
 
 # %%
@@ -78,7 +78,7 @@ for t, l in zip(g.legend_.texts, new_labels):
     t.set_text(l)
 sns.despine()
 plt.tight_layout()
-plt.savefig(fig_fld / f"terminal_branches.png")
+plt.savefig(fig_fld / f"terminal_branches.png", dpi=150)
 plt.show()
 
 # %%

@@ -99,7 +99,7 @@ plt.title("n. (restricted) core-genome alignment mutations per event")
 plt.xlabel("")
 plt.ylabel("")
 plt.tight_layout()
-plt.savefig(fig_fld / "nmut_red_heatmap.png")
+plt.savefig(fig_fld / "nmut_red_heatmap.png", dpi=150)
 plt.show()
 # %%
 
@@ -150,7 +150,7 @@ for stat, plot_ylab in [
     ax.grid(axis="y", which="minor", linewidth=0.5, alpha=0.5)
     sns.despine()
     plt.tight_layout()
-    plt.savefig(fig_fld / f"dotplot_{stat}.png")
+    plt.savefig(fig_fld / f"dotplot_{stat}.png", dpi=150)
     plt.show()
 
 

@@ -50,7 +50,7 @@ ax.set_title("backbone coldspots breakdown")
 
 sns.despine()
 plt.tight_layout()
-plt.savefig(fig_fld / f"backbone_coldspots_breakdonw.png")
+plt.savefig(fig_fld / f"backbone_coldspots_breakdonw.png", dpi=150)
 plt.show()
 
 # %%
