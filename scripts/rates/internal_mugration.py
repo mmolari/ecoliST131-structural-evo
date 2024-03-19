@@ -101,15 +101,14 @@ def analyze_mugration_output(tree, inf, AB_nestedness, AB_states):
         events = mug_inf["pa_pattern"]["events"]
         info["n_events"] = len(events)
         info["n_minority"] = (AB_states[j] == "B").sum()
-        info["gain"] = 0
-        info["loss"] = 0
+        for k in ["gain", "loss", "other"]:
+            info[k] = 0
+            info[f"{k}_branches"] = []
         info["undetermined"] = False
-        info["gain_branches"] = []
-        info["loss_branches"] = []
         for n, kind in events:
             ev_type = None
             if nestedness == "A?B":
-                ev_type = "undetermined"
+                ev_type = "other"
             elif nestedness == "A<B":
                 if kind == "A|B":
                     ev_type = "loss"
@@ -122,8 +121,10 @@ def analyze_mugration_output(tree, inf, AB_nestedness, AB_states):
                     ev_type = "loss"
 
             match ev_type:
-                case "undetermined":
+                case "other":
                     info["undetermined"] = True
+                    info["other"] += 1
+                    info["other_branches"].append(n)
                     branch_df.loc[n, "n_other"] += 1
                 case "gain":
                     info["gain"] += 1
@@ -136,7 +137,7 @@ def analyze_mugration_output(tree, inf, AB_nestedness, AB_states):
                 case _:
                     raise ValueError(f"invalid event type {ev_type}")
 
-        for l in ["gain_branches", "loss_branches"]:
+        for l in ["gain_branches", "loss_branches", "other_branches"]:
             info[l] = "|".join(info[l])
 
         event_info[j] = info

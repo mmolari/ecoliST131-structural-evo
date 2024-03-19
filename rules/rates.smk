@@ -104,15 +104,29 @@ rule RT_internal_coldspots_mugration:
         """
 
 
+rule RT_events_df:
+    input:
+        idf=rules.RT_internal_coldspots_mugration.output.jdf,
+        tdf=rules.RT_terminal_coldspots.output.cdf,
+        bdf=rules.RT_internal_coldspots_mugration.output.bdf,
+    output:
+        df="results/{dset}/rates/{opt}/merged_events_df.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/rates/merge_event_df.py \
+            --internal_df {input.idf} \
+            --terminal_df {input.tdf} \
+            --branch_df {input.bdf} \
+            --out_df {output.df}
+        """
+
+
 rule RT_all:
     input:
         expand(
-            rules.RT_terminal_coldspots.output,
-            dset=config["datasets"],
-            opt=config["pangraph"]["kernel-options"],
-        ),
-        expand(
-            rules.RT_internal_coldspots_mugration.output,
+            rules.RT_events_df.output,
             dset=config["datasets"],
             opt=config["pangraph"]["kernel-options"],
         ),
