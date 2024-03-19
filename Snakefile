@@ -68,6 +68,7 @@ include: "rules/plasmids.smk"
 include: "rules/figs.smk"
 include: "rules/annotations.smk"
 include: "rules/panx.smk"
+include: "rules/rates.smk"
 
 
 localrules:
