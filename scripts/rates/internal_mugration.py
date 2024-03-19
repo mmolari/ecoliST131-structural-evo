@@ -83,7 +83,7 @@ def initialize_branch_df(tree):
     branch_df = pd.DataFrame.from_dict(
         branch_len, orient="index", columns=["branch_length"]
     )
-    branch_df["n_events"] = 0
+    branch_df["n_other"] = 0
     branch_df["n_gain"] = 0
     branch_df["n_loss"] = 0
     branch_df["terminal"] = False
@@ -104,8 +104,9 @@ def analyze_mugration_output(tree, inf, AB_nestedness, AB_states):
         info["gain"] = 0
         info["loss"] = 0
         info["undetermined"] = False
+        info["gain_branches"] = []
+        info["loss_branches"] = []
         for n, kind in events:
-            branch_df.loc[n, "n_events"] += 1
             ev_type = None
             if nestedness == "A?B":
                 ev_type = "undetermined"
@@ -123,12 +124,20 @@ def analyze_mugration_output(tree, inf, AB_nestedness, AB_states):
             match ev_type:
                 case "undetermined":
                     info["undetermined"] = True
+                    branch_df.loc[n, "n_other"] += 1
                 case "gain":
                     info["gain"] += 1
+                    info["gain_branches"].append(n)
                     branch_df.loc[n, "n_gain"] += 1
                 case "loss":
                     info["loss"] += 1
+                    info["loss_branches"].append(n)
                     branch_df.loc[n, "n_loss"] += 1
+                case _:
+                    raise ValueError(f"invalid event type {ev_type}")
+
+        for l in ["gain_branches", "loss_branches"]:
+            info[l] = "|".join(info[l])
 
         event_info[j] = info
     idf = pd.DataFrame.from_dict(event_info, orient="index")
