@@ -1,0 +1,81 @@
+,biosample_id,organism,subspecies,strain,host,host_taxid,isolation_source,env_local_scale,collected_by,geo_loc_name,collection_date,first_public,lat_lon,country,year
+NZ_CP089445.1,SAMN23798050,Escherichia coli,,05-Jan,human,,body fluids,,,China: Kunming,11/01/2021,,,China,2021.0
+NZ_CP069589.1,SAMN16357408,Escherichia coli,,FDAARGOS_1266,human,,,,ARMADA,USA:WA,Unknown,,,USA,
+NC_022648.1,SAMN02603887,Escherichia coli JJ1886,,JJ1886,,,,,,,,,,,
+NZ_CP014316.1,SAMN04481707,Escherichia coli JJ1887,,JJ1887,human,,not collected,,,USA,2007,,,USA,2007.0
+NZ_CP015085.1,SAMN04605558,Escherichia coli O25b:H4,,O25b:H4,human,,"Hera General Hopsital, patient",,"Lab Specialist at Hera General Hopsital, Makkah, Saudi Arabia",Saudi Arabia: Makkah,2014-11,,21.3891 N 39.85789999 E,Saudi Arabia,2014.0
+NZ_CP023853.1,SAMN07760925,Escherichia coli,,2/0,human,,UTI,,,Sweden,2009,,,Sweden,2009.0
+NZ_CP107128.1,SAMN31158880,Escherichia coli,,S7,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP107114.1,SAMN31158885,Escherichia coli,,S14,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP107172.1,SAMN31158868,Escherichia coli,,R8,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP036245.1,SAMN10879429,Escherichia coli,,S65EC,human,,urine,,,Australia,2009-11,,,Australia,2009.0
+NZ_CP076693.1,SAMN19700014,Escherichia coli,,S103EC,human,,,,,Australia:Brisbane,2010-01,,not collected,Australia,2010.0
+NZ_CP059130.1,SAMN15486685,Escherichia coli,,Ec55,human,,,,,Ghana,2016,,,Ghana,2016.0
+NZ_AP026788.1,SAMD00533654,Escherichia coli,,IPCEC42,human,,,,,Cambodia:Phnom Penh,,,,Cambodia,
+NZ_AP026794.1,SAMD00533655,Escherichia coli,,IPCEC48,human,,,,,Cambodia:Phnom Penh,,,,Cambodia,
+NZ_CP023844.1,SAMN07760931,Escherichia coli,,04/01/2001,human,,feces,,,Sweden,2009,,,Sweden,2009.0
+NZ_CP013835.1,SAMN04381854,Escherichia coli,,JJ2434,human,,,,,USA: Minneapolis,2008,,44.9778 N 93.2650 W,USA,2008.0
+NZ_CP023849.1,SAMN07760930,Escherichia coli,,4/0,human,,UTI,,,Sweden,2009,,,Sweden,2009.0
+NZ_CP018979.1,SAMN05511161,Escherichia coli,,Ecol_656,human,,,,Merck Study for Monitoring of Antimicrobial Resistance Trends (SMART),USA: Caguas,2012,,18.24 N 66.04 W,USA,2012.0
+NZ_CP102061.1,SAMN30011701,Escherichia coli,,C31,human,,urine,,National University of Singapore Hospital,Singapore,Unknown,,1.2904 N 103.7764 E,Singapore,
+NZ_OW848785.1,SAMEA7853234,Escherichia coli,,,human,,Hospital Universitario Gregorio Maranon (Madrid),,,Spain,2018,14/10/2021,,Spain,2018.0
+NZ_CP019015.1,SAMN05511185,Escherichia coli,,Ecol_AZ162,human,,,,AstraZeneca global surveillance study of antimicrobial resistance,USA: Boston,2013,,42.36 N 71.06 W,USA,2013.0
+NZ_CP021935.1,SAMN04014896,Escherichia coli,,AR_0055,,,,,,,,,,,
+NZ_CP107188.1,SAMN31158863,Escherichia coli,,R2,human,,human,,,Sweden: Gothenburg,2017,,,Sweden,2017.0
+NZ_CP107143.1,SAMN31158875,Escherichia coli,,S2,human,,human,,,Sweden: Gothenburg,2017,,,Sweden,2017.0
+NZ_CP107174.1,SAMN31158867,Escherichia coli,,R7,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP107164.1,SAMN31158869,Escherichia coli,,R9,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_HG941718.1,SAMEA2272019,Escherichia coli O25b:H4-ST131,,EC958,,,,,,,,19/12/2013,,,
+NZ_CP080116.1,SAMN20339880,Escherichia coli,,Dog168,dog,,"dog, faeces",,not available,Kenya,2009,,2.34 N 37.98 E,Kenya,2009.0
+NZ_CP124374.1,SAMN34360983,Escherichia coli,,AVS0578,,,environmental: river/lake,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,07/07/2021,,,Switzerland,2021.0
+NZ_CP013658.1,SAMN04159541,Escherichia coli,,uk_P46212,human,,urine,,MMM,United Kingdom,01/01/2005,,51.7519 N 1.2578 W,United Kingdom,2005.0
+NZ_CP080117.1,SAMN20339879,Escherichia coli,,OV24,,,wastewater treatment plant effluent,,not available,Czech Republic: Brno,2009,,49.13 N 16.63 E,Czech Republic,2009.0
+NZ_CP107155.1,SAMN31158871,Escherichia coli,,R11,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_LR130545.1,SAMEA5128441,Escherichia coli,,B36,human,,blood,,,Australia,,08/01/2019,,Australia,
+NZ_OW849064.1,SAMEA7853286,Escherichia coli,,,human,,Hospital Universitario Gregorio Maranon (Madrid),,,Spain,2016,14/10/2021,,Spain,2016.0
+NZ_CP124367.1,SAMN34360985,Escherichia coli,,AVS0465,,,environmental: river near WWTP effluent,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,07/06/2021,,,Switzerland,2021.0
+NZ_CP080118.1,SAMN20339878,Escherichia coli,,M70,human,,"human, urinary tract infection",,not available,Czech Republic: Brno,2010,,49.19 N 16.60 E,Czech Republic,2010.0
+NZ_CP080120.1,SAMN20339876,Escherichia coli,,M24,human,,"human, urinary tract infection",,not available,Czech Republic: Brno,2009,,49.19 N 16.60 E,Czech Republic,2009.0
+NZ_CP076697.1,SAMN19700013,Escherichia coli,,S10EC,human,,,,,United Kingdom:Manchester,2009,,not collected,United Kingdom,2009.0
+NZ_CP096110.1,SAMN15378039,Escherichia coli,,DP033,human,,Rectal swab,,,Netherlands: Tilburg,2009,,,Netherlands,2009.0
+NZ_LS992180.1,SAMEA4830820,Escherichia coli,,,,,,,,,,28/01/2019,,,
+NZ_CP080119.1,SAMN20339877,Escherichia coli,,M45,human,,"human, urinary tract infection",,not available,Czech Republic: Brno,2010,,49.19 N 16.60 E,Czech Republic,2010.0
+NZ_CP056114.1,SAMN15326090,Escherichia coli,,Ec394-330266,human,,urine,,,Germany,2019,,,Germany,2019.0
+NZ_LS992190.1,SAMEA4830527,Escherichia coli,,,,,,,,,,28/01/2019,,,
+NZ_OX637964.1,SAMEA112356747,Escherichia coli O25b:H4-ST131,,ST131,human,,Urinary tract,,,Armenia,11/03/2019,24/01/2023,,Armenia,2019.0
+NZ_CP103562.1,SAMN28173988,Escherichia coli O25b:H4-ST131,,751,human,,blood,,MDACC,USA: Houston,06/05/2019,,29.7068 N 95.3971 W,USA,2019.0
+NZ_CP107122.1,SAMN31158882,Escherichia coli,,S9,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP107151.1,SAMN31158873,Escherichia coli,,R13,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP107162.1,SAMN31158870,Escherichia coli,,R10,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP107178.1,SAMN31158866,Escherichia coli,,R6,human,,human,,,Sweden: Gothenburg,2017,,,Sweden,2017.0
+NZ_CP018991.1,SAMN05511152,Escherichia coli,,Ecol_AZ146,human,,,,AstraZeneca global surveillance study of antimicrobial resistance,Italy: Pisa,2012,,43.72 N 10.40 E,Italy,2012.0
+NZ_LS992192.1,SAMEA4830526,Escherichia coli,,,,,,,,,,28/01/2019,,,
+NZ_CP082831.1,SAMN20982447,Escherichia coli,,SCAID WND1-2021 (1/128),human,,Swab from Wound,,"JSC Scientific Center for anti-infectious Drugs, Laboratory of Microbiology",Kazakhstan: Almaty,16/02/2021,,43.23 N 76.88 E,Kazakhstan,2021.0
+NZ_CP103672.1,SAMN28174062,Escherichia coli O25b:H4-ST131,,4433,human,,blood,,MDACC,USA: Houston,15/03/2018,,29.7068 N 95.3971 W,USA,2018.0
+NZ_CP107137.1,SAMN31158878,Escherichia coli,,S5,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP107184.1,SAMN31158864,Escherichia coli,,R3,human,,human,,,Sweden: Gothenburg,2017,,,Sweden,2017.0
+NZ_CP107120.1,SAMN31158883,Escherichia coli,,S12,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_OY019088.1,SAMEA112356746,Escherichia coli O25b:H4-ST131,,ST131,human,,Urinary tract,,,Armenia,15/04/2019,24/01/2023,,Armenia,2019.0
+NZ_AP022525.1,SAMD00196001,Escherichia coli,,THO-003,human,,,,,Japan:Tokyo,09/05/2018,,,Japan,2018.0
+NZ_CP107134.1,SAMN31158879,Escherichia coli,,S6,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP107126.1,SAMN31158881,Escherichia coli,,S8,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP124372.1,SAMN34360984,Escherichia coli,,AVS0151,,,environmental: river near WWTP effluent,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,07/10/2020,,,Switzerland,2020.0
+NZ_CP107182.1,SAMN31158865,Escherichia coli,,R4,human,,human,,,Sweden: Gothenburg,2017,,,Sweden,2017.0
+NZ_CP107117.1,SAMN31158884,Escherichia coli,,S13,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP115324.1,SAMN32339853,Escherichia coli,,CUVET17-1136,dog,,urine,,Pattrarat Chanchaithong,Thailand: Bangkok,27/10/2017,,,Thailand,2017.0
+NZ_CP069583.1,SAMN16357407,Escherichia coli,,FDAARGOS_1265,human,,,,ARMADA,USA:WA,Unknown,,,USA,
+NZ_CP049085.2,SAMN13948677,Escherichia coli,,p4A,human,,blood,,MDACC,USA:Houston,2015-01/2016-07,,29.7068 N 95.3971 W,USA,2016.0
+NZ_CP103557.1,SAMN28174077,Escherichia coli O25b:H4-ST131,,4993,human,,blood,,MDACC,USA: Houston,02/06/2019,,29.7068 N 95.3971 W,USA,2019.0
+NZ_CP107147.1,SAMN31158874,Escherichia coli,,R14,,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP049077.2,SAMN13948684,Escherichia coli,,p11A,human,,blood,,MDACC,USA:Houston,2015-01/2016-07,,29.7068 N 95.3971 W,USA,2016.0
+NZ_CP103755.1,SAMN13948685,Escherichia coli,,p11B,human,,blood,,MDACC,USA:Houston,2015-01/2016-07,,29.7068 N 95.3971 W,USA,2016.0
+NZ_CP107142.1,SAMN31158876,Escherichia coli,,S3,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_OW968277.1,SAMEA8065782,Escherichia coli,,,human,,Hospital Universitario Central de Asturias (Oviedo),,,Spain,2018,14/10/2021,,Spain,2018.0
+NZ_CP107153.1,SAMN31158872,Escherichia coli,,R12,human,,human,,,Sweden: Gothenburg,2018,,,Sweden,2018.0
+NZ_CP124328.1,SAMN34375061,Escherichia coli,,AVS0787,,,wastewater,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,18/08/2021,,,Switzerland,2021.0
+NZ_CP124355.1,SAMN34375049,Escherichia coli,,AVS0171,,,environmental-WWTP,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,19/11/2020,,,Switzerland,2020.0
+NZ_CP124353.1,SAMN34375050,Escherichia coli,,AVS0226,,,environmental-WWTP,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,12/01/2021,,,Switzerland,2021.0
+NZ_CP124385.1,SAMN34360982,Escherichia coli,,AVS0153,,,environmental: river near WWTP effluent,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,07/10/2020,,,Switzerland,2020.0
+NZ_CP124351.1,SAMN34375051,Escherichia coli,,AVS0362,,,environmental-WWTP,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,14/04/2021,,,Switzerland,2021.0
+NZ_CP124332.1,SAMN34375060,Escherichia coli,,AVS0753,,,wastewater,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,16/08/2021,,,Switzerland,2021.0
+NZ_CP124349.1,SAMN34375052,Escherichia coli,,AVS0453,,,environmental-WWTP,,"Amt fuer Verbraucherschutz, Kanton Zug",Switzerland: Kanton Zug,20/05/2021,,,Switzerland,2021.0
