@@ -107,7 +107,7 @@ def get_geneclusters_ids(wildcards):
 
 rule PX_all:
     input:
-        expand(rules.PX_run.output, dset=dsets),
+        expand(rules.PX_run.output, dset=dset_names),
         lambda w: get_geneclusters_ids(
             {
                 "dset": dset_names,
