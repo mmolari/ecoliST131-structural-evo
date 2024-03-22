@@ -1,0 +1,65 @@
+
+cluster-cancel: "scancel"
+restart-times: "0"
+jobscript: "slurm-jobscript.sh"
+cluster: "slurm-submit.py"
+cluster-status: "slurm-status.py"
+max-jobs-per-second: "10"
+max-status-checks-per-second: "1"
+local-cores: 1
+latency-wait: "90"
+use-conda: "True"
+conda-frontend: "mamba"
+use-singularity: "False"
+jobs: "20"
+printshellcmds: "True"
+
+
+default-resources:
+  - runtime=29m
+  - mem=4G
+# set-threads: map rule names to threads
+set-threads:
+  - PG_build=8
+  - PG_polish=8
+  - GB_run_gubbins=4
+  - GB_build_ska_alignment=4
+  - GB_run_gubbins_pangraph_aln=4
+  - BJ_pangraph=4
+  - GM_run=4
+  - ISEScan_run=6
+  - PX_run=10
+# set-resources: map rule names to resources in general
+set-resources:
+  PG_build:
+    time: "5h50m"
+    mem: "30G"
+    qos: "6hours"
+  PG_polish:
+    time: "5h50m"
+    mem: "30G"
+    qos: "6hours"
+  PG_export:
+    mem: "10G"
+  GB_run_gubbins:
+    time: "5h50m"
+    mem: "30G"
+    qos: "6hours"
+  GB_build_ska_alignment:
+    mem: "30G"
+  GB_run_gubbins_pangraph_aln:
+    time: "5h50m"
+    mem: "30G"
+    qos: "6hours"
+  BJ_pangraph:
+    time: "2h"
+    mem: "10G"
+    qos: "6hours"
+  GM_run:
+    mem: "30G"
+  ISEScan_run:
+    mem: "4G"
+  PX_run:
+    time: "5h50m"
+    mem: "40G"
+    qos: "6hours"

@@ -39,7 +39,9 @@ subclades = {
 fig, axs = plt.subplots(1, 3, figsize=(10, 10), sharey=True)
 for i, (name, subclade) in enumerate(subclades.items()):
     draw_tree(tree, subclade, axs[i])
-    axs[i].set_title(name)
+    axs[i].set_title(
+        f"Subclade {name}, N = {len(subclade.get_terminals())} / {len(tree.get_terminals())}"
+    )
 sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "subclades.png")
