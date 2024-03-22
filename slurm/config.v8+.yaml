@@ -1,9 +1,5 @@
-
-cluster-cancel: "scancel"
+executor: "slurm"
 restart-times: "0"
-jobscript: "slurm-jobscript.sh"
-cluster: "slurm-submit.py"
-cluster-status: "slurm-status.py"
 max-jobs-per-second: "10"
 max-status-checks-per-second: "1"
 local-cores: 1
@@ -16,8 +12,9 @@ printshellcmds: "True"
 
 
 default-resources:
-  - runtime=29m
-  - mem=4G
+  runtime: 29m
+  mem: 4G
+  slurm_extra: "'--qos=30min'"
 # set-threads: map rule names to threads
 set-threads:
   - PG_build=8
@@ -34,27 +31,27 @@ set-resources:
   PG_build:
     time: "5h50m"
     mem: "30G"
-    qos: "6hours"
+    slurm_extra: "'--qos=6hours'"
   PG_polish:
     time: "5h50m"
     mem: "30G"
-    qos: "6hours"
+    slurm_extra: "'--qos=6hours'"
   PG_export:
     mem: "10G"
   GB_run_gubbins:
     time: "5h50m"
     mem: "30G"
-    qos: "6hours"
+    slurm_extra: "'--qos=6hours'"
   GB_build_ska_alignment:
     mem: "30G"
   GB_run_gubbins_pangraph_aln:
     time: "5h50m"
     mem: "30G"
-    qos: "6hours"
+    slurm_extra: "'--qos=6hours'"
   BJ_pangraph:
     time: "2h"
     mem: "10G"
-    qos: "6hours"
+    slurm_extra: "'--qos=6hours'"
   GM_run:
     mem: "30G"
   ISEScan_run:
@@ -62,4 +59,4 @@ set-resources:
   PX_run:
     time: "5h50m"
     mem: "40G"
-    qos: "6hours"
+    slurm_extra: "'--qos=6hours'"

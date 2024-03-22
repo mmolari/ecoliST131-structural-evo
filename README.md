@@ -4,5 +4,15 @@ This repository contains scripts for the analysis of microbial pangenome evoluti
 
 ## setup
 
-Execution requires a valid installation of conda and snakemake.
+Execution requires a valid installation of conda, mamba and snakemake.
+
+For `slurm` execution, install the [slurm executor plugin](https://snakemake.github.io/snakemake-plugin-catalog/plugins/executor/slurm.html):
+```bash
+pip install snakemake-executor-plugin-slurm
+```
+and execute with:
+```bash
+snakemake --profile slurm <rule>
+```
+
 For pangenome graph creation, the `pangraph` command must be available in path.

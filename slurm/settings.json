@@ -1,5 +1,0 @@
-{
-    "SBATCH_DEFAULTS": "qos=30min n=1 mem=4G time=00:29:00",
-    "CLUSTER_NAME": "",
-    "CLUSTER_CONFIG": ""
-}
