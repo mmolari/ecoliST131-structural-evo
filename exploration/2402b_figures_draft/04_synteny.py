@@ -1,6 +1,7 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 import pypangraph as pp
 from Bio import Phylo
@@ -110,7 +111,7 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
     fig, ax = plt.subplots(figsize=(10, 10))
 
     # cmap = plt.cm.get_cmap("tab20b")(range(len(bdf)))
-    cmap = plt.colormaps.get_cmap("nipy_spectral")(np.linspace(0, 1, len(bdf)))
+    cmap = mpl.cm.get_cmap("nipy_spectral")(np.linspace(0, 1, len(bdf)))
     block_colors = defaultdict(lambda: cmap[len(block_colors)])
 
     cmap_iso = armytage_cmap()
