@@ -177,7 +177,7 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
         spine.set_visible(False)
 
     plt.tight_layout()
-    plt.savefig(str(svname) + ".png")
+    plt.savefig(str(svname) + ".pdf")
     plt.savefig(str(svname) + ".svg")
     plt.close(fig)
     return iso_color, block_colors
