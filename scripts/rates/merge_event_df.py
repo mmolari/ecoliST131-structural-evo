@@ -25,12 +25,14 @@ def assign_mge_category(df):
         ((F, T, T, T), "integron"),
         ((F, F, T, T), "defense"),
         ((T, F, F, T), "prophage"),
+        ((F, T, T, F), "integron"),
     ]:
         mask = np.all((df[keys] > 0) == val, axis=1)
         df.loc[mask, "cat"] = k
 
     # check that no "NaN" is left
-    assert df["cat"].isna().sum() == 0, "some categories are not assigned"
+    no_cat = df["cat"].isna()
+    assert no_cat.sum() == 0, f"some categories are not assigned:\n{df[no_cat]}"
 
     # make ordered categorical variable
     df["cat"] = pd.Categorical(
