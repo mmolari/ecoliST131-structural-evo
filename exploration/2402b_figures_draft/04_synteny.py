@@ -60,12 +60,14 @@ def armytage_cmap():
 #     parser.add_argument("--fig_fld", type=str, required=True)
 #     return parser.parse_args()
 
+dset = "ST131_sub_C2"
+
 
 class test_args:
-    pangraph = "../../results/ST131_ABC/pangraph/asm20-100-5-polished.json"
-    tree = "../../results/ST131_ABC/pangraph/asm20-100-5-filtered-coretree.nwk"
+    pangraph = f"../../results/{dset}/pangraph/asm20-100-5-polished.json"
+    tree = f"../../results/{dset}/pangraph/asm20-100-5-filtered-coretree.nwk"
     len_thr = 500
-    fig_fld = "figs/f04"
+    fig_fld = f"figs/f04/{dset}"
 
 
 def perform_mergers(mergers, paths, block_df):
