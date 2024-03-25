@@ -118,12 +118,24 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
                 y,
                 1,
                 left=i,
+                align="edge",
                 color=c,
-                label=bid,
-                edgecolor="dimgray",
-                hatch=None if st else "///",
-                height=0.3 + 0.5 * (bdf.loc[bid, "len"] > 100000),
+                edgecolor="lightgray" if st else "k",
+                height=0.3 + 0.2 * (bdf.loc[bid, "len"] > 100000),
+                zorder=1 if st else 3,
             )
+            # draw arrows if strand is different from common
+            if not st:
+                ax.arrow(
+                    i + 1,
+                    y - 0.15,
+                    -0.8,
+                    0,
+                    head_width=0.2,
+                    head_length=0.2,
+                    fc="k",
+                    # ec="k",
+                )
 
         if len(isolates) > 2:
             yl = f"n = {len(isolates)}"
@@ -149,7 +161,11 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
         y -= 1
 
     for bid, X in xpos.items():
-        ax.plot(X, -np.arange(len(X)), "k", lw=0.5, zorder=-1)
+        x, y = X, -np.arange(len(X))
+        for i in range(len(X)):
+            if x[i] != x[0]:
+                ax.plot([x[0], x[i]], [y[i] + 1, y[i]], "k", lw=0.5, zorder=-1)
+        # ax.plot(X, -np.arange(len(X)), "k", lw=0.5, zorder=-1)
 
     # ax.set_yticks(yticks)
     # ax.set_yticklabels(ylabels)
@@ -161,7 +177,7 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
         spine.set_visible(False)
 
     plt.tight_layout()
-    plt.savefig(str(svname) + ".pdf")
+    plt.savefig(str(svname) + ".png")
     plt.savefig(str(svname) + ".svg")
     plt.close(fig)
     return iso_color, block_colors
