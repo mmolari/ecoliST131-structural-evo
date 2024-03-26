@@ -102,11 +102,11 @@ for dset in ["ST131_ABC", "ST131_sub_BC", "ST131_sub_C", "ST131_sub_C2"]:
     cdf["n_events"] = cdf["gain"] + cdf["loss"]
     cdf = assign_mge_category(cdf)
 
-    plot_events(cdf, fig_fld / "internal_gainloss.png")
+    plot_events(cdf, fig_fld / "nonsingleton_gainloss.png")
 
     mask = cdf["n_events"] <= 2
     cdf_correct = cdf[mask].copy()
-    plot_events(cdf_correct, fig_fld / "internal_gainloss_correct.png")
+    plot_events(cdf_correct, fig_fld / "nonsingleton_gainloss_correct.png")
 
     cdf[~mask]["n_events"].to_csv(data_fld / f"{dset}_n_events.csv")
 
