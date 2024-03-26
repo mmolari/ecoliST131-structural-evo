@@ -23,7 +23,6 @@ def load_df():
 
     df = pd.merge(df, df2, on="edge", validate="one_to_one")
     df["delta_L"] = df["max_length"] - df["min_length"]
-    df["acc_L"] = df["mean_length"] * 22
     return df
 
 

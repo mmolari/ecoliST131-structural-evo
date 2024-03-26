@@ -50,10 +50,9 @@ for dset_name, pl_dset in plasmid_dsets.items():
 # pangraph kernel options
 kernel_opts = list(config["pangraph"]["kernel-options"].keys())
 
-
 wildcard_constraints:
-    opt=f"({'|'.join(kernel_opts)})",
-    dset=f"({'|'.join(dset_names)})",
+    opt= "("+"|".join(kernel_opts) + ")",
+    dset="("+"|".join(dset_names) + ")",
     acc=r"[^/]+",
 
 

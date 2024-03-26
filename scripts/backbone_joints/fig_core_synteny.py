@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 import pypangraph as pp
 from Bio import Phylo
@@ -99,7 +100,7 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
     fig, ax = plt.subplots(figsize=(10, 10))
 
     # cmap = plt.cm.get_cmap("tab20b")(range(len(bdf)))
-    cmap = plt.colormaps.get_cmap("nipy_spectral")(np.linspace(0, 1, len(bdf)))
+    cmap = mpl.cm.get_cmap("nipy_spectral")(np.linspace(0, 1, len(bdf)))
     block_colors = defaultdict(lambda: cmap[len(block_colors)])
 
     cmap_iso = armytage_cmap()
@@ -117,12 +118,24 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
                 y,
                 1,
                 left=i,
+                align="edge",
                 color=c,
-                label=bid,
-                edgecolor="dimgray",
-                hatch=None if st else "///",
-                height=0.3 + 0.5 * (bdf.loc[bid, "len"] > 100000),
+                edgecolor="lightgray" if st else "k",
+                height=0.3 + 0.2 * (bdf.loc[bid, "len"] > 100000),
+                zorder=1 if st else 3,
             )
+            # draw arrows if strand is different from common
+            if not st:
+                ax.arrow(
+                    i + 1,
+                    y - 0.15,
+                    -0.8,
+                    0,
+                    head_width=0.2,
+                    head_length=0.2,
+                    fc="k",
+                    # ec="k",
+                )
 
         if len(isolates) > 2:
             yl = f"n = {len(isolates)}"
@@ -148,7 +161,11 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
         y -= 1
 
     for bid, X in xpos.items():
-        ax.plot(X, -np.arange(len(X)), "k", lw=0.5, zorder=-1)
+        x, y = X, -np.arange(len(X))
+        for i in range(len(X)):
+            if x[i] != x[0]:
+                ax.plot([x[0], x[i]], [y[i] + 1, y[i]], "k", lw=0.5, zorder=-1)
+        # ax.plot(X, -np.arange(len(X)), "k", lw=0.5, zorder=-1)
 
     # ax.set_yticks(yticks)
     # ax.set_yticklabels(ylabels)
@@ -229,7 +246,7 @@ if __name__ == "__main__":
 
     # make folder and figure names
     fig_fld = pathlib.Path(args.fig_fld)
-    fig_fld.mkdir(exist_ok=True)
+    fig_fld.mkdir(exist_ok=True, parents=True)
 
     svfig_synt = fig_fld / f"core_synteny"
     svfig_tree = fig_fld / f"tree"

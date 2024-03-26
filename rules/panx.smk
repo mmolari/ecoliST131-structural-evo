@@ -107,11 +107,11 @@ def get_geneclusters_ids(wildcards):
 
 rule PX_all:
     input:
-        expand(rules.PX_run.output, dset="ST131_ABC"),
+        expand(rules.PX_run.output, dset=dset_names),
         lambda w: get_geneclusters_ids(
             {
-                "dset": "ST131_ABC",
+                "dset": dset_names,
                 "K": ["rand", "real"],
-                "opt": "asm20-100-5",
+                "opt": kernel_opts,
             }
         ),

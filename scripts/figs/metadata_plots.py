@@ -33,16 +33,17 @@ def country_barplot(df, svname, **kwargs):
     # make legend
     legend_elements = []
     for k, v in continent_color.items():
-        legend_elements.append(
-            mpl.lines.Line2D(
-                [0],
-                [0],
-                color=v,
-                label=k + f" (n={continent_count[k]})",
-                marker="s",
-                ls="",
+        if k in continent_count:
+            legend_elements.append(
+                mpl.lines.Line2D(
+                    [0],
+                    [0],
+                    color=v,
+                    label=k + f" (n={continent_count[k]})",
+                    marker="s",
+                    ls="",
+                )
             )
-        )
 
     # count entries per country
     counts = df[["geo_loc_name", "continent"]].value_counts()

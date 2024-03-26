@@ -127,6 +127,6 @@ rule RT_all:
     input:
         expand(
             rules.RT_events_df.output,
-            dset=config["datasets"],
-            opt=config["pangraph"]["kernel-options"],
+            dset=dset_names,
+            opt=kernel_opts,
         ),

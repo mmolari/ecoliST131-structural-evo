@@ -1,6 +1,7 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 import pypangraph as pp
 from Bio import Phylo
@@ -59,12 +60,14 @@ def armytage_cmap():
 #     parser.add_argument("--fig_fld", type=str, required=True)
 #     return parser.parse_args()
 
+dset = "ST131_sub_C2"
+
 
 class test_args:
-    pangraph = "../../results/ST131_ABC/pangraph/asm20-100-5-polished.json"
-    tree = "../../results/ST131_ABC/pangraph/asm20-100-5-filtered-coretree.nwk"
+    pangraph = f"../../results/{dset}/pangraph/asm20-100-5-polished.json"
+    tree = f"../../results/{dset}/pangraph/asm20-100-5-filtered-coretree.nwk"
     len_thr = 500
-    fig_fld = "figs/f04"
+    fig_fld = f"figs/f04/{dset}"
 
 
 def perform_mergers(mergers, paths, block_df):
@@ -110,7 +113,7 @@ def fig_syntey(path_cats, common_path, strand_common, bdf, svname):
     fig, ax = plt.subplots(figsize=(10, 10))
 
     # cmap = plt.cm.get_cmap("tab20b")(range(len(bdf)))
-    cmap = plt.colormaps.get_cmap("nipy_spectral")(np.linspace(0, 1, len(bdf)))
+    cmap = mpl.cm.get_cmap("nipy_spectral")(np.linspace(0, 1, len(bdf)))
     block_colors = defaultdict(lambda: cmap[len(block_colors)])
 
     cmap_iso = armytage_cmap()

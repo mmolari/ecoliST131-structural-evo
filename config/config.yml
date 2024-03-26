@@ -5,6 +5,24 @@ datasets:
     plasmids: "config/datasets/ST131_ABC/plasmids.json"
     metadata: "config/datasets/ST131_ABC/metadata.csv"
     guide-strain: "NZ_CP096110.1"
+  ST131_sub_BC:
+    chromosomes: "config/datasets/ST131_sub_BC/chromosomes.txt"
+    excluded: "config/datasets/ST131_sub_BC/excluded.txt"
+    plasmids: "config/datasets/ST131_sub_BC/plasmids.json"
+    metadata: "config/datasets/ST131_sub_BC/metadata.csv"
+    guide-strain: "NZ_CP096110.1"
+  ST131_sub_C:
+    chromosomes: "config/datasets/ST131_sub_C/chromosomes.txt"
+    excluded: "config/datasets/ST131_sub_C/excluded.txt"
+    plasmids: "config/datasets/ST131_sub_C/plasmids.json"
+    metadata: "config/datasets/ST131_sub_C/metadata.csv"
+    guide-strain: "NZ_CP096110.1"
+  ST131_sub_C2:
+    chromosomes: "config/datasets/ST131_sub_C2/chromosomes.txt"
+    excluded: "config/datasets/ST131_sub_C2/excluded.txt"
+    plasmids: "config/datasets/ST131_sub_C2/plasmids.json"
+    metadata: "config/datasets/ST131_sub_C2/metadata.csv"
+    guide-strain: "NZ_CP096110.1"
   # ST131:
   #   chromosomes: "config/datasets/ST131_refseq/chromosomes.txt"
   #   excluded: "config/datasets/ST131_refseq/excluded.txt"
