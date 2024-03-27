@@ -132,7 +132,7 @@ for stat, plot_ylab in [
     xlabs = ["gain", "loss"]
     for x, et in enumerate(xlabs):
         mask = rdf["type"] == et
-        dx = -0.35
+        dx = -0.2
         for row in rdf[mask].itertuples():
             mec = None
             if row.stat.startswith("tot"):

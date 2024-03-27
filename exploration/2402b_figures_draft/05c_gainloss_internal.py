@@ -37,9 +37,9 @@ bdf = pd.read_csv(fnames["bdf"]["internal"], index_col=0)
 bdf["n_events"] = bdf["n_gain"] + bdf["n_loss"] + bdf["n_other"]
 
 
-def plot_events(cdf, bdf, fname):
+def plot_events(cdf, fname):
 
-    fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+    fig, axs = plt.subplots(1, 2, figsize=(7, 3.5))
 
     ax = axs[0]
     sns.histplot(data=cdf, x="n_minority", y="n_events", ax=ax, discrete=True)
@@ -79,12 +79,12 @@ def plot_events(cdf, bdf, fname):
     plt.show()
 
 
-plot_events(cdf, bdf, "suppl_internal_gainloss")
+plot_events(cdf, "suppl_internal_gainloss")
 
 
 # %%
 def plot_branches(df, fname):
-    fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+    fig, axs = plt.subplots(1, 2, figsize=(7, 3.5))
 
     df["n_gainloss"] = df["n_gain"] + df["n_loss"] + df["n_other"]
     mask = ~df["terminal"]
@@ -127,10 +127,20 @@ plot_branches(bdf, "suppl_internal_branches")
 
 # %%
 
-mask = cdf["n_events"] <= 10
+lab = "tRNA dupl. event"
+ut.cat_colors[lab] = "#888888"
+
+mask = cdf["n_events"] >= 10
+cdf_correct = cdf.copy()
+cdf_correct["cat"] = pd.Categorical(
+    cdf_correct["cat"],
+    categories=["IS", "integron", "prophage", "defense", "none", lab],
+    ordered=True,
+)
+cdf_correct.loc[mask, "cat"] = lab
 
 bdf_correct = bdf.copy()
-for j, row in cdf[~mask].iterrows():
+for j, row in cdf_correct[mask].iterrows():
     for gb in row["gain_branches"].split("|"):
         bdf_correct.loc[gb, "n_gain"] -= 1
     for lb in row["loss_branches"].split("|"):
@@ -138,6 +148,5 @@ for j, row in cdf[~mask].iterrows():
 
 plot_branches(bdf_correct, "suppl_internal_branches_correct")
 
-cdf_correct = cdf[mask].copy()
-plot_events(cdf_correct, bdf_correct, "suppl_internal_gainloss_correct")
+plot_events(cdf_correct, "suppl_internal_gainloss_correct")
 # %%

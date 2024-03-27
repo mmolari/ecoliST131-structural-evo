@@ -59,18 +59,18 @@ def barplot_events(cdf, ax):
     ax.set_ylabel("n. events")
 
 
-fig, ax = plt.subplots(1, 1, figsize=(4, 5))
+fig, ax = plt.subplots(1, 1, figsize=(3.5, 3.5))
 barplot_events(cdf, ax)
 sns.despine()
 plt.tight_layout()
-ax.set_title("terminal coldspots")
+# ax.set_title("terminal coldspots")
 svfig("terminal_coldspots_count")
 plt.show()
 
 
 # %%
 
-fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+fig, axs = plt.subplots(1, 2, figsize=(7, 3.5))
 
 ax = axs[0]
 sns.histplot(

@@ -22,13 +22,13 @@ js = ut.load_cdf(ut.fnames["coldspots"])
 fig, axs = plt.subplots(
     1,
     2,
-    figsize=(7, 4),
-    gridspec_kw={"width_ratios": [2, 1]},
+    figsize=(7, 3.5),
+    gridspec_kw={"width_ratios": [2.3, 1]},
     sharey=True,
 )
 
 ax = axs[0]
-et = js["cat"].value_counts().sort_index()
+et = js["cat"].value_counts().sort_values(ascending=False)
 x = 0
 xticks, xlabels = [], []
 for k, v in et.items():
