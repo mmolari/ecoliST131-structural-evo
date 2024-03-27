@@ -176,7 +176,7 @@ for stat, plot_ylab in [
     ax.grid(axis="y", which="minor", linewidth=0.5, alpha=0.5)
     sns.despine()
     plt.tight_layout()
-    svfig("rate_{stat}")
+    svfig(f"rate_{stat}")
     plt.show()
 
 
