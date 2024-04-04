@@ -52,10 +52,12 @@ def parse_input_data():
 
     # resistance
     resistance_file = (
-        "../../results/ST131_ABC/plasmids/resistance/ncbi_summary_chromosome.csv"
+        # "../../results/ST131_ABC/plasmids/resistance/ncbi_summary_chromosome.csv"
+        "../../results/ST131_ABC/plasmids/resistance/card_summary_chromosome.csv"
     )
     rdf_pld = pd.read_csv(resistance_file, index_col=0)
-    resistance_file = "../../results/ST131_ABC/resistance/ncbi_summary.txt"
+    # resistance_file = "../../results/ST131_ABC/resistance/ncbi_summary.txt"
+    resistance_file = "../../results/ST131_ABC/resistance/card_summary.txt"
     rdf_chr = pd.read_csv(resistance_file, index_col=0, sep="\t")
     rdf_chr.index = rdf_chr.index.str.split("/").str[-1].str.removesuffix(".tab")
     rdf_chr = rdf_chr.drop(columns=["NUM_FOUND"])
@@ -78,8 +80,6 @@ def parse_input_data():
 tree, strains, strain_y, mdf, adf, pldf, plasmid_data, rdf_chr, rdf_pld = (
     parse_input_data()
 )
-
-rdf_chr
 
 
 # %%
@@ -125,12 +125,13 @@ def draw_year(ax, x, mdf, strains):
     year_cat = pd.cut(
         mdf["year"],
         [2000, 2010, 2020, 2030],
-        labels=["2000-2010", "2010-2020", ">2020"],
+        labels=["2000-2009", "2010-2019", "2020-2022"],
+        right=False,
     )
     colors = {
-        "2000-2010": sns.color_palette("Blues")[0],
-        "2010-2020": sns.color_palette("Blues")[2],
-        ">2020": sns.color_palette("Blues")[5],
+        "2000-2009": sns.color_palette("Blues")[1],
+        "2010-2019": sns.color_palette("Blues")[3],
+        "2020-2022": sns.color_palette("Blues")[5],
     }
     for s in strains:
         year = year_cat.loc[s]
@@ -282,7 +283,16 @@ for al in ["fimH_eb", "gyrA_eb", "parC_eb"]:
 
 # plasmid MLST
 x = 7
-values = pldf["typ"].dropna().value_counts().index[:6]
+values = pldf["typ"].dropna().value_counts().index[:6].to_list()
+# values = [
+#     "F29:A-:B10",
+#     "F29:A-:B-",
+#     "F2:A1:B-",
+#     "F2:A-:B-",
+#     "F1:A2:B20",
+#     "F1:A2:B-",
+#     "F36:A4:B-",
+# ]
 
 for v in values:
     for s in strains:
@@ -307,7 +317,8 @@ for v in values:
 x = 14
 c_chr = "#2a9d8f"
 c_plm = "#f4a261"
-values = ["blaCTX-M-14", "blaCTX-M-15", "blaCTX-M-27", "blaOXA-1", "blaTEM-1"]
+values = ["blaCTX-M-14", "blaCTX-M-15", "blaCTX-M-27", "blaOXA-1", "aac(6')-Ib-D181Y"]
+values = ["CTX-M-14", "CTX-M-15", "CTX-M-27", "OXA-1", "AAC(6')-Ib-cr"]
 for v in values:
     if v in rdf_chr.columns:
         draw_chr_resistance(ax, x, strains, rdf_chr, v, c_chr)
