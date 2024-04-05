@@ -145,6 +145,32 @@ rule BJ_junct_stats:
         """
 
 
+rule BJ_aln_position:
+    input:
+        pan=rules.PG_polish.output,
+        gen_len=rules.PG_genome_lengths.output,
+    output:
+        SNPs="results/{dset}/backbone_joints/{opt}/j_aln_pos/SNPs.csv",
+        junct_pos="results/{dset}/backbone_joints/{opt}/j_aln_pos/junct_pos.csv",
+        aln_pos="results/{dset}/backbone_joints/{opt}/j_aln_pos/aln_pos.csv",
+    params:
+        guide_strain=lambda w: config["datasets"][w.dset]["guide-strain"],
+        thr_len=BJ_config["len-thr"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/backbone_joints/junction_aln_positions.py \
+            --guide_strain {params.guide_strain} \
+            --thr_len {params.thr_len} \
+            --genome_lengths {input.gen_len} \
+            --pangraph {input.pan} \
+            --out_SNPs {output.SNPs} \
+            --out_junct_pos {output.junct_pos} \
+            --out_aln_pos {output.aln_pos}
+        """
+
+
 # rule BJ_mash_dist:
 #     input:
 #         seq=rules.BJ_extract_joint_sequence.output.seq,
@@ -199,4 +225,5 @@ rule BJ_all:
     input:
         expand(rules.BJ_extract_pangenome_info.output, dset=dset_names, opt=kernel_opts),
         expand(rules.BJ_junct_stats.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.BJ_aln_position.output, dset=dset_names, opt=kernel_opts),
         # BJ_all_joints_outputs,

@@ -171,5 +171,5 @@ dependencies:
   - zstd=1.5.2
   - pip:
     - networkx==2.8.4
-    - git+https://github.com/mmolari/pypangraph@0.1.0
+    - git+https://github.com/mmolari/pypangraph@0.1.1
 prefix: /home/marco/miniconda3/envs/bioinfo
