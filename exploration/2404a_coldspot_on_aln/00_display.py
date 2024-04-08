@@ -38,7 +38,7 @@ js = js.join(ep, on="junction", validate="one_to_one")
 
 
 # %%
-fig, axs = plt.subplots(3, 1, figsize=(20, 10), sharex=True)
+fig, axs = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
 ax = axs[0]
 sns.histplot(
     snps_info.index,
@@ -46,6 +46,7 @@ sns.histplot(
     element="step",
     ax=ax,
 )
+ax.set_ylabel("n. polymorphic sites / 10kbp")
 
 ax = axs[1]
 sns.scatterplot(
@@ -72,10 +73,12 @@ sns.histplot(
     ax=ax,
 )
 # ax.set_yscale("log")
-ax.set_ylabel("pangenome length")
+ax.set_ylabel("pangenome length / 10kbp")
 
 for ax in axs:
     ax.grid(True, alpha=0.3)
+
+ax.set_xlim(0, snps_info.index.max())
 
 plt.tight_layout()
 plt.savefig(fig_fld / "snps_and_junctions.png")
@@ -90,17 +93,19 @@ is_consensus = snps_info.T == consensus
 # %%
 
 fig, axs = plt.subplots(
-    1, 2, figsize=(20, 10), sharey=True, gridspec_kw={"width_ratios": [0.1, 1]}
+    1, 2, figsize=(12, 12), sharey=True, gridspec_kw={"width_ratios": [0.1, 1]}
 )
 
 ax = axs[0]
 Phylo.draw(tree, axes=ax, do_show=False, label_func=lambda x: "")
+ax.set_xlabel("")
+ax.set_ylabel("")
 
 ax = axs[1]
 for n, strain in enumerate(strains):
     ic = is_consensus.loc[strain]
     snps = ic.index[np.argwhere(~ic).flatten()]
-    ax.scatter(snps, np.full_like(snps, n + 1), marker=".", alpha=0.1, color="k")
+    ax.scatter(snps, np.full_like(snps, n + 1), marker=".", s=4, alpha=0.1, color="k")
 
 for j, row in js.iterrows():
     pos = row["position"]
@@ -133,8 +138,16 @@ for j, row in js.iterrows():
         # c = get_color(csdf.loc[j])
 
         ax.plot([pos], [iso_y], color=c, marker="x")
+ax.set_xlabel("core alignment")
+ax.set_title("SNPs on core alignment")
 
+# add cross legend
+# ax.plot([], [], color="k", marker=".", label="SNP", ls="")
+for tp, c in color.items():
+    ax.plot([], [], color=c, marker="x", label=tp, ls="")
+ax.legend(title="terminal event", loc="lower left")
 
+sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "aln_matrix_and_coldspots.png")
 plt.show()
