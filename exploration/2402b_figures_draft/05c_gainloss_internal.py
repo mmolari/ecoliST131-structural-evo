@@ -42,15 +42,19 @@ def plot_events(cdf, fname):
     fig, axs = plt.subplots(1, 2, figsize=(7, 3.5))
 
     ax = axs[0]
-    sns.histplot(data=cdf, x="n_minority", y="n_events", ax=ax, discrete=True)
+    g = sns.histplot(data=cdf, x="n_minority", y="n_events", ax=ax, discrete=True)
+
     # plot diagonal
-    x = np.arange(0, cdf["n_minority"].max())
-    ax.plot(x, x, "--", lw=1, c="gray")
+    # x = np.arange(0, cdf["n_minority"].max())
+    x = np.arange(0, cdf["n_events"].max())
+    ax.set_yticks(range(0, x.max() + 1 + 2, 2))
+    ax.plot(x, x, "--", lw=1, c="gray", label="diagonal")
     ax.set_xlim(left=0)
     ax.set_ylim(bottom=0)
     # ax.set_aspect("equal")
     ax.set_xlabel("n. isolates with minority pattern")
     ax.set_ylabel("n. events")
+    # ax.legend(loc="center right")
 
     ax = axs[1]
     xlabs = ["gain", "loss", "other"]
@@ -75,6 +79,16 @@ def plot_events(cdf, fname):
 
     sns.despine()
     plt.tight_layout()
+
+    # colorbar in inset
+    cax = fig.add_axes([0.40, 0.45, 0.02, 0.35])
+    plt.colorbar(
+        g.collections[0],
+        cax=cax,
+        orientation="vertical",
+        label="n. non-singleton junctions",
+    )
+
     svfig(fname)
     plt.show()
 

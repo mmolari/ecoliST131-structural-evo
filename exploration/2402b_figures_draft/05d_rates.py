@@ -96,6 +96,8 @@ for et in ["gain", "loss", "other"]:
                 "freq": L / n,
                 "nmut_red": L * red_aln_size / n,
                 "nmut_core": L * core_aln_size / n,
+                "n_ev_per_mut_red": n / (L * red_aln_size),
+                "n_ev_per_mut_core": n / (L * core_aln_size),
             }
         )
 
@@ -124,7 +126,7 @@ tree_color = {
 for stat, plot_ylab in [
     ("freq", "tree length per event"),
     ("nmut_red", "n. restricted core-alignment mutations per event"),
-    # ("nmut_core", "n. core-genome alignment mutations per event"),
+    ("n_ev_per_mut_red", "n. events per core-alignment mutation"),
 ]:
 
     fig, ax = plt.subplots(1, 1, figsize=(3, 4))
@@ -167,6 +169,8 @@ for stat, plot_ylab in [
 
     if stat.startswith("nmut"):
         ax.set_ylim(10, 1000)
+    elif stat.startswith("n_ev"):
+        ax.set_ylim(0.001, 0.1)
 
     ax.set_xticks(range(len(xlabs)))
     ax.set_xticklabels(xlabs)
