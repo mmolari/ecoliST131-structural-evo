@@ -132,7 +132,7 @@ pan = pp.Pangraph.load_json(pan_file)
 bdf = pan.to_blockstats_df()
 # %%
 
-fig, ax = plt.subplots(1, 1, figsize=(8, 4))
+fig, ax = plt.subplots(1, 1, figsize=(10, 4))
 
 N = len(strains)
 bins = np.arange(0, N + 1, 1) + 0.5
@@ -164,12 +164,20 @@ ax.set_xlim(0, N + 1)
 ax.set_xlabel("n. strains")
 ax.set_ylabel("pangenome fraction")
 
+# add N to xticks
+xticks = list(ax.get_xticks())
+xticks.append(N)
+ax.set_xticks(xticks)
+ax.set_xlim(0, N + 1)
+
 ax.legend(loc="upper left")
 sns.despine()
 
 
 plt.tight_layout()
 plt.savefig(fig_fld / "panx_pangraph_pangenome_freq.png")
+plt.savefig(fig_fld / "panx_pangraph_pangenome_freq.svg")
+plt.savefig(fig_fld / "panx_pangraph_pangenome_freq.pdf")
 plt.show()
 # %%
 
