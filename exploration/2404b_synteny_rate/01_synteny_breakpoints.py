@@ -8,13 +8,13 @@ import pathlib
 dest = pathlib.Path("data/synt_map")
 dest.mkdir(exist_ok=True, parents=True)
 
-# ref = "NZ_CP096110.1"
-ref = "NZ_CP124495.1"
-# qry = "NZ_CP107114.1"
+ref = "NZ_CP096110.1"
+# ref = "NZ_CP124495.1"
+qry = "NZ_CP107114.1"
 # qry = "NZ_CP107184.1"
 # qry = "NZ_CP107182.1"
 # qry = "NZ_CP059281.1"
-qry = "NZ_CP059279.1"
+# qry = "NZ_CP059279.1"
 # qry = "NZ_OX637961.1"
 
 ref_fname = f"../../data/fa/{ref}.fa"
@@ -22,7 +22,7 @@ qry_fname = f"../../data/fa/{qry}.fa"
 out_fname = dest / f"{ref}_{qry}.paf"
 
 # map with minimap2
-cmd = f"minimap2 {ref_fname} {qry_fname} > {out_fname}"
+cmd = f"minimap2 -x asm5 {ref_fname} {qry_fname} > {out_fname}"
 subprocess.run(cmd, shell=True)
 
 # %%
