@@ -50,7 +50,7 @@ def add_ann_info(df):
 df = add_ann_info(df)
 df = df[
     [
-        # "n_iso",
+        "n_iso",
         # "n_blocks",
         # "has_dupl",
         "n_categories",

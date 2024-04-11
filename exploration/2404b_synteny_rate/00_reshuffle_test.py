@@ -8,10 +8,15 @@ fname = "../../results/ST131_ABC/pangraph/asm20-100-5-filtered-coretree.nwk"
 tree = Phylo.read(fname, "newick")
 ter_len = sum(l.branch_length for l in tree.get_terminals())
 int_len = sum(l.branch_length for l in tree.get_nonterminals())
+L_tot = ter_len + int_len
+filt_aln_size = 2427416
 
 print(f"internal length = {int_len}")
 print(f"terminal length = {ter_len}")
-print(f"terminal / internal ratio = {ter_len/int_len}")
+print(f"total length = {L_tot}")
+print(f"terminal / total ratio = {ter_len/L_tot}")
+
+print(f"number of mutations = {filt_aln_size * L_tot}")
 # %%
 n_ter = 18
 n_int = 3
