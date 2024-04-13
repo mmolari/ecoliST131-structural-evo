@@ -353,3 +353,127 @@ for lab, col, tt in [
     plt.show()
 
 # %%
+
+color = "grey"
+
+fig, axs = plt.subplots(
+    2,
+    2,
+    figsize=(6, 5),
+    sharex="col",
+    sharey="row",
+    gridspec_kw={"width_ratios": [4, 1], "height_ratios": [1, 4]},
+)
+
+ax = axs[1, 0]
+sns.scatterplot(
+    data=df,
+    x="pangenome_len",
+    y="n_categories",
+    # color=color,
+    # facecolor=color,
+    facecolor="none",
+    edgecolor=color,
+    size=4,
+    alpha=0.8,
+    legend=False,
+    ax=ax,
+)
+# sns.kdeplot(
+#     data=df,
+#     x="pangenome_len",
+#     y="n_categories",
+#     fill=False,
+#     levels=5,
+#     cmap="Greys",
+#     vmin=-0.5,
+#     log_scale=(True, True),
+#     zorder=-5,
+#     ax=ax,
+# )
+ax.set_xscale("log")
+ax.set_yscale("log")
+ax.set_xlabel("pangenome length (bp)")
+ax.set_ylabel("n. categories")
+
+kwargs = dict(
+    stat="count",
+    element="step",
+    cumulative=False,
+)
+
+ax = axs[0, 0]
+bins = np.histogram_bin_edges(np.log10(df["pangenome_len"]), bins=15)
+sns.histplot(
+    data=df,
+    x="pangenome_len",
+    color=color,
+    ax=ax,
+    bins=bins,
+    **kwargs,
+)
+ax.set_ylabel("n. junctions")
+
+ax = axs[1, 1]
+bins = np.histogram_bin_edges(np.log10(df["n_categories"]), bins=15)
+sns.histplot(
+    data=df,
+    y="n_categories",
+    color=color,
+    ax=ax,
+    bins=bins,
+    **kwargs,
+)
+ax.set_xlabel("n. junctions")
+
+axs[0, 1].remove()
+
+sns.despine()
+plt.tight_layout()
+plt.savefig(fig_fld / f"simple_scatter.pdf")
+plt.savefig(fig_fld / f"simple_scatter.svg")
+plt.show()
+
+# %%
+
+fig, axs = plt.subplots(3, 1, figsize=(4, 8), sharey=True, sharex=True)
+
+for ax, lab, col, tt in [
+    (axs[0], "is", "C0", "insertion sequences"),
+    (axs[1], "gm", "C4", "prophages"),
+    (axs[2], "df", "C2", "defense systems"),
+]:
+    mask = df[lab] > 0
+    sns.scatterplot(
+        data=df,
+        x="pangenome_len",
+        y="n_categories",
+        edgecolor="gray",
+        facecolor="none",
+        size=4,
+        ax=ax,
+        legend=False,
+    )
+    sns.scatterplot(
+        data=df[mask],
+        x="pangenome_len",
+        y="n_categories",
+        facecolor=col,
+        edgecolor=col,
+        alpha=0.5,
+        size=4,
+        ax=ax,
+        legend=False,
+    )
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("pangenome length (bp)")
+    ax.set_ylabel("n. categories")
+    ax.set_title(tt)
+
+sns.despine()
+plt.tight_layout()
+plt.savefig(fig_fld / f"simple_scatter2.pdf")
+plt.savefig(fig_fld / f"simple_scatter2.svg")
+plt.show()
+# %%
