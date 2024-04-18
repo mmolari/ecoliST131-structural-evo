@@ -251,7 +251,7 @@ def process_junction(j, sdf=sdf, jp=jp, iso_L=iso_L, is_df=is_df):
 
 import multiprocessing
 
-with multiprocessing.Pool(20) as pool:
+with multiprocessing.Pool(15) as pool:
     summary_df = pool.map(process_junction, Js)
 
 summary_df = pd.DataFrame(summary_df)

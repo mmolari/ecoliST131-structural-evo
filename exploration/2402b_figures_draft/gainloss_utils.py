@@ -8,13 +8,13 @@ def assign_mge_category(df):
     keys = ["genomad", "integrons", "isescan", "defensefinder"]
     F, T = False, True
     for val, k in [
-        ((F, F, T, F), "IS"),
-        ((F, F, F, F), "none"),
         ((T, F, T, F), "prophage"),
         ((T, F, F, F), "prophage"),
+        ((T, F, F, T), "prophage"),
         ((F, T, T, T), "integron"),
         ((F, F, T, T), "defense"),
-        ((T, F, F, T), "prophage"),
+        ((F, F, T, F), "IS"),
+        ((F, F, F, F), "none"),
     ]:
         mask = np.all((df[keys] > 0) == val, axis=1)
         df.loc[mask, "cat"] = k

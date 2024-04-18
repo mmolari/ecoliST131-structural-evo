@@ -354,6 +354,9 @@ for lab, col, tt in [
 
 # %%
 
+np.random.seed(42)
+df["n_cat_wiggle"] = df["n_categories"] + np.random.uniform(-0.25, 0.25, len(df))
+
 color = "grey"
 
 fig, axs = plt.subplots(
@@ -369,7 +372,7 @@ ax = axs[1, 0]
 sns.scatterplot(
     data=df,
     x="pangenome_len",
-    y="n_categories",
+    y="n_cat_wiggle",
     # color=color,
     # facecolor=color,
     facecolor="none",
@@ -377,12 +380,13 @@ sns.scatterplot(
     size=4,
     alpha=0.8,
     legend=False,
+    rasterized=True,
     ax=ax,
 )
 # sns.kdeplot(
 #     data=df,
 #     x="pangenome_len",
-#     y="n_categories",
+#     y="n_cat_wiggle",
 #     fill=False,
 #     levels=5,
 #     cmap="Greys",
@@ -415,10 +419,10 @@ sns.histplot(
 ax.set_ylabel("n. junctions")
 
 ax = axs[1, 1]
-bins = np.histogram_bin_edges(np.log10(df["n_categories"]), bins=15)
+bins = np.histogram_bin_edges(np.log10(df["n_cat_wiggle"]), bins=15)
 sns.histplot(
     data=df,
-    y="n_categories",
+    y="n_cat_wiggle",
     color=color,
     ax=ax,
     bins=bins,
@@ -430,8 +434,8 @@ axs[0, 1].remove()
 
 sns.despine()
 plt.tight_layout()
-plt.savefig(fig_fld / f"simple_scatter.pdf")
-plt.savefig(fig_fld / f"simple_scatter.svg")
+plt.savefig(fig_fld / f"simple_scatter.pdf", dpi=300)
+plt.savefig(fig_fld / f"simple_scatter.svg", dpi=300)
 plt.show()
 
 # %%
@@ -447,23 +451,25 @@ for ax, lab, col, tt in [
     sns.scatterplot(
         data=df,
         x="pangenome_len",
-        y="n_categories",
+        y="n_cat_wiggle",
         edgecolor="gray",
         facecolor="none",
         size=4,
         ax=ax,
         legend=False,
+        rasterized=True,
     )
     sns.scatterplot(
         data=df[mask],
         x="pangenome_len",
-        y="n_categories",
+        y="n_cat_wiggle",
         facecolor=col,
         edgecolor=col,
         alpha=0.5,
         size=4,
         ax=ax,
         legend=False,
+        rasterized=True,
     )
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -473,7 +479,7 @@ for ax, lab, col, tt in [
 
 sns.despine()
 plt.tight_layout()
-plt.savefig(fig_fld / f"simple_scatter2.pdf")
-plt.savefig(fig_fld / f"simple_scatter2.svg")
+plt.savefig(fig_fld / f"simple_scatter2.pdf", dpi=300)
+plt.savefig(fig_fld / f"simple_scatter2.svg", dpi=300)
 plt.show()
 # %%

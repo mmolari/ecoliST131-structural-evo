@@ -156,7 +156,8 @@ def draw_layer(layer, x, w, tot, connect, ax):
         ax.text(
             x - 0.5 * (1 - w),
             y + v / 2,
-            f"{v} ({v/tot:.1%})\n{lab}",
+            # f"{v} ({v/tot:.1%})\n{lab}",
+            f"n={v}\n{lab}",
             ha="center",
             va="center",
         )
@@ -284,6 +285,7 @@ ax.set_ylabel("n. junctions")
 sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "flowplot_coldspots.png")
+plt.savefig(fig_fld / "flowplot_coldspots.pdf")
 plt.show()
 
 # %%
