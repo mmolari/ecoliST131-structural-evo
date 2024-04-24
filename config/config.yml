@@ -79,3 +79,7 @@ plsm_alleles:
 
 resistance:
   id_threshold: 0.95
+
+hotspots:
+  min_length: 50000
+  min_npaths: 10

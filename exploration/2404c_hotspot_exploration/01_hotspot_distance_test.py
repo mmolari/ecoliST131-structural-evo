@@ -26,9 +26,9 @@ hdf
 # hs = "CGQZOLYSTD_r__ZLLQQUXUIP_r"
 # hs = "JVNRLCFAVD_f__PLTCZQCVRD_r"
 # hs = "IHKFSQQUKE_r__KPBYGJHRZJ_f"
-# hs = "GPKQYOCEJI_r__NKVSUZGURN_f"  # well-behaved
+hs = "GPKQYOCEJI_r__NKVSUZGURN_f"  # well-behaved
 # hs = "XXVMWZCEKI_r__YUOECYBHUS_r"  # well-behaved
-hs = "BWEZXGGFBK_r__MVMOFPVELT_r"  # shortest
+# hs = "BWEZXGGFBK_r__MVMOFPVELT_r"  # shortest
 fname = f"../../results/ST131_ABC/backbone_joints/asm20-100-5/joints_pangraph/{hs}.json"
 pan = pp.Pangraph.load_json(fname)
 

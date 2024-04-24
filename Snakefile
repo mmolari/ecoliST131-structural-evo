@@ -50,9 +50,10 @@ for dset_name, pl_dset in plasmid_dsets.items():
 # pangraph kernel options
 kernel_opts = list(config["pangraph"]["kernel-options"].keys())
 
+
 wildcard_constraints:
-    opt= "("+"|".join(kernel_opts) + ")",
-    dset="("+"|".join(dset_names) + ")",
+    opt="(" + "|".join(kernel_opts) + ")",
+    dset="(" + "|".join(dset_names) + ")",
     acc=r"[^/]+",
 
 
@@ -68,6 +69,7 @@ include: "rules/figs.smk"
 include: "rules/annotations.smk"
 include: "rules/panx.smk"
 include: "rules/rates.smk"
+include: "rules/hotspots.smk"
 
 
 localrules:
