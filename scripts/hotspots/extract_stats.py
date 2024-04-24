@@ -12,6 +12,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pan", type=str)
     parser.add_argument("--pair_dist", type=str)
+    parser.add_argument("--min_block_len", type=int)
     parser.add_argument("--out_csv", type=str)
     parser.add_argument("--out_fig", type=str)
     return parser.parse_args()
@@ -79,7 +80,7 @@ if __name__ == "__main__":
     args = parse_args()
     ddf = load_pair_dist(args.pair_dist)
     pan = pp.Pangraph.load_json(args.pan)
-    df = ut.extract_hotspot_stats(pan)
+    df = ut.extract_hotspot_stats(pan, args.min_block_len)
     df["core_div_filtered"] = ddf.loc[df.index, "core_div_filtered"]
     df.to_csv(args.out_csv)
     make_fig(df, args.out_fig)

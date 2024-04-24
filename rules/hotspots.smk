@@ -43,6 +43,8 @@ rule HP_hotspot_stats:
     output:
         csv="results/{dset}/hotspots/{opt}/hotspot_stats/{edge}.csv",
         fig="results/{dset}/hotspots/{opt}/hotspot_stats/{edge}.png",
+    params:
+        mbl=config["hotspots"]["min_block_length"],
     conda:
         "../conda_env/bioinfo.yml"
     shell:
@@ -50,6 +52,7 @@ rule HP_hotspot_stats:
         python3 scripts/hotspots/extract_stats.py \
             --pan {input.hs_pan} \
             --pair_dist {input.dst} \
+            --min_block_len {params.mbl} \
             --out_csv {output.csv} \
             --out_fig {output.fig}
         """

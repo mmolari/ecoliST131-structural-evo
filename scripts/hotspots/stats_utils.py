@@ -304,16 +304,24 @@ class MergePath:
         }
 
 
-def merge_paths_stats(si, sj, paths, bdf):
+def merge_paths_stats(si, sj, paths, bdf, bpa, min_len):
+    # block length dictionary
     bl_lens = bdf["len"].to_dict()
-    bl_core = bdf["core"].to_dict()
+
+    # block is core in pair dictionary
+    pa_i = bpa.loc[si]
+    pa_j = bpa.loc[sj]
+    bl_core = (pa_i == 1) & (pa_j == 1)
+    bl_core = bl_core.to_dict()
+
     subpaths = {iso: deepcopy(paths[iso]) for iso in [si, sj]}
+    subpaths = filter_paths(subpaths, lambda x: bl_lens[x] >= min_len)
     mp = MergePath(subpaths, bl_lens, bl_core)
     mp.recursive_extend()
     return mp.stats()
 
 
-def extract_hotspot_stats(pan):
+def extract_hotspot_stats(pan, min_len):
 
     df = []
 
@@ -339,7 +347,7 @@ def extract_hotspot_stats(pan):
         res |= block_distance_stats(si, sj, bpa, bdf)
         res |= breakpoint_stats(si, sj, path_dict)
         res |= core_divergence(A, si, sj, strains)
-        res |= merge_paths_stats(si, sj, path_dict, bdf)
+        res |= merge_paths_stats(si, sj, path_dict, bdf, bpa, min_len)
 
         df.append(res)
     df = pd.DataFrame(df)

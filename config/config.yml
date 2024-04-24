@@ -83,3 +83,4 @@ resistance:
 hotspots:
   min_length: 50000
   min_npaths: 10
+  min_block_length: 200
