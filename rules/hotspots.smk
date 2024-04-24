@@ -1,3 +1,4 @@
+import itertools as itt
 
 
 checkpoint HP_select_hotspots:
@@ -35,28 +36,41 @@ def read_hotspots(csv_fname):
     return idxs
 
 
-# rule HP_hotspot_stats:
-#     input:
-#         hs_pan=rules.BJ_pangraph.output.pan,
-#     output:
-#         csv="results/{dset}/hotspots/{opt}/hotspot_stats/{edge}.csv",
-#     conda:
-#         "../conda_env/bioinfo.yml"
-#     shell:
-#         """
-#         python3 scripts/hotspots/extract_stats.py \
-#             --pan {input.hs_pan} \
-#             --out_csv {output.csv}
-#         """
+rule HP_hotspot_stats:
+    input:
+        hs_pan=rules.BJ_pangraph.output.pan,
+        dst=rules.DST_merge.output,
+    output:
+        csv="results/{dset}/hotspots/{opt}/hotspot_stats/{edge}.csv",
+        fig="results/{dset}/hotspots/{opt}/hotspot_stats/{edge}.png",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/hotspots/extract_stats.py \
+            --pan {input.hs_pan} \
+            --pair_dist {input.dst} \
+            --out_csv {output.csv} \
+            --out_fig {output.fig}
+        """
 
 
-# def all_hotspots(wildcards):
+# def all_hotspots_stats(wildcards):
 #     hotspot_file = checkpoints.HP_select_hotspots.get(**wildcards).output["hs"]
 #     hotspots = read_hotspots(hotspot_file)
 #     return expand(rules.HP_hotspot_stats.output.csv, edge=hotspots, **wildcards)
 
 
+def all_hotspots_stats(wildcards):
+    files = []
+    for dset, opt in itt.product(dset_names, kernel_opts):
+        wc = {"dset": dset, "opt": opt}
+        hotspot_file = checkpoints.HP_select_hotspots.get(**wc).output["hs"]
+        hotspots = read_hotspots(hotspot_file)
+        files += expand(rules.HP_hotspot_stats.output.csv, edge=hotspots, **wc)
+    return files
+
+
 rule HP_all:
     input:
-        expand(rules.HP_select_hotspots.output, dset=dset_names, opt=kernel_opts),
-        #all_hotspots,
+        all_hotspots_stats,
