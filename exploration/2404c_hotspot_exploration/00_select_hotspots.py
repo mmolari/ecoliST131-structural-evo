@@ -70,3 +70,5 @@ sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "core_div_filtered.png")
 plt.show()
+
+# %%

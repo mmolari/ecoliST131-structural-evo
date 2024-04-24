@@ -24,7 +24,7 @@ hs = "GPKQYOCEJI_r__NKVSUZGURN_f"
 for hs in hsdf.index[::-1]:
 
     ML = hsdf.loc[hs, "max_length"] * 10 / 100000
-    fig_size = (2 + min(10, ML), 12)
+    fig_size = (2 + max(10, ML), 12)
     width_ratios = [2, fig_size[0] - 2]
     print(ML)
 
@@ -91,7 +91,9 @@ for hs in hsdf.index[::-1]:
             )
             x += l
     ax.set_xlabel("base pairs")
-    ax.set_title(f"Hotspot {hs}")
+    pl = hsdf.loc[hs, "pangenome_len"]
+    npaths = hsdf.loc[hs, "n_categories"]
+    ax.set_title(f"{hs} | pangenome len = {pl//1000} kbp | n. paths = {npaths}")
 
     # despine
     for ax in axs:

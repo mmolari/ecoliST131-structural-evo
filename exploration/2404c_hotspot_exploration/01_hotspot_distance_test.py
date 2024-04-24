@@ -92,3 +92,57 @@ plt.savefig(fig_fld / f"{hs}.png")
 plt.show()
 
 # %%
+hs = "ATPWUNKKID_f__KKPYPKGMXA_f"
+fname = f"../../results/ST131_ABC/hotspots/asm20-100-5/hotspot_stats/{hs}.csv"
+df = pd.read_csv(fname, index_col=[0, 1])
+
+fig, axs = plt.subplots(2, 2, figsize=(8, 8), sharex=True)
+
+for nax, k in enumerate(
+    [
+        "merge_n_private",
+        "merge_n_edges",
+        "merge_acc_len",
+        "merge_n_shared",
+    ]
+):
+    ax = axs.flatten()[nax]
+    sns.scatterplot(
+        data=df,
+        x="core_div_filtered",
+        y=k,
+        alpha=0.1,
+        marker=".",
+        ax=ax,
+    )
+    # sns.lineplot(
+    #     data=df,
+    #     x="core_div_filtered",
+    #     y=k,
+    #     alpha=0.5,
+    #     color="k",
+    #     estimator=np.mean,
+    #     # errorbar="sd",
+    #     ax=ax,
+    # )
+
+    # group by x in bins of size 0.0001
+    df["bin"] = pd.cut(df["core_div_filtered"], 11)
+    # x coordinate
+    xc = df.groupby("bin", observed=True)["core_div_filtered"].mean()
+    yc = df.groupby("bin", observed=True)[k].mean()
+    err = df.groupby("bin", observed=True)[k].std()
+    ax.errorbar(
+        xc,
+        yc,
+        yerr=err,
+        fmt="o",
+        color="C1",
+        ls="--",
+    )
+sns.despine()
+plt.tight_layout()
+plt.savefig(fig_fld / f"{hs}_mini.png")
+plt.show()
+
+# %%
