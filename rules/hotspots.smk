@@ -74,6 +74,24 @@ def all_hotspots_stats(wildcards):
     return files
 
 
+rule HP_HH_locate:
+    input:
+        hh=config["hotspots"]["hochhauser_SI"],
+        gbk=lambda w: expand(rules.download_gbk.output, acc=dset_chrom_accnums[w.dset]),
+    output:
+        csv="results/{dset}/hotspots/hochhauser_coregenes_position.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/hotspots/hochhauser_locate.py \
+            --hochhauser {input.hh} \
+            --out {output.csv} \
+            --gbk {input.gbk}
+        """
+
+
 rule HP_all:
     input:
         all_hotspots_stats,
+        expand(rules.HP_HH_locate.output, dset=dset_names),
