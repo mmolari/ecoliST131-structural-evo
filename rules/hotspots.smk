@@ -74,7 +74,7 @@ def all_hotspots_stats(wildcards):
     return files
 
 
-rule HP_HH_locate:
+rule HP_HH_locate_genome:
     input:
         hh=config["hotspots"]["hochhauser_SI"],
         gbk=lambda w: expand(rules.download_gbk.output, acc=dset_chrom_accnums[w.dset]),
@@ -91,7 +91,29 @@ rule HP_HH_locate:
         """
 
 
+rule HP_HH_locate_junctions:
+    input:
+        pos=rules.HP_HH_locate_genome.output.csv,
+        j_pos=rules.BJ_extract_joints_pos.output.pos,
+        iso_len=rules.PG_genome_lengths.output,
+    output:
+        csv="results/{dset}/hotspots/{opt}/hochhauser_junction_pos.csv",
+    conda:
+        "../conda_env/bioinfo.yml"
+    params:
+        zero_based="--zero_based",
+    shell:
+        """
+        python3 scripts/annotations/assing_junction.py \
+            --iso_len {input.iso_len} \
+            --junction_pos_json {input.j_pos} \
+            --element_pos_df {input.pos} \
+            --output_pos {output} \
+            --allow_core
+        """
+
+
 rule HP_all:
     input:
         all_hotspots_stats,
-        expand(rules.HP_HH_locate.output, dset=dset_names),
+        expand(rules.HP_HH_locate_junctions.output, dset=dset_names, opt=kernel_opts),
