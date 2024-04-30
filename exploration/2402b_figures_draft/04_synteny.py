@@ -6,6 +6,7 @@ import seaborn as sns
 import pypangraph as pp
 from Bio import Phylo
 from collections import defaultdict
+import pandas as pd
 import argparse
 import pathlib
 import utils as ut
@@ -60,7 +61,7 @@ def armytage_cmap():
 #     parser.add_argument("--fig_fld", type=str, required=True)
 #     return parser.parse_args()
 
-dset = "ST131_sub_C2"
+dset = "ST131_ABC"
 
 
 class test_args:
@@ -320,5 +321,11 @@ if __name__ == "__main__":
     # block lengths figure
     fig_blocks(common_path, bdf, block_colors, svfig_blocks)
 
+    # save results
+    block_colors_hex = {b: mpl.colors.to_hex(c) for b, c in block_colors.items()}
+    bdf["color"] = block_colors_hex
+    mg = pd.Series(mg)
+    bdf.to_csv(fig_fld / "block_stats.csv")
+    mg.to_csv(fig_fld / "mergers.csv")
 
 # %%
