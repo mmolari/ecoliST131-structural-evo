@@ -58,10 +58,23 @@ rule HP_hotspot_stats:
         """
 
 
-# def all_hotspots_stats(wildcards):
-#     hotspot_file = checkpoints.HP_select_hotspots.get(**wildcards).output["hs"]
-#     hotspots = read_hotspots(hotspot_file)
-#     return expand(rules.HP_hotspot_stats.output.csv, edge=hotspots, **wildcards)
+rule HP_blast_HH:
+    input:
+        bd=rules.blast_db.output.db,
+        hh_seq=config["hotspots"]["hochhauser_seqs"],
+    output:
+        csv="data/hochhauser_blast/{acc}.csv",
+    conda:
+        "../conda_env/mapping.yml"
+    shell:
+        """
+        blastn -db {input.bd}/{wildcards.acc} \
+            -query {input.hh_seq} \
+            -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen" \
+            -max_target_seqs 1 \
+            -max_hsps 1 \
+            -out {output.csv}
+        """
 
 
 def all_hotspots_stats(wildcards):
@@ -74,46 +87,47 @@ def all_hotspots_stats(wildcards):
     return files
 
 
-rule HP_HH_locate_genome:
-    input:
-        hh=config["hotspots"]["hochhauser_SI"],
-        gbk=lambda w: expand(rules.download_gbk.output, acc=dset_chrom_accnums[w.dset]),
-    output:
-        csv="results/{dset}/hotspots/hochhauser_coregenes_position.csv",
-    conda:
-        "../conda_env/bioinfo.yml"
-    shell:
-        """
-        python3 scripts/hotspots/hochhauser_locate.py \
-            --hochhauser {input.hh} \
-            --out {output.csv} \
-            --gbk {input.gbk}
-        """
+# rule HP_HH_locate_genome:
+#     input:
+#         hh=config["hotspots"]["hochhauser_SI"],
+#         gbk=lambda w: expand(rules.download_gbk.output, acc=dset_chrom_accnums[w.dset]),
+#     output:
+#         csv="results/{dset}/hotspots/hochhauser_coregenes_position.csv",
+#     conda:
+#         "../conda_env/bioinfo.yml"
+#     shell:
+#         """
+#         python3 scripts/hotspots/hochhauser_locate.py \
+#             --hochhauser {input.hh} \
+#             --out {output.csv} \
+#             --gbk {input.gbk}
+#         """
 
 
-rule HP_HH_locate_junctions:
-    input:
-        pos=rules.HP_HH_locate_genome.output.csv,
-        j_pos=rules.BJ_extract_joints_pos.output.pos,
-        iso_len=rules.PG_genome_lengths.output,
-    output:
-        csv="results/{dset}/hotspots/{opt}/hochhauser_junction_pos.csv",
-    conda:
-        "../conda_env/bioinfo.yml"
-    params:
-        zero_based="--zero_based",
-    shell:
-        """
-        python3 scripts/annotations/assing_junction.py \
-            --iso_len {input.iso_len} \
-            --junction_pos_json {input.j_pos} \
-            --element_pos_df {input.pos} \
-            --output_pos {output} \
-            --allow_core
-        """
+# rule HP_HH_locate_junctions:
+#     input:
+#         pos=rules.HP_HH_locate_genome.output.csv,
+#         j_pos=rules.BJ_extract_joints_pos.output.pos,
+#         iso_len=rules.PG_genome_lengths.output,
+#     output:
+#         csv="results/{dset}/hotspots/{opt}/hochhauser_junction_pos.csv",
+#     conda:
+#         "../conda_env/bioinfo.yml"
+#     params:
+#         zero_based="--zero_based",
+#     shell:
+#         """
+#         python3 scripts/annotations/assing_junction.py \
+#             --iso_len {input.iso_len} \
+#             --junction_pos_json {input.j_pos} \
+#             --element_pos_df {input.pos} \
+#             --output_pos {output} \
+#             --allow_core
+#         """
 
 
 rule HP_all:
     input:
         all_hotspots_stats,
-        expand(rules.HP_HH_locate_junctions.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.HP_blast_HH.output, acc=dset_chrom_accnums["ST131_ABC"]),
+        # expand(rules.HP_HH_locate_junctions.output, dset=dset_names, opt=kernel_opts),

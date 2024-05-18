@@ -50,3 +50,18 @@ rule metadata_preprocess:
             --metadata_in {input} \
             --metadata_out {output}
         """
+
+
+rule blast_db:
+    input:
+        fa=rules.gbk_to_fa.output,
+    output:
+        db=directory("data/blast_db/{acc}"),
+    conda:
+        "../conda_env/mapping.yml"
+    shell:
+        """
+        makeblastdb -in {input.fa} \
+            -dbtype nucl \
+            -out {output.db}/{wildcards.acc}
+        """
