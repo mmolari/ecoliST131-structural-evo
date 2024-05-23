@@ -71,8 +71,6 @@ rule HP_blast_HH:
         blastn -db {input.bd}/{wildcards.acc} \
             -query {input.hh_seq} \
             -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen" \
-            -max_target_seqs 1 \
-            -max_hsps 1 \
             -out {output.csv}
         """
 
