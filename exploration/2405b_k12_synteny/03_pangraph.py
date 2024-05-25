@@ -94,12 +94,12 @@ cmap = mpl.colormaps.get_cmap("nipy_spectral")
 N = len(sdf)
 block_colors = {b.id: cmap(i / (N - 1)) for i, b in enumerate(paths[ref].nodes)}
 
-short_blocks = 2e4
+short_blocks = 16e3
 fig, axs = plt.subplots(2, 1, figsize=(8, 5), sharex=True)
 
 # length
 ax = axs[0]
-x = 0
+x = 1
 for b in paths[ref].nodes:
     l = sdf.loc[b.id, "len"]
     c = block_colors[b.id]
@@ -115,7 +115,7 @@ std_pos = {b.id: i for i, b in enumerate(paths[ref].nodes)}
 ax = axs[1]
 for lab, y in [("K12", 0), (ref, 1)]:
     path = paths[lab]
-    x = 0
+    x = 0.5
     for b in path.nodes:
         l = sdf.loc[b.id, "len"]
         c = block_colors[b.id]
@@ -143,7 +143,7 @@ for x, b in enumerate(paths["K12"].nodes):
     l = sdf.loc[b.id, "len"]
     if l < short_blocks:
         continue
-    ax.plot([std_pos[b.id] + 0.5, x + 0.5], [0.7, 0.3], color=c)
+    ax.plot([std_pos[b.id] + 1, x + 1], [0.7, 0.3], color=c)
 
 sns.despine()
 plt.tight_layout()
