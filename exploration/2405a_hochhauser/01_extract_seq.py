@@ -25,3 +25,5 @@ with open(svname, "w") as handle:
     SeqIO.write(records, handle, "fasta")
 
 # %%
+# extract pangraph core blocks
+fname = "../../"
