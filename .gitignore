@@ -11,4 +11,5 @@
 /old
 /config/ncbi_api_key.txt
 !/exploration/*/*.py
+!/exploration/*/makefile
 __pycache__

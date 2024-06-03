@@ -154,9 +154,14 @@ def parse_args():
     )
     parser.add_argument("--random", action="store_true", help="Use random positions")
     parser.add_argument(
-        "--zero-based-input-pos",
+        "--zero_based",
         action="store_true",
         help="Input positions are 0-based",
+    )
+    parser.add_argument(
+        "--allow_core",
+        action="store_true",
+        help="also annotations that only fall in the core region are stored.",
     )
     return parser.parse_args()
 
@@ -184,8 +189,6 @@ if __name__ == "__main__":
     rand_pos = args.random
     np.random.seed(42)
 
-    zero_based = args.zero_based_input_pos
-
     results = []
 
     for el_id, row in df_element.iterrows():
@@ -194,7 +197,7 @@ if __name__ == "__main__":
         L = iso_L[iso]
 
         # make 0-based
-        if not zero_based:
+        if not args.zero_based:
             B, E = B - 1, E - 1
 
         # optional randomize position
@@ -214,7 +217,7 @@ if __name__ == "__main__":
             if in_core == "no":
                 continue
             in_acc = within(ab, ae, B, E, L)
-            if in_acc == "no":
+            if (not args.allow_core) and (in_acc == "no"):
                 continue
             results.append(
                 {
