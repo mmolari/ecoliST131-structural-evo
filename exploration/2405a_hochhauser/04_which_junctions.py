@@ -33,10 +33,7 @@ len_norm = mpl.colors.LogNorm(vmin=1e2, vmax=1e5)
 fig, ax = plt.subplots(1, 1, figsize=(2.5, 6))
 for hs, gr in odf.groupby("id"):
     y = hs
-    # print(gr)
-    # ax.barh(y, len(gr), color="C0")
     mask = gr["in_acc"] != "no"
-    # ax.barh(y, len(gr[mask]), color="C1")
     k = 0
     for i, row in gr[mask].iterrows():
         j = row["junction"]
@@ -83,10 +80,14 @@ plt.show()
 
 # %%
 
-np.random.seed(1)
+np.random.seed(0)
+jdf["n_categories_jitter"] = jdf["n_categories"] + np.random.uniform(
+    -0.3, 0.3, len(jdf)
+)
+
 fig, ax = plt.subplots()
 sns.scatterplot(
-    data=jdf, x="pangenome_len", y="n_categories", alpha=0.3, ax=ax, color="C0"
+    data=jdf, x="pangenome_len", y="n_categories_jitter", alpha=0.3, ax=ax, color="C0"
 )
 ylow = 0.025
 dy = {}
@@ -94,7 +95,7 @@ for i, row in df.iterrows():
     j = row["junction"]
     hs_id = row["id"]
     x = jdf.loc[j, "pangenome_len"]
-    y = jdf.loc[j, "n_categories"]
+    y = jdf.loc[j, "n_categories_jitter"]
     ax.scatter(x, y, marker="o", color="red", facecolor="none")
     # random angle
     theta = np.random.uniform(0, 2 * np.pi)

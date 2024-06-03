@@ -133,6 +133,7 @@ ax.set_yticks(range(0, len(hdf) + 1, 5))
 ax.set_xlabel("NZ_CP096110.1 genome (bp)")
 ax.set_ylabel("hotspot number")
 ax.grid(axis="y", alpha=0.3)
+ax.set_title("location of hotspot flanking genes")
 
 # legend
 ax.plot([], [], marker="+", color="r", ls="", label="upstream")
@@ -146,10 +147,16 @@ for k, L in lengths.items():
 ax.set_xlim(left=1000)
 ax.set_xscale("log")
 ax.set_xlabel(r"$\Delta L$ (bp)")
+ax.set_title("intergenic region length")
+
+ax.plot([], [], color="k", marker=5, ls="", label="hotspot identified")
+ax.legend(loc="lower left")
+
 
 sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "flanking_genes_loc.png", dpi=200)
+plt.savefig(fig_fld / "flanking_genes_loc.pdf", dpi=200)
 plt.show()
 
 # %%
