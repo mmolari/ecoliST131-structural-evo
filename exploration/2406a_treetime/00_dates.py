@@ -10,13 +10,3 @@ sdf["year"] = sdf.apply(
 )
 sdf.rename(columns={"year": "date"}, inplace=True)
 sdf.to_csv("data/dates.csv")
-# %%
-from Bio import AlignIO
-
-A = AlignIO.read("data/aln.fa", format="fasta")
-
-# %%
-import numpy as np
-
-A = np.array(A)
-# %%
