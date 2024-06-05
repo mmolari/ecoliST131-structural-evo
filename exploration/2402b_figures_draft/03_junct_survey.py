@@ -83,6 +83,8 @@ assert np.all(
 ), "transitive means only one category"
 assert np.all(df[df["transitive"]]["nonempty_freq"] == 0), "transitive means empty"
 df = df[~df["transitive"]]
+np.random.seed(42)
+df["n_cat_wiggle"] = df["n_categories"] + np.random.uniform(-0.25, 0.25, len(df))
 df
 # %%
 
@@ -92,7 +94,7 @@ mapp = mpl.cm.ScalarMappable(norm=norm, cmap="coolwarm")
 sns.scatterplot(
     data=df,
     x="pangenome_len",
-    y="n_categories",
+    y="n_cat_wiggle",
     alpha=0.3,
     hue="nonempty_freq",
     hue_norm=norm,
@@ -127,7 +129,7 @@ for lab, ax, bw, col, cm, tt in [
         sns.kdeplot(
             data=df[mask],
             x="pangenome_len",
-            y="n_categories",
+            y="n_cat_wiggle",
             fill=True,
             levels=5,
             # linewidths=3,
@@ -139,7 +141,7 @@ for lab, ax, bw, col, cm, tt in [
     sns.scatterplot(
         data=df[~mask],
         x="pangenome_len",
-        y="n_categories",
+        y="n_cat_wiggle",
         alpha=0.5,
         edgecolors="k",
         facecolors="none",
@@ -152,7 +154,7 @@ for lab, ax, bw, col, cm, tt in [
     sns.scatterplot(
         data=df[mask],
         x="pangenome_len",
-        y="n_categories",
+        y="n_cat_wiggle",
         alpha=0.8,
         color="firebrick",
         marker="o",
@@ -181,7 +183,7 @@ mapp = mpl.cm.ScalarMappable(norm=norm, cmap="coolwarm")
 sns.scatterplot(
     data=df,
     x="pangenome_len",
-    y="n_categories",
+    y="n_cat_wiggle",
     alpha=0.4,
     hue="nonempty_freq",
     hue_norm=norm,
@@ -206,7 +208,7 @@ for lab, ax, bw, col, cm, tt in [
     sns.kdeplot(
         data=df[mask],
         x="pangenome_len",
-        y="n_categories",
+        y="n_cat_wiggle",
         fill=True,
         levels=8,
         cmap=cm,
@@ -217,7 +219,7 @@ for lab, ax, bw, col, cm, tt in [
     sns.scatterplot(
         data=df[~mask],
         x="pangenome_len",
-        y="n_categories",
+        y="n_cat_wiggle",
         alpha=0.5,
         edgecolors="k",
         facecolors="none",
@@ -230,7 +232,7 @@ for lab, ax, bw, col, cm, tt in [
     sns.scatterplot(
         data=df[mask],
         x="pangenome_len",
-        y="n_categories",
+        y="n_cat_wiggle",
         alpha=0.8,
         color="firebrick",
         marker="o",
@@ -260,7 +262,6 @@ for lab, col, tt in [
     ("df", "C2", "defense systems"),
     ("gm", "C4", "prophages"),
 ]:
-
     mask = df[lab] > 0
     fig, axs = plt.subplots(
         2,
@@ -275,17 +276,17 @@ for lab, col, tt in [
     sns.scatterplot(
         data=df,
         x="pangenome_len",
-        y="n_categories",
+        y="n_cat_wiggle",
         color="lightgrey",
         size=4,
         ax=ax,
         legend=False,
-        label="total",
+        # label="total",
     )
     sns.scatterplot(
         data=df[mask],
         x="pangenome_len",
-        y="n_categories",
+        y="n_cat_wiggle",
         color=col,
         size=4,
         ax=ax,
@@ -328,7 +329,7 @@ for lab, col, tt in [
     bins = np.histogram_bin_edges(np.log10(df["n_categories"]), bins=15)
     sns.histplot(
         data=df,
-        y="n_categories",
+        y="n_cat_wiggle",
         color="lightgray",
         ax=ax,
         bins=bins,
@@ -336,7 +337,7 @@ for lab, col, tt in [
     )
     sns.histplot(
         data=df[mask],
-        y="n_categories",
+        y="n_cat_wiggle",
         color=col,
         ax=ax,
         bins=bins,
@@ -353,9 +354,6 @@ for lab, col, tt in [
     plt.show()
 
 # %%
-
-np.random.seed(42)
-df["n_cat_wiggle"] = df["n_categories"] + np.random.uniform(-0.25, 0.25, len(df))
 
 color = "grey"
 

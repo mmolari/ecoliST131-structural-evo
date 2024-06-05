@@ -83,8 +83,10 @@ ax.barh(y=Ys, width=ns.loc[strains].to_numpy(), height=1.0, color="royalblue")
 ax.set_yticks(np.arange(0, len(strains), 25)[1:])
 ax.set_xlabel("tot n. systems")
 
+sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "systems_tree_distr.png")
+plt.savefig(fig_fld / "systems_tree_distr.pdf")
 plt.show()
 
 # %%
