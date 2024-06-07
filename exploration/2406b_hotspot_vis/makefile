@@ -8,6 +8,7 @@ jpos=results/ST131_ABC/backbone_joints/asm20-100-5/joints_pos.json
 gbks=data/gbk
 ann=results/ST131_ABC/annotations/junct_pos_asm20-100-5
 gen_lengths=results/ST131_ABC/pangraph/genome_lengths.csv
+hh_genes=exploration/2405a_hochhauser/data/hochhauser.csv
 
 shared_infiles:
 	mkdir -p data
@@ -15,6 +16,7 @@ shared_infiles:
 	ln -s ../../../$(jpos) data/joints_pos.json
 	ln -s ../../../$(gbks) data/gbk
 	ln -s ../../../$(gen_lengths) data/genome_lengths.csv
+	ln -s ../../../$(hh_genes) data/hh_genes.csv
 	mkdir -p data/ann
 	ln -s ../../../../$(ann)/defensefinder_real.csv data/ann/defensefinder.csv
 	ln -s ../../../../$(ann)/genomad_real.csv data/ann/genomad.csv
@@ -33,7 +35,15 @@ path_cats:
 extract_ann:
 	python3 01_extract_annotations.py --hs $(hs)
 
-all: infiles path_cats extract_ann
+pangraph_gfa:
+	pangraph export -ell 0 --no-duplications \
+		--output-directory $(res_dir)/export \
+		$(data_dir)/joint_graph.json
+
+draw_all:
+	python3 02_draw_all_paths.py --hs $(hs)
+
+all: infiles path_cats extract_ann pangraph_gfa draw_all
 
 clean_shared:
 	rm -r data
