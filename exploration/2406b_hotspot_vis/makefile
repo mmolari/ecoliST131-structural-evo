@@ -1,0 +1,36 @@
+hs=CIRMBUYJFK_f__CWCCKOQCWZ_r
+data_dir=data/$(hs)
+res_dir=res/$(hs)
+fig_dir=figs/$(hs)
+joint_graph=results/ST131_ABC/backbone_joints/asm20-100-5/joints_pangraph/$(hs).json
+tree=results/ST131_ABC/pangraph/asm20-100-5-filtered-coretree.nwk
+jpos=results/ST131_ABC/backbone_joints/asm20-100-5/joints_pos.json
+gbks=data/gbk
+ann=results/ST131_ABC/annotations/junct_pos_asm20-100-5
+
+shared_infiles:
+	mkdir -p data
+	ln -s ../../../$(tree) data/tree.nwk
+	ln -s ../../../$(jpos) data/joints_pos.json
+	ln -s ../../../$(gbks) data/gbk
+	mkdir -p data/ann
+	ln -s ../../../../$(ann)/defensefinder_real.csv data/ann/defensefinder.csv
+	ln -s ../../../../$(ann)/genomad_real.csv data/ann/genomad.csv
+	ln -s ../../../../$(ann)/integronfinder_real.csv data/ann/integronfinder.csv
+	ln -s ../../../../$(ann)/ISEScan_real.csv data/ann/ISEScan.csv
+
+infiles:
+	mkdir -p $(data_dir)
+	mkdir -p $(res_dir)
+	mkdir -p $(fig_dir)
+	ln -s ../../../../$(joint_graph) $(data_dir)/joint_graph.json
+	
+path_cats:
+	python3 00_path_categories.py --hs $(hs)
+
+all: infiles path_cats
+
+clean:
+	rm -rf $(data_dir)
+	rm -rf $(res_dir)
+	rm -rf $(fig_dir)
