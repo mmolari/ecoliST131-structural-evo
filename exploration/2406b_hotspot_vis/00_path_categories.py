@@ -4,6 +4,7 @@ import pandas as pd
 import path_utils as pu
 import pypangraph as pp
 from Bio import Phylo
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pathlib
 import argparse
@@ -78,7 +79,7 @@ def distance_df(pan):
 
 def distance_plot(tree, dist_df, svfld):
     for lab, fname, title in [
-        ("delta_l", "block_diffs_len.png", "block len. difference"),
+        ("delta_l", "block_diffs_len.png", "len. private sequence"),
         ("delta_n", "block_diffs_num.png", "block n. difference"),
     ]:
         terminals = [t.name for t in tree.get_terminals()]
@@ -91,11 +92,18 @@ def distance_plot(tree, dist_df, svfld):
                 M[ni, nj] = dist_df.loc[i, j][lab]
                 M[nj, ni] = dist_df.loc[j, i][lab]
 
-        plt.imshow(M, cmap="coolwarm")
+        # log norm
+        if lab == "delta_l":
+            norm = mpl.colors.LogNorm(vmin=max(M.min(), 100), vmax=M.max(), clip=True)
+        else:
+            norm = mpl.colors.Normalize(vmin=M.min(), vmax=M.max())
+        plt.figure(figsize=(10, 8))
+        plt.imshow(M, norm=norm, cmap="coolwarm", interpolation="none")
         plt.title(title)
-        plt.colorbar()
+        # small colorbar
+        plt.colorbar(shrink=0.5)
         plt.tight_layout()
-        plt.savefig(svfld / fname)
+        plt.savefig(svfld / fname, dpi=200)
         show()
 
 
