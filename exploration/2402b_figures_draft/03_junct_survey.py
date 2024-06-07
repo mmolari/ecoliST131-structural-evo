@@ -281,6 +281,7 @@ for lab, col, tt in [
         size=4,
         ax=ax,
         legend=False,
+        rasterized=True,
         # label="total",
     )
     sns.scatterplot(
@@ -349,8 +350,8 @@ for lab, col, tt in [
 
     sns.despine()
     plt.tight_layout()
-    plt.savefig(fig_fld / f"diag_suppl_{lab}.pdf")
-    plt.savefig(fig_fld / f"diag_suppl_{lab}.svg")
+    plt.savefig(fig_fld / f"diag_suppl_{lab}.pdf", dpi=200)
+    plt.savefig(fig_fld / f"diag_suppl_{lab}.svg", dpi=200)
     plt.show()
 
 # %%
