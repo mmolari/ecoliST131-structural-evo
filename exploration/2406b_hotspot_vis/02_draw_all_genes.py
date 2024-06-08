@@ -151,7 +151,7 @@ if __name__ == "__main__":
     hs = args.hs
     # hs = "CIRMBUYJFK_f__CWCCKOQCWZ_r"
 
-    fig_fld = pathlib.Path(f"fig/{hs}")
+    fig_fld = pathlib.Path(f"figs/{hs}")
     fig_fld.mkdir(parents=True, exist_ok=True)
 
     tree, gdf, pan, tdf, hh_up, hh_down, block_colors = load_data(hs)

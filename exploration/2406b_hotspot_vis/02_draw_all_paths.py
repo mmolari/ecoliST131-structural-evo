@@ -219,17 +219,17 @@ if __name__ == "__main__":
 
     bdf = pan.to_blockstats_df()
 
-    # fig, block_colors = linear_junction_draw(tree, pan)
-    # plt.savefig(fig_fld / f"linear_block_repr.png", dpi=300)
-    # plt.savefig(fig_fld / f"linear_block_repr.svg")
-    # plt.show()
+    fig, block_colors = linear_junction_draw(tree, pan)
+    plt.savefig(fig_fld / f"linear_block_repr.png", dpi=300)
+    plt.savefig(fig_fld / f"linear_block_repr.svg")
+    show()
 
-    # block_colors.to_csv(res_fld / "export/block_colours.csv")
+    block_colors.to_csv(res_fld / "export/block_colours.csv")
 
     fig, block_colors = linear_junction_draw(tree, pan, MGEs=MGEs, color_blocks=False)
     add_hh_genes(fig.get_axes()[1], tree, ann, hh_genes)
     plt.savefig(fig_fld / f"linear_block_repr_MGEs.png", dpi=300)
     plt.savefig(fig_fld / f"linear_block_repr_MGEs.svg")
-    plt.show()
+    show()
 
 # %%
