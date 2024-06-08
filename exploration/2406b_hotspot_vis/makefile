@@ -43,7 +43,10 @@ pangraph_gfa:
 draw_all:
 	python3 02_draw_all_paths.py --hs $(hs)
 
-all: infiles path_cats extract_ann pangraph_gfa draw_all
+draw_genes_all:
+	python3 02_draw_all_genes.py --hs $(hs)
+
+all: infiles path_cats extract_ann pangraph_gfa draw_all draw_genes_all
 
 clean_shared:
 	rm -r data

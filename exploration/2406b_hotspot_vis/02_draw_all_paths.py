@@ -20,7 +20,8 @@ def parse_args():
 
 
 def show():
-    plt.show()
+    # plt.show()
+    plt.close()
 
 
 def despine(ax):
