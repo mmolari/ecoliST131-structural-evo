@@ -90,7 +90,8 @@ def draw_genes(ax, gdf, hh_up, hh_down, strain_y):
         draw_gene(ax, b, e, y, strand, c=c, w=0.7)
         # add gene name if not NaN
         if not pd.isna(gene):
-            ax.text(b, y, gene, fontsize=3, va="center", ha="left")
+            gx = (b + e) / 2
+            ax.text(gx, y, gene, fontsize=3, va="center", ha="left")
 
 
 def mark_tool_ann(ax, tdf, strain_y):

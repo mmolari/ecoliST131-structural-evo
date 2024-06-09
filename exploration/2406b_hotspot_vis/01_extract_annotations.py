@@ -65,8 +65,12 @@ def to_junction_coords(Jb, Je, Js, Ab, Ae, As, L):
     else:
         S = not (As ^ Js)
 
-    assert B < 2e6, f"{B=} {Ab=} {Ae=} {Je=} {L=}"
-    assert E < 2e6, f"{E=} {Ab=} {Ae=} {Je=} {L=}"
+    if B > 1e6:
+        B -= L
+    if E > 1e6:
+        E -= L
+    assert -B < 1e6, f"{B=} {Ab=} {Ae=} {Je=} {L=}"
+    assert -E < 1e6, f"{E=} {Ab=} {Ae=} {Je=} {L=}"
 
     return B, E, S
 
@@ -118,12 +122,22 @@ def extract_features(record, Jb, Je, Js, L):
         Ab = feat.location.start
         Ae = feat.location.end
 
-        if isin(Jb, Je, Ab) and isin(Jb, Je, Ae):
+        if isin(Jb, Je, Ab) or isin(Jb, Je, Ae):
             kind = feat.type
+            if kind == "source" or kind == "gene" or kind == "misc_feature":
+                continue
             As = True if feat.location.strand == 1 else False
             B, E, S = to_junction_coords(Jb, Je, Js, Ab, Ae, As, L)
-            assert B < E
+            if B == E:
+                continue
+            assert (
+                B < E
+            ), f"{B=} {E=} {Ab=} {Ae=} {Jb=} {Je=} {L=} {iso=} {kind=} {feat.qualifiers}"
             labels = ["product", "gene", "locus_tag"]
+            if not "locus_tag" in feat.qualifiers:
+                print(f"locus_tag not in {feat.qualifiers}")
+                print(feat)
+                continue
             lt = feat.qualifiers["locus_tag"][0]
             kwargs = {l: feat.qualifiers[l][0] for l in labels if l in feat.qualifiers}
             ann = Ann(B, E, S, iso, lt, kind, **kwargs)
@@ -145,6 +159,9 @@ def parse_gbk_annotations(Ls, jpos):
     As = []
     strains = list(Ls.keys())
     for k, iso in enumerate(strains):
+
+        if not iso in jpos:
+            continue
 
         # loading bar
         print_loading_bar(k, len(strains))
@@ -169,6 +186,24 @@ def parse_args():
     return parser.parse_args()
 
 
+def set_cols_if_empty(df):
+    if len(df) == 0:
+        df = pd.DataFrame(
+            columns=[
+                "start",
+                "end",
+                "strand",
+                "iso",
+                "idx",
+                "kind",
+                "product",
+                "gene",
+                "locus_tag",
+            ]
+        )
+    return df
+
+
 if __name__ == "__main__":
 
     args = parse_args()
@@ -186,10 +221,12 @@ if __name__ == "__main__":
 
     # parse tool annotations
     ann_df = extract_tool_annotations(dfs, Ls)
+    ann_df = set_cols_if_empty(ann_df)
     ann_df.to_csv(res_fld / "tool_annotations.csv", index=False)
 
     # parse genbank annotations
     ann_gbk_df = parse_gbk_annotations(Ls, jpos)
+    ann_gbk_df = set_cols_if_empty(ann_gbk_df)
     ann_gbk_df.to_csv(res_fld / "gbk_annotations.csv", index=False)
 
 # %%

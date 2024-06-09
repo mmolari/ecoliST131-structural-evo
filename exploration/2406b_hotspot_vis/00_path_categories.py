@@ -89,14 +89,20 @@ def distance_plot(tree, dist_df, svfld):
             for nj in range(ni + 1, N):
                 i = terminals[ni]
                 j = terminals[nj]
-                M[ni, nj] = dist_df.loc[i, j][lab]
-                M[nj, ni] = dist_df.loc[j, i][lab]
+                if (i, j) in dist_df.index:
+                    M[ni, nj] = dist_df.loc[i, j][lab]
+                    M[nj, ni] = dist_df.loc[j, i][lab]
+                else:
+                    M[ni, nj] = np.nan
+                    M[nj, ni] = np.nan
 
         # log norm
+        Max = np.nanmax(M)
+        Min = np.nanmin(M)
         if lab == "delta_l":
-            norm = mpl.colors.LogNorm(vmin=max(M.min(), 100), vmax=M.max(), clip=True)
+            norm = mpl.colors.LogNorm(vmin=max(Min, 100), vmax=Max, clip=True)
         else:
-            norm = mpl.colors.Normalize(vmin=M.min(), vmax=M.max())
+            norm = mpl.colors.Normalize(vmin=Min, vmax=Max)
         plt.figure(figsize=(10, 8))
         plt.imshow(M, norm=norm, cmap="coolwarm", interpolation="none")
         plt.title(title)
