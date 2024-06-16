@@ -482,3 +482,43 @@ plt.savefig(fig_fld / f"simple_scatter2.pdf", dpi=300)
 plt.savefig(fig_fld / f"simple_scatter2.svg", dpi=300)
 plt.show()
 # %%
+
+sdf = df["n_categories"] - 1
+sdf = pd.DataFrame(sdf)
+fig, axs = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
+ax = axs[0]
+sns.histplot(
+    sdf,
+    cumulative=True,
+    element="step",
+    fill=False,
+    discrete=True,
+    ax=ax,
+    legend=False,
+)
+ax.set_ylabel("cumulative distribution")
+
+
+ax = axs[1]
+sns.histplot(
+    x=sdf["n_categories"],
+    cumulative=True,
+    weights=sdf["n_categories"],
+    element="step",
+    fill=False,
+    discrete=True,
+    ax=ax,
+)
+ax.set_ylabel("cumulative sum")
+ax.set_xlabel("n. path categories - 1")
+sns.despine()
+plt.tight_layout()
+plt.savefig(fig_fld / "cumulative_categories.pdf")
+plt.savefig(fig_fld / "cumulative_categories.svg")
+plt.show()
+# %%
+
+cms = sdf.sort_values(by="n_categories").cumsum()
+mask = cms > cms.max() * 0.5
+sdf[mask].min()
+# %%

@@ -354,3 +354,7 @@ plt.show()
 # %%
 
 # %%
+
+tree_len = tree.total_branch_length()
+print(f"n. mutations per variant = ", tree_len * 2427416 / 1936)
+# %%
