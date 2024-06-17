@@ -34,7 +34,12 @@
 # hotspot 38 (defense islands and messy edges) ! interesting
 # hs=JVNRLCFAVD_f__PLTCZQCVRD_r
 # hotspot 5 (full junction, insertion sequences and defense islands)
-hs=XXVMWZCEKI_r__YUOECYBHUS_r
+# hs=XXVMWZCEKI_r__YUOECYBHUS_r
+
+hs=RKAOKULCFF_f__VFXLTFSKTV_r
+# hs=CIRMBUYJFK_f__CWCCKOQCWZ_r
+
+
 
 data_dir=data/$(hs)
 res_dir=res/$(hs)

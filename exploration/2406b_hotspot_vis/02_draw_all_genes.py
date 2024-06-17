@@ -89,9 +89,9 @@ def draw_genes(ax, gdf, hh_up, hh_down, strain_y):
             c = colors[kind]
         draw_gene(ax, b, e, y, strand, c=c, w=0.7)
         # add gene name if not NaN
-        if not pd.isna(gene):
-            gx = (b + e) / 2
-            ax.text(gx, y, gene, fontsize=3, va="center", ha="left")
+        # if not pd.isna(gene):
+        #     gx = (b + e) / 2
+        #     ax.text(gx, y, gene, fontsize=3, va="center", ha="left")
 
 
 def mark_tool_ann(ax, tdf, strain_y):
@@ -166,11 +166,15 @@ if __name__ == "__main__":
     Phylo.draw(
         tree, axes=ax, do_show=False, show_confidence=False, label_func=lambda x: ""
     )
+    despine(ax)
+    ax.set_xlabel("branch length")
+    ax.set_ylabel("isolates")
 
     ax = axs[1]
     draw_genes(ax, gdf, hh_up, hh_down, strain_y)
     mark_tool_ann(ax, tdf, strain_y)
-    ax.set_xlabel("base pairs")
+    ax.set_xlabel("junction position (bp)")
+    ax.set_xlim(0, max([pan.paths[iso].block_positions[-1] for iso in pan.strains()]))
 
     despine(ax)
     plt.tight_layout()
@@ -187,11 +191,13 @@ if __name__ == "__main__":
     Phylo.draw(
         tree, axes=ax, do_show=False, show_confidence=False, label_func=lambda x: ""
     )
+    despine(ax)
 
     ax = axs[1]
     draw_genes(ax, gdf, hh_up, hh_down, strain_y)
     mark_blocks(ax, strain_y, pan, block_colors)
-    ax.set_xlabel("base pairs")
+    ax.set_xlabel("junction position (bp)")
+    ax.set_xlim(0, max([pan.paths[iso].block_positions[-1] for iso in pan.strains()]))
 
     despine(ax)
     plt.tight_layout()
