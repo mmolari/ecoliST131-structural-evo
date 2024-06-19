@@ -495,9 +495,9 @@ sns.histplot(
     discrete=True,
     ax=ax,
     legend=False,
+    binrange=(0, 150),
 )
 ax.set_ylabel("cumulative distribution")
-
 
 ax = axs[1]
 sns.histplot(
@@ -507,10 +507,13 @@ sns.histplot(
     element="step",
     fill=False,
     discrete=True,
+    binrange=(0, 150),
     ax=ax,
 )
+
 ax.set_ylabel("cumulative sum")
 ax.set_xlabel("n. path categories - 1")
+ax.set_xlim(right=150)
 sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "cumulative_categories.pdf")
