@@ -5,9 +5,17 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import gainloss_utils as ut
 import pathlib
+import json
+
 
 fig_fld = pathlib.Path("figs/f05")
 fig_fld.mkdir(exist_ok=True, parents=True)
+
+
+fname = "../../results/ST131_ABC/pangraph/asm20-100-5-alignment/filtered_corealignment_info_size.json"
+with open(fname, "r") as f:
+    aln_info = json.load(f)
+aln_L = aln_info["polished aln size"]
 
 
 def svfig(svname):
@@ -35,6 +43,7 @@ fnames = {
 cdf = ut.load_cdf(fnames["cdf"]["internal"])
 bdf = pd.read_csv(fnames["bdf"]["internal"], index_col=0)
 bdf["n_events"] = bdf["n_gain"] + bdf["n_loss"] + bdf["n_other"]
+bdf["n_muts"] = bdf["branch_length"] * aln_L
 
 
 def plot_events(cdf, fname):
@@ -97,7 +106,7 @@ plot_events(cdf, "suppl_internal_gainloss")
 
 
 # %%
-def plot_branches(df, fname):
+def plot_branches(df, fname, xlab, xkey):
     fig, axs = plt.subplots(1, 2, figsize=(7, 3.5))
 
     df["n_gainloss"] = df["n_gain"] + df["n_loss"] + df["n_other"]
@@ -107,23 +116,23 @@ def plot_branches(df, fname):
     ax = axs[0]
     sns.histplot(
         sdf,
-        x="branch_length",
+        x=xkey,
         y="n_gainloss",
         ax=ax,
         discrete=(False, True),
     )
-    ax.set_xlabel("branch length")
+    ax.set_xlabel(xlab)
     ax.set_ylabel("n. events")
 
     ax = axs[1]
     g = sns.histplot(
         data=sdf,
-        x="branch_length",
+        x=xkey,
         hue=sdf["n_gainloss"] > 0,
         element="step",
         ax=ax,
     )
-    ax.set_xlabel("branch length")
+    ax.set_xlabel(xlab)
     ax.set_ylabel("n. branches")
     # add legend
     g.legend_.set_title("")
@@ -137,7 +146,8 @@ def plot_branches(df, fname):
     plt.show()
 
 
-plot_branches(bdf, "suppl_internal_branches")
+plot_branches(bdf, "suppl_internal_branches", "branch length", "branch_length")
+plot_branches(bdf, "suppl_internal_branches_muts", "n. mutations", "n_muts")
 
 # %%
 
