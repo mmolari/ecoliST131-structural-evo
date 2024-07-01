@@ -183,7 +183,7 @@ rule FG_rates:
         "../conda_env/bioinfo.yml"
     shell:
         """
-        python3 scripts/figs/rates.py \
+        python3 scripts/rates/fig_rates.py \
             --coldspots_df {input.csdf} \
             --events_df {input.ev} \
             --terminal_j_df {input.tjdf} \

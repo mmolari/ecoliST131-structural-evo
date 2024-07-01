@@ -7,6 +7,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pathlib
 import argparse
+import merge_event_df as mgut
 
 
 def parse_args():
@@ -22,31 +23,6 @@ def parse_args():
     return parser.parse_args()
 
 
-def assign_mge_category(df):
-    df["cat"] = "none"
-    for key, lab in [
-        ("isescan", "IS"),
-        ("defensefinder", "defense"),
-        ("genomad", "prophage"),
-        ("integrons", "integron"),
-    ]:
-        mask = df[key] > 0
-        df.loc[mask, "cat"] = lab
-
-    # check that no "NaN" is left
-    no_cat = df["cat"].isna()
-    assert no_cat.sum() == 0, f"some categories are not assigned:\n{df[no_cat]}"
-
-    # make ordered categorical variable
-    df["cat"] = pd.Categorical(
-        df["cat"],
-        categories=["IS", "integron", "prophage", "defense", "none"],
-        ordered=True,
-    )
-
-    return df
-
-
 def load_data(args):
 
     with open(args.alignment_info, "r") as f:
@@ -55,14 +31,14 @@ def load_data(args):
     aln_L_core = aln_info["core aln size"]
 
     js = pd.read_csv(args.coldspots_df, index_col=0)
-    js = assign_mge_category(js)
+    js = mgut.assign_mge_category(js)
 
     edf = pd.read_csv(args.events_df)
 
     j_dfs = {}
     for k in ["terminal", "internal"]:
         j_dfs[k] = pd.read_csv(getattr(args, f"{k}_j_df"), index_col=0)
-        j_dfs[k] = assign_mge_category(j_dfs[k])
+        j_dfs[k] = mgut.assign_mge_category(j_dfs[k])
     b_dfs = {}
 
     for k in ["terminal", "internal"]:
