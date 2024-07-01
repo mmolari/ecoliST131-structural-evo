@@ -23,27 +23,12 @@ fig, axs = plt.subplots(
     1,
     2,
     figsize=(7, 3.5),
-    gridspec_kw={"width_ratios": [2.3, 1]},
+    gridspec_kw={"width_ratios": [1, 2.3]},
     sharey=True,
 )
 
-ax = axs[0]
-et = js["cat"].value_counts().sort_values(ascending=False)
-x = 0
-xticks, xlabels = [], []
-for k, v in et.items():
-    b = ax.bar(x, v, color=ut.cat_colors[k])
-    ax.bar_label(b)
-    xticks.append(x)
-    xlabels.append(k)
-    x += 1
-
-ax.set_xticks(xticks)
-ax.set_xticklabels(xlabels)
-ax.set_ylabel("n. coldspots")
-
 # singletons
-ax = axs[1]
+ax = axs[0]
 colors = {
     True: "gray",
     False: "lightgray",
@@ -60,7 +45,22 @@ for k, v in et.items():
     x += 1
 ax.set_xticks(xticks)
 ax.set_xticklabels(xlabels)
-# ax.set_ylabel("n. coldspots")
+ax.set_ylabel("n. binary junctions")
+
+ax = axs[1]
+et = js["cat"].value_counts().sort_values(ascending=False)
+x = 0
+xticks, xlabels = [], []
+for k, v in et.items():
+    b = ax.bar(x, v, color=ut.cat_colors[k])
+    ax.bar_label(b)
+    xticks.append(x)
+    xlabels.append(k)
+    x += 1
+
+ax.set_xticks(xticks)
+ax.set_xticklabels(xlabels)
+# ax.set_ylabel("n. binary junctions")
 
 sns.despine()
 plt.tight_layout()

@@ -2,25 +2,25 @@ rule RT_coldspot_df:
     input:
         jdf=rules.BJ_junct_stats.output.stats,
         gm=expand(
-            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            rules.AN_assign_positions.output,
             tool="genomad",
             K="real",
             allow_missing=True,
         ),
         ig=expand(
-            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            rules.AN_assign_positions.output,
             tool="integronfinder",
             K="real",
             allow_missing=True,
         ),
         IS=expand(
-            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            rules.AN_assign_positions.output,
             tool="ISEScan",
             K="real",
             allow_missing=True,
         ),
         df=expand(
-            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            rules.AN_assign_positions.output,
             tool="defensefinder",
             K="real",
             allow_missing=True,
@@ -123,30 +123,30 @@ rule RT_events_df:
         """
 
 
-rule FG_junctions:
+rule FG_junctions_ann:
     input:
         jdf=rules.BJ_junct_stats.output.stats,
         epg=rules.BJ_extract_pangenome_info.output.info,
         gm=expand(
-            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            rules.AN_assign_positions.output,
             tool="genomad",
             K="real",
             allow_missing=True,
         ),
         ig=expand(
-            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            rules.AN_assign_positions.output,
             tool="integronfinder",
             K="real",
             allow_missing=True,
         ),
         IS=expand(
-            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            rules.AN_assign_positions.output,
             tool="ISEScan",
             K="real",
             allow_missing=True,
         ),
         df=expand(
-            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            rules.AN_assign_positions.output,
             tool="defensefinder",
             K="real",
             allow_missing=True,
@@ -176,7 +176,7 @@ rule RT_all:
             opt=kernel_opts,
         ),
         expand(
-            rules.FG_junctions.output,
+            rules.FG_junctions_ann.output,
             dset=dset_names,
             opt=kernel_opts,
         ),

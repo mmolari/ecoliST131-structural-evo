@@ -84,8 +84,8 @@ for k, bid in enumerate(Bs):
     N = A.shape[0]
 
     G = (A == "-").sum(axis=0)
-    D = (G == 1)
-    I = (G == N - 1)
+    D = G == 1
+    I = G == N - 1
 
     res.append(
         {
@@ -133,7 +133,7 @@ plt.xlabel("core genome alignment")
 plt.ylabel("cumulative sum")
 plt.grid(alpha=0.3)
 plt.tight_layout()
-plt.savefig(svfld / "singleton_indels_all.png") 
+plt.savefig(svfld / "singleton_indels_all.png")
 plt.savefig(svfld / "singleton_indels_all.svg")
 plt.show()
 # %%

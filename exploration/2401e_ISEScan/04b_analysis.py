@@ -64,7 +64,7 @@ sdf
 
 # %%
 summary_df = pd.read_csv(data_fld / "summary.csv", index_col=0)
-summary_df["n_products"].fillna(0, inplace=True)
+summary_df["n_products"] = summary_df["n_products"].fillna(0)
 summary_df
 
 # %%
@@ -229,7 +229,7 @@ mask &= df_j["n_iso"] == 222
 tot = {
     "total": mask.sum(),
     "color": "slateblue",
-    "title": "backbone coldspots",
+    "title": "binary junctions",
 }
 
 Iass = len(summary_df)
@@ -269,7 +269,7 @@ layer_2 = {
 
 layer_3 = {
     "values": [C1, C2],
-    "labels": ["n=1", "n=2"],
+    "labels": ["1 product", "2 products"],
     "colors": ["limegreen", "darkgreen"],
     "title": "n. products",
     "from": [[(0, C1)], [(0, C2)]],
