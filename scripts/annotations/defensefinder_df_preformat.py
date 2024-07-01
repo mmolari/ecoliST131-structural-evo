@@ -16,8 +16,14 @@ def system_beg_end(sdf, gdf):
     for sys_id, row in sdf.iterrows():
         s_beg_id = row["sys_beg"]
         s_end_id = row["sys_end"]
-        bs, be = gdf.loc[s_beg_id, "gene_beg"], gdf.loc[s_beg_id, "gene_end"]
-        es, ee = gdf.loc[s_end_id, "gene_beg"], gdf.loc[s_end_id, "gene_end"]
+        bs, be = (
+            gdf.loc[(s_beg_id, sys_id), "gene_beg"],
+            gdf.loc[(s_beg_id, sys_id), "gene_end"],
+        )
+        es, ee = (
+            gdf.loc[(s_end_id, sys_id), "gene_beg"],
+            gdf.loc[(s_end_id, sys_id), "gene_end"],
+        )
         assert bs < be, f"Error: {sys_id=} {s_beg_id=} {bs=} {be=}"
         assert es < ee, f"Error: {sys_id=} {s_end_id=} {es=} {ee=}"
         S, E = -1, -1
@@ -62,7 +68,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     gdf = pd.read_csv(args.input_genes, sep="\t")
-    gdf.set_index("hit_id", inplace=True)
+    gdf.set_index(["hit_id", "sys_id"], inplace=True)
 
     sdf = pd.read_csv(args.input_systems, sep="\t", index_col=0)
     sdf["iso"] = sdf["sys_beg"].str.split("_").apply(lambda x: "_".join(x[:-1]))
