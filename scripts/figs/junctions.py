@@ -76,34 +76,6 @@ def load_df(args):
     return df
 
 
-def fig_occ_freq(df, fig_fld):
-
-    fig, ax = plt.subplots(1, 1, figsize=(7, 4))
-    norm = mpl.colors.Normalize(vmin=0, vmax=1)
-    mapp = mpl.cm.ScalarMappable(norm=norm, cmap="coolwarm")
-    sns.scatterplot(
-        data=df,
-        x="pangenome_len",
-        y="n_cat_wiggle",
-        alpha=0.3,
-        hue="nonempty_freq",
-        hue_norm=norm,
-        palette="coolwarm",
-        size=4,
-        ax=ax,
-        legend=False,
-    )
-    plt.colorbar(mapp, ax=ax, label="occupation frequency")
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlabel("pangenome length (bp)")
-    ax.set_ylabel("n. categories")
-    plt.tight_layout()
-    plt.savefig(fig_fld / "diag_occ_freq.pdf")
-    plt.savefig(fig_fld / "diag_occ_freq.svg")
-    plt.close()
-
-
 def joint_distr(df, fig_fld):
 
     for lab, col, tt in [
@@ -331,7 +303,6 @@ if __name__ == "__main__":
     fig_fld = pathlib.Path(args.out_fld)
     fig_fld.mkdir(exist_ok=True, parents=True)
 
-    fig_occ_freq(df, fig_fld)
     joint_distr(df, fig_fld)
     fig_j_scatter(df, fig_fld)
     fig_j_scatter_2(df, fig_fld)

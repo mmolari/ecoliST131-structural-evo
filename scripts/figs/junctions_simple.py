@@ -199,5 +199,6 @@ if __name__ == "__main__":
     fig_fld = pathlib.Path(args.out_fld)
     fig_fld.mkdir(exist_ok=True, parents=True)
 
+    fig_occ_freq(df, fig_fld)
     fig_j_scatter(df, fig_fld)
     fig_n_paths(df, fig_fld)
