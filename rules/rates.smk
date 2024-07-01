@@ -123,10 +123,60 @@ rule RT_events_df:
         """
 
 
+rule FG_junctions:
+    input:
+        jdf=rules.BJ_junct_stats.output.stats,
+        epg=rules.BJ_extract_pangenome_info.output.info,
+        gm=expand(
+            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            tool="genomad",
+            K="real",
+            allow_missing=True,
+        ),
+        ig=expand(
+            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            tool="integronfinder",
+            K="real",
+            allow_missing=True,
+        ),
+        IS=expand(
+            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            tool="ISEScan",
+            K="real",
+            allow_missing=True,
+        ),
+        df=expand(
+            "results/{dset}/annotations/junct_pos_{opt}/{tool}_{K}.csv",
+            tool="defensefinder",
+            K="real",
+            allow_missing=True,
+        ),
+    output:
+        ff=directory("figs/{dset}/{opt}/junctions/"),
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/figs/junctions.py \
+            --junctions_stats {input.jdf} \
+            --edge_pangenome {input.epg} \
+            --ann_gm {input.gm} \
+            --ann_if {input.ig} \
+            --ann_is {input.IS} \
+            --ann_df {input.df} \
+            --out_fld {output.ff}
+        """
+
+
 rule RT_all:
     input:
         expand(
             rules.RT_events_df.output,
+            dset=dset_names,
+            opt=kernel_opts,
+        ),
+        expand(
+            rules.FG_junctions.output,
             dset=dset_names,
             opt=kernel_opts,
         ),
