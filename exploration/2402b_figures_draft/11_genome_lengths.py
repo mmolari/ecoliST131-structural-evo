@@ -36,3 +36,7 @@ plt.show()
 
 
 # %%
+
+# mean and std for length
+Ls["length"].describe()
+# %%

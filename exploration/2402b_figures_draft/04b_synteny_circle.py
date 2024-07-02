@@ -13,7 +13,8 @@ fig_fld.mkdir(parents=True, exist_ok=True)
 fname = "../../results/ST131_ABC/pangraph/asm20-100-5-polished.json"
 pan = pp.Pangraph.load_json(fname)
 bdf = pan.to_blockstats_df()
-ref = "NZ_CP096110.1"
+# ref = "NZ_CP096110.1"
+ref = "NZ_CP124372.1"
 len_thr = 500
 # %%
 
@@ -127,12 +128,12 @@ for feat in features:
     gene = feat.qualifiers["gene"][0]
     ax.scatter([theta], [y_set], marker="o", color="gray")
     ax.text(theta, y_set - 1, gene, color="gray", ha="center", va="center")
-xt = np.arange(6)
-ax.set_xticks(xt * 1e6 * factor)
-ax.set_xticklabels([f"{x:d} Mb" for x in xt])
+xt = np.arange(0, L_ref, int(1e6))
+ax.set_xticks(xt * factor)
+ax.set_xticklabels([f"{x/1e6:.0f} Mb" for x in xt])
 ax.set_title(f"Synteny blocks in {ref}")
 plt.tight_layout()
-plt.savefig(fig_fld / "synteny_circle_ref.pdf")
+plt.savefig(fig_fld / f"synteny_circle_{ref}.png", dpi=300)
 plt.show()
 
 
