@@ -56,6 +56,7 @@ def parse_input_data():
         "../../results/ST131_ABC/plasmids/resistance/card_summary_chromosome.csv"
     )
     rdf_pld = pd.read_csv(resistance_file, index_col=0)
+
     # resistance_file = "../../results/ST131_ABC/resistance/ncbi_summary.txt"
     resistance_file = "../../results/ST131_ABC/resistance/card_summary.txt"
     rdf_chr = pd.read_csv(resistance_file, index_col=0, sep="\t")
@@ -152,7 +153,7 @@ def draw_year(ax, x, mdf, strains):
     draw_legend(colors, fig_fld / "leg_year", title="Year")
 
 
-def draw_allele(ax, x, adf, strains):
+def draw_allele(al, ax, x, adf, strains):
     values = adf[al].dropna().value_counts().index[:3]
     colors = sns.color_palette("tab10", n_colors=len(values))
     colors = {v: c for v, c in zip(values, colors)}
@@ -275,7 +276,7 @@ xlabels.append("Year")
 # alleles
 x = 3
 for al in ["fimH_eb", "gyrA_eb", "parC_eb"]:
-    draw_allele(ax, x, adf, strains)
+    draw_allele(al, ax, x, adf, strains)
     xticks.append(x)
     xlabels.append(al.removesuffix("_eb"))
     x += 1

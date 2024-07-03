@@ -113,6 +113,35 @@ rule FG_recombination_filter:
         """
 
 
+rule FG_tree_summary:
+    input:
+        tree=rules.PG_filtered_coregenome_tree.output.nwk,
+        mtd=rules.metadata_preprocess.output,
+        alle=rules.QC_alleles_summary.output.csv,
+        pl_all=rules.PL_alleles_summary.output.csv,
+        plsm=lambda w: dsets_config[w.dset]["plasmids"],
+        r_pls=expand(
+            rules.PL_join_resistance.output.csv, database="card", allow_missing=True
+        ),
+        r_chr=expand(rules.RG_summary.output.txt, database="card", allow_missing=True),
+    output:
+        fig=directory("figs/{dset}/{opt}/tree_summary"),
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/figs/tree.py \
+            --tree {input.tree} \
+            --metadata {input.mtd} \
+            --alleles {input.alle} \
+            --plasmids_alleles {input.pl_all} \
+            --plasmids_json {input.plsm} \
+            --resistance_pls {input.r_pls} \
+            --resistance_chr {input.r_chr} \
+            --fig_fld {output.fig}
+        """
+
+
 rule FG_homoplasies:
     input:
         tree=rules.PG_coregenome_tree.output.nwk,
@@ -273,6 +302,7 @@ rule FG_all:
             database=["ncbi", "card"],
         ),
         expand(rules.FG_plasmid_mlst.output, dset=plasmid_dsets.keys(), opt=kernel_opts),
+        expand(rules.FG_tree_summary.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_distances.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_coresynt.output, dset=dset_names, opt=kernel_opts),

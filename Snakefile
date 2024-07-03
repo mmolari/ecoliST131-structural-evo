@@ -75,9 +75,9 @@ include: "rules/hotspots.smk"
 rule all:
     input:
         expand(rules.FG_metadata.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_tree_summary.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_homoplasies.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_recombination_filter.output, dset=dset_names, opt=kernel_opts),
-        expand(rules.FG_resistance.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_distances.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_coresynt.output, dset=dset_names, opt=kernel_opts),
