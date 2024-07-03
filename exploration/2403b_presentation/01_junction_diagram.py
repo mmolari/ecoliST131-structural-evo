@@ -111,7 +111,7 @@ sns.scatterplot(
 ax.set_xscale("log")
 ax.set_yscale("log")
 ax.set_xlabel("pangenome length (bp)")
-ax.set_ylabel("n. categories")
+ax.set_ylabel("n. distinct paths")
 
 kwargs = dict(
     stat="count",

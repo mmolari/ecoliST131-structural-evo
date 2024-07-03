@@ -134,7 +134,7 @@ for dset in ["ST131_ABC", "ST131_sub_BC", "ST131_sub_C", "ST131_sub_C2"]:
             zorder=10,
         )
         ax.set_xlabel("pangenome length (bp)")
-        ax.set_ylabel("n. categories")
+        ax.set_ylabel("n. distinct paths")
         ax.set_title(tt)
 
     plt.tight_layout()
@@ -172,7 +172,7 @@ for nax, dset in enumerate(
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("pangenome length (bp)")
-    ax.set_ylabel("n. categories")
+    ax.set_ylabel("n. distinct paths")
     ax.set_xlim(10, 1e6)
     ax.set_ylim(1, 222)
     ax.grid(axis="both", which="major", linewidth=0.5, alpha=0.2)
@@ -227,7 +227,7 @@ for dset in ["ST131_ABC", "ST131_sub_BC", "ST131_sub_C", "ST131_sub_C2"]:
     )
 axs[0].set_xscale("log")
 axs[1].set_xscale("log")
-axs[0].set_xlabel("n. categories")
+axs[0].set_xlabel("n. distinct paths")
 axs[1].set_xlabel("pangenome length (bp)")
 axs[0].set_ylabel("n. junctions")
 plt.legend()
