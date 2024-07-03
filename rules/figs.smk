@@ -99,8 +99,8 @@ rule FG_recombination_filter:
         info_idxs=rules.PG_filtered_corealignment.output.info_idxs,
         info_size=rules.PG_filtered_corealignment.output.info_size,
     output:
-        full="figs/{dset}/pangraph/corealn_remove_recombination/{opt}_full.pdf",
-        reduced="figs/{dset}/pangraph/corealn_remove_recombination/{opt}_reduced.pdf",
+        full="figs/{dset}/{opt}/pangraph/corealn_remove_recombination_full.pdf",
+        reduced="figs/{dset}/{opt}/pangraph/corealn_remove_recombination_reduced.pdf",
     conda:
         "../conda_env/bioinfo.yml"
     shell:
@@ -146,7 +146,7 @@ rule FG_block_distr_fig:
     input:
         rules.PG_polish.output,
     output:
-        "figs/{dset}/pangraph/{opt}_block_distr.pdf",
+        "figs/{dset}/{opt}/pangraph/block_distr.pdf",
     conda:
         "../conda_env/bioinfo.yml"
     shell:

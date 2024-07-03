@@ -12,10 +12,11 @@ This repository contains a pipeline for the analysis of pangenome evolution
 
 to execute the pipeline locally, it is sufficient to run:
 ```sh
-snakemake --use-conda -c1 FG_all RT_all
+snakemake --use-conda --cores 1 all
 ```
+You can replace `1` with the desired number of cores.
 
 Give the high number of jobs and the memory and time requirements we advise executing on cluster. Execution using the SLURM workload manager is already set up and the pipeline can be executed with:
 ```sh
-snakemake --profile cluster FG_all RT_all
+snakemake --profile cluster all
 ```

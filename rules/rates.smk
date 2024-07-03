@@ -197,18 +197,6 @@ rule FG_rates:
 
 rule RT_all:
     input:
-        expand(
-            rules.RT_events_df.output,
-            dset=dset_names,
-            opt=kernel_opts,
-        ),
-        expand(
-            rules.FG_junctions_ann.output,
-            dset=dset_names,
-            opt=kernel_opts,
-        ),
-        expand(
-            rules.FG_rates.output,
-            dset=dset_names,
-            opt=kernel_opts,
-        ),
+        expand(rules.RT_events_df.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_junctions_ann.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_rates.output, dset=dset_names, opt=kernel_opts),
