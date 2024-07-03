@@ -178,7 +178,9 @@ rule FG_coresynt:
         pg=rules.PG_polish.output,
         tree=rules.PG_filtered_coregenome_tree.output.nwk,
     output:
-        directory("figs/{dset}/{opt}/coresynt"),
+        fg=directory("figs/{dset}/{opt}/coresynt"),
+        mg="results/{dset}/pangraph/coresynt-{opt}/mergers.csv",
+        bc="results/{dset}/pangraph/coresynt-{opt}/blocks.csv",
     params:
         len_thr=config["backbone-joints"]["len-thr"],
     conda:
@@ -189,7 +191,37 @@ rule FG_coresynt:
             --pangraph {input.pg} \
             --tree {input.tree} \
             --len_thr {params.len_thr} \
-            --fig_fld {output}
+            --mergers {output.mg} \
+            --block_colors {output.bc} \
+            --fig_fld {output.fg}
+        """
+
+
+rule FG_circle_synteny:
+    input:
+        pg=rules.PG_polish.output,
+        fa=lambda w: expand(
+            rules.gbk_to_fa.output, acc=config["datasets"][w.dset]["guide-strain"]
+        ),
+        bc=rules.FG_coresynt.output.bc,
+        mg=rules.FG_coresynt.output.mg,
+    output:
+        fg="figs/{dset}/{opt}/circle_synteny.png",
+    params:
+        len_thr=config["backbone-joints"]["len-thr"],
+        ref=lambda w: config["datasets"][w.dset]["guide-strain"],
+    conda:
+        "../conda_env/bioinfo.yml"
+    shell:
+        """
+        python3 scripts/figs/synteny_circle.py \
+            --pan {input.pg} \
+            --ref {params.ref} \
+            --fa {input.fa} \
+            --len_thr {params.len_thr} \
+            --block_colors {input.bc} \
+            --mergers {input.mg} \
+            --fig {output.fg}
         """
 
 
@@ -244,5 +276,6 @@ rule FG_all:
         expand(rules.FG_block_distr_fig.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_distances.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_coresynt.output, dset=dset_names, opt=kernel_opts),
+        expand(rules.FG_circle_synteny.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_junctions_survey.output, dset=dset_names, opt=kernel_opts),
         expand(rules.FG_junctions_stats.output, dset=dset_names, opt=kernel_opts),

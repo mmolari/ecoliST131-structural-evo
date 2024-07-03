@@ -181,7 +181,7 @@ g = sns.jointplot(
     space=0,
 )
 g.ax_joint.set_xlabel("len max - len min (bp)")
-g.ax_joint.set_ylabel("n. categories")
+g.ax_joint.set_ylabel("n. distinct paths")
 g.ax_joint.grid(alpha=0.3)
 g.ax_joint.set_ylim(bottom=1)
 

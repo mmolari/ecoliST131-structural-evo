@@ -7,6 +7,7 @@ from Bio import Phylo
 from collections import defaultdict
 import argparse
 import pathlib
+import pandas as pd
 import utils as ut
 
 
@@ -54,6 +55,8 @@ def parse_args():
     parser.add_argument("--tree", type=str, required=True)
     parser.add_argument("--len_thr", type=int, required=True)
     parser.add_argument("--fig_fld", type=str, required=True)
+    parser.add_argument("--mergers", type=str, required=True)
+    parser.add_argument("--block_colors", type=str, required=True)
     return parser.parse_args()
 
 
@@ -304,3 +307,10 @@ if __name__ == "__main__":
 
     # block lengths figure
     fig_blocks(common_path, bdf, block_colors, svfig_blocks)
+
+    # save results
+    bdf["color"] = bdf.index.map(lambda x: mpl.colors.to_hex(block_colors[x]))
+    bdf.to_csv(args.block_colors)
+
+    mg = pd.Series(mg)
+    mg.to_csv(args.mergers)
