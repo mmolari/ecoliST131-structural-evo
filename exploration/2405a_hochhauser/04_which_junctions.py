@@ -134,7 +134,7 @@ ax.text(
 ax.set_xscale("log")
 ax.set_yscale("log")
 ax.set_xlabel("pangenome length (bp)")
-ax.set_ylabel("number of categories")
+ax.set_ylabel("n. distinct paths")
 sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "hs_in_junctions_annotated.png", dpi=300)

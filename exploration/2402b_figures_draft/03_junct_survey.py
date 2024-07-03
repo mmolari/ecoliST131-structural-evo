@@ -107,7 +107,7 @@ plt.colorbar(mapp, ax=ax, label="occupation frequency")
 ax.set_xscale("log")
 ax.set_yscale("log")
 ax.set_xlabel("pangenome length (bp)")
-ax.set_ylabel("n. categories")
+ax.set_ylabel("n. distinct paths")
 plt.tight_layout()
 plt.savefig(fig_fld / "diag_occ_freq.pdf")
 plt.savefig(fig_fld / "diag_occ_freq.svg")
@@ -164,7 +164,7 @@ for lab, ax, bw, col, cm, tt in [
         zorder=10,
     )
     ax.set_xlabel("pangenome length (bp)")
-    ax.set_ylabel("n. categories")
+    ax.set_ylabel("n. distinct paths")
     ax.set_title(tt)
 
 plt.tight_layout()
@@ -195,7 +195,7 @@ sns.scatterplot(
 ax.set_xscale("log")
 ax.set_yscale("log")
 ax.set_xlabel("pangenome length (bp)")
-ax.set_ylabel("n. categories")
+ax.set_ylabel("n. distinct paths")
 
 
 for lab, ax, bw, col, cm, tt in [
@@ -242,7 +242,7 @@ for lab, ax, bw, col, cm, tt in [
         zorder=10,
     )
     ax.set_xlabel("pangenome length (bp)")
-    ax.set_ylabel("n. categories")
+    ax.set_ylabel("n. distinct paths")
     ax.set_title(tt, color=col, fontsize=14)
 
 plt.tight_layout()
@@ -298,7 +298,7 @@ for lab, col, tt in [
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("pangenome length (bp)")
-    ax.set_ylabel("n. categories")
+    ax.set_ylabel("n. distinct paths")
 
     kwargs = dict(
         stat="count",
@@ -397,7 +397,7 @@ sns.scatterplot(
 ax.set_xscale("log")
 ax.set_yscale("log")
 ax.set_xlabel("pangenome length (bp)")
-ax.set_ylabel("n. categories")
+ax.set_ylabel("n. distinct paths")
 
 kwargs = dict(
     stat="count",
@@ -473,7 +473,7 @@ for ax, lab, col, tt in [
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("pangenome length (bp)")
-    ax.set_ylabel("n. categories")
+    ax.set_ylabel("n. distinct paths")
     ax.set_title(tt)
 
 sns.despine()
@@ -512,7 +512,7 @@ sns.histplot(
 )
 
 ax.set_ylabel("cumulative sum")
-ax.set_xlabel("n. path categories - 1")
+ax.set_xlabel("n. distinct paths - 1")
 ax.set_xlim(right=150)
 sns.despine()
 plt.tight_layout()

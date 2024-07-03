@@ -248,7 +248,7 @@ fig, axs = plt.subplots(
 ax = axs[0]
 Phylo.draw(tree, axes=ax, do_show=False, label_func=lambda x: "")
 right = ax.get_xlim()[1]
-ax.set_xlabel("branch length")
+ax.set_xlabel("divergence")
 ax.set_ylabel("")
 
 for i, strain in enumerate(strains):
