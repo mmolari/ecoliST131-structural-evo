@@ -1,6 +1,12 @@
-# Pangenome evolution
+# Structural genome evolution in _E. coli_ ST131
 
-This repository contains a pipeline for the analysis of pangenome evolution
+This repository contains a snakemake pipeline for the analysis of structural genomic evolution of _E.coli_ ST131 presented in [our paper](#citation).
+
+The **dataset** consists of complete _E. coli_ ST131 genomes available on [RefSeq](https://www.ncbi.nlm.nih.gov/datasets/genome/). Accession numbers and metadata for the considered strains can be found in [the datasets folder](config/datasets/ST131_ABC).
+
+In short, the **pipeline** uses [pangraph](https://github.com/neherlab/pangraph) to build a pangenome graph representation for the chromosomes of all of the considered strains. It then extracts all regions of structural variations, assigns MGEs and defense systems to each of these regions, and detect events that can be parsimoniously interpreted as simple gain or loss of sequence. See [this note for an overview of the pipeline](notes/workflow.md).
+
+The pipeline produces as **output** a `results` folder, containing processed data such as the pangenome graph and the junction graphs, and a `figs` folder, containing amongst other the main figures of [the paper](#citation).
 
 ## setup
 
@@ -20,3 +26,9 @@ Give the high number of jobs and the memory and time requirements we advise exec
 ```sh
 snakemake --profile cluster all
 ```
+
+## citation
+
+**Evolutionary dynamics of genome structure and content among closely related bacteria**
+
+Marco Molari, Liam P. Shaw and Richard A. Neher, _biorxiv_ (2024)
