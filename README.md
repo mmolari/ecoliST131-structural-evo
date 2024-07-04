@@ -30,5 +30,6 @@ snakemake --profile cluster all
 ## citation
 
 **Evolutionary dynamics of genome structure and content among closely related bacteria** \
-Marco Molari, Liam P. Shaw and Richard A. Neher, _biorxiv_ (2024) \
+Marco Molari, Liam P. Shaw and Richard A. Neher \
 doi: _[coming soon...]_
+<!-- Marco Molari, Liam P. Shaw and Richard A. Neher, _biorxiv_ (2024) \ -->
