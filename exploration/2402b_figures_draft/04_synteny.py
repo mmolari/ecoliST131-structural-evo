@@ -218,6 +218,7 @@ def fig_tree(tree, iso_color, svname):
         x = tree.distance(iso)
         y = y_strain[iso]
         xf = x + 0.2 * xl
+        # xf = 0.000085
         ax.scatter(xf, y, s=30, c=iso_color[iso], edgecolor="k", zorder=10)
         ax.plot([x, xf], [y, y], c="gray", ls=":")
 
@@ -228,7 +229,7 @@ def fig_tree(tree, iso_color, svname):
     plt.tight_layout()
     plt.savefig(str(svname) + ".pdf")
     plt.savefig(str(svname) + ".svg")
-    plt.close()
+    plt.show()
 
 
 def fig_blocks(common_path, bdf, block_colors, svname):
