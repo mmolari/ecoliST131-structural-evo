@@ -68,7 +68,7 @@ def fig_occ_freq(df, fig_fld):
     plt.colorbar(mapp, ax=ax, label="occupation frequency")
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("pangenome length (bp)")
+    ax.set_xlabel("local pangenome length (bp)")
     ax.set_ylabel("n. distinct paths")
     plt.tight_layout()
     plt.savefig(fig_fld / "diag_occ_freq.pdf")
@@ -104,7 +104,7 @@ def fig_j_scatter(df, fig_fld):
     )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("pangenome length (bp)")
+    ax.set_xlabel("local pangenome length (bp)")
     ax.set_ylabel("n. distinct paths")
 
     kwargs = dict(

@@ -118,7 +118,7 @@ def joint_distr(df, fig_fld):
         ax.legend(loc="upper left")
         ax.set_xscale("log")
         ax.set_yscale("log")
-        ax.set_xlabel("pangenome length (bp)")
+        ax.set_xlabel("local pangenome length (bp)")
         ax.set_ylabel("n. distinct paths")
 
         kwargs = dict(
@@ -206,7 +206,7 @@ def fig_j_scatter(df, fig_fld):
     )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("pangenome length (bp)")
+    ax.set_xlabel("local pangenome length (bp)")
     ax.set_ylabel("n. distinct paths")
 
     kwargs = dict(
@@ -283,7 +283,7 @@ def fig_j_scatter_2(df, fig_fld):
         )
         ax.set_xscale("log")
         ax.set_yscale("log")
-        ax.set_xlabel("pangenome length (bp)")
+        ax.set_xlabel("local pangenome length (bp)")
         ax.set_ylabel("n. distinct paths")
         ax.set_title(tt)
 
