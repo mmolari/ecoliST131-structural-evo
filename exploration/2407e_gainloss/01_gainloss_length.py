@@ -56,3 +56,6 @@ mask = edf["terminal"] & (edf["mge_cat"] == "IS")
 edf[mask].sort_values("dL", ascending=False).head()
 
 # %%
+masj = (edf["mge_cat"] == "none") & (edf["type"] == "gain") & edf["singleton"]
+edf[masj].index
+# %%

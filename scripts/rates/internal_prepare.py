@@ -41,11 +41,19 @@ def create_AB_states_df(jdf, pg_files):
 
 
 def AB_nestedness(two_cat_isolates):
-    """finds whether A<B, A>B (or possibly none of these A?B)"""
+    """finds whether A<B, A>B (or possibly none of these A?B, A=B)"""
     nestedness = {}
     for j in two_cat_isolates:
         p1, p2 = two_cat_isolates[j]
+        l1, l2 = len(p1), len(p2)
         p1, p2 = set(p1), set(p2)
+        if p1 == p2:
+            if l1 > l2:
+                nestedness[j] = "A>B"
+            elif l1 < l2:
+                nestedness[j] = "A<B"
+            else:
+                nestedness[j] = "A=B"
         if p1.issubset(p2):
             nestedness[j] = "A<B"
         elif p2.issubset(p1):

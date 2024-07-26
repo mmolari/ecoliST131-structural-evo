@@ -109,6 +109,8 @@ def analyze_mugration_output(tree, inf, AB_nestedness, AB_states):
             ev_type = None
             if nestedness == "A?B":
                 ev_type = "other"
+            elif nestedness == "A=B":
+                ev_type = "other"
             elif nestedness == "A<B":
                 if kind == "A|B":
                     ev_type = "loss"
