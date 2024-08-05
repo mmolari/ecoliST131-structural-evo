@@ -181,6 +181,55 @@ plt.savefig(fig_fld / "panx_pangraph_pangenome_freq.pdf")
 plt.show()
 # %%
 
+# %%
+
+fig, ax = plt.subplots(1, 1, figsize=(8, 4))
+
+N = len(strains)
+bins = np.arange(0, N + 1, 1) + 0.5
+
+ax.hist(
+    bdf["n. strains"],
+    weights=bdf["len"],
+    bins=bins,
+    color="k",
+    alpha=0.5,
+    cumulative=False,
+    density=True,
+    histtype="step",
+    label="pangraph",
+)
+
+ax.hist(
+    gdf["count"],
+    weights=gdf["geneLen"],
+    bins=bins,
+    color="r",
+    alpha=0.5,
+    cumulative=False,
+    density=True,
+    histtype="step",
+    label="panx",
+)
+ax.set_xlim(0, N + 1)
+ax.set_xlabel("n. strains")
+ax.set_ylabel("pangenome fraction")
+
+# add N to xticks
+xticks = list(ax.get_xticks())
+xticks.append(N)
+ax.set_xticks(xticks)
+ax.set_xlim(0, N + 1)
+
+ax.legend(loc="upper left")
+sns.despine()
+
+
+plt.tight_layout()
+plt.savefig(fig_fld / "panx_pangraph_pangenome_freq_hist.pdf")
+plt.show()
+# %%
+
 pg_l = bdf["len"].sum()
 print(f"pangraph pangenome size = {pg_l:_}")
 
