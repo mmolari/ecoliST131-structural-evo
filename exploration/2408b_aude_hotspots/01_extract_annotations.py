@@ -76,7 +76,6 @@ def to_junction_coords(Jb, Je, Js, Ab, Ae, As, L):
 
 
 def extract_tool_annotations(dfs, Ls):
-
     Adf = []
     for idx, row in dfs.iterrows():
         Jb, Je, Js = row["jcb"], row["jce"], row["j_strand"]
@@ -90,14 +89,6 @@ def extract_tool_annotations(dfs, Ls):
         Adf.append(ann.to_dict())
     Adf = pd.DataFrame(Adf)
     return Adf
-
-
-def parse_genbank(fname):
-    with open(fname) as f:
-        records = list(SeqIO.parse(f, "genbank"))
-    assert len(records) == 1
-    record = records[0]
-    return record
 
 
 def parse_genbank(fname):
@@ -159,7 +150,6 @@ def parse_gbk_annotations(Ls, jpos):
     As = []
     strains = list(Ls.keys())
     for k, iso in enumerate(strains):
-
         if not iso in jpos:
             continue
 
@@ -205,7 +195,6 @@ def set_cols_if_empty(df):
 
 
 if __name__ == "__main__":
-
     args = parse_args()
     hs = args.hs
     # hs = "CIRMBUYJFK_f__CWCCKOQCWZ_r"

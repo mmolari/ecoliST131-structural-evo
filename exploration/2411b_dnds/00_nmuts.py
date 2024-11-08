@@ -145,6 +145,7 @@ def background_expectation(cons_nt):
             new_cod = tuple(new_cod)
             new_aa = codon_to_aa(new_cod)
             syn = cons_aa == new_aa
+            syn = "S" if syn else "N"
             mut_counts[(nt, new_nt, syn)] += 1
     return mut_counts
 
@@ -189,3 +190,5 @@ tot_counts = pd.DataFrame(tot_counts).fillna(0).astype(int)
 mt_counts.to_csv(res_fld / "mt_counts.csv")
 bck_counts.to_csv(res_fld / "bck_counts.csv")
 tot_counts.to_csv(res_fld / "tot_counts.csv")
+
+# %%
