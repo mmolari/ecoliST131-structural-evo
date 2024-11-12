@@ -113,16 +113,23 @@ def analyze_mutations(C, nt_cons):
             aa = codon_to_aa(v)
             syn = aa != aa_cons
             syn = "S" if syn else "N"
+            nonsense = aa == "*"
+            if nonsense:
+                print(f"##### nonsense mutation! {aa} -> {v}")
             tot_ct[syn] += 1
+            if nonsense:
+                tot_ct["nonsense"] += 1
             # which nucleotide is changing
             nmuts = 0
             for i in range(3):
                 if v[i] != nt_cons[i]:
                     nmuts += 1
-                    mut_ct[(nt_cons[i], v[i], syn)] += 1
+                    mut_ct[(nt_cons[i], v[i], syn, nonsense)] += 1
                     # break
             if nmuts > 1:
-                print(f"More than one mutation, {v} vs {nt_cons}, discarding codon")
+                print(
+                    f"More than one mutation, {v} vs {nt_cons}, {aa_cons} -> {aa} discarding codon"
+                )
                 keep = False
 
     return tot_ct, mut_ct, keep

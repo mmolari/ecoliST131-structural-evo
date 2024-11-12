@@ -220,3 +220,12 @@ plt.savefig(fig_fld / "mut_ratios_simple.png", dpi=300)
 plt.show()
 
 # %%
+
+# total ratio:
+sum_df = cdf.sum()
+dn = sum_df["Nm"] / sum_df["Nb"]
+ds = sum_df["Sm"] / sum_df["Sb"]
+dnds = dn / ds
+
+print(f"{dn=:.2e}, {ds=:.2e}, {dnds=:.2e}")
+# %%
