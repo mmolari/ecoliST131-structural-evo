@@ -53,7 +53,7 @@ if __name__ == "__main__":
     print("    < before optimizing >")
     print("tot. branch length:", myTree.tree.total_branch_length())
     print("n. nonterminals:", len(myTree.tree.get_nonterminals()))
-    myTree.optimize_tree(prune_short=True)
+    myTree.optimize_tree()
     # rescale_branch_length(myTree.tree.root, L_factor)
     print("    < after optimizing >")
     print("tot. branch length:", myTree.tree.total_branch_length())

@@ -37,6 +37,17 @@ iso_B = "NZ_CP107184.1"
 iso_C = "NZ_CP107182.1"
 
 # %%
+
+
+def save_aln(M, isolates, fname):
+    records = [
+        SeqRecord.SeqRecord(Seq.Seq("".join(row)), id=iso, description="")
+        for iso, row in zip(isolates, M)
+    ]
+    with open(fname, "w") as f:
+        SeqIO.write(records, f, "fasta")
+
+
 for mergers, prefix in [
     (["RYYAQMEJGY"], "merger_alignment"),
     (["TORJAESOXF", "PLTCZQCVRD"], "flanking_alignment"),
@@ -64,12 +75,9 @@ for mergers, prefix in [
 
     # transform in biopython alignment
     records = [SeqRecord.SeqRecord(Seq.Seq(A[iso]), id=iso) for iso in isolates]
-    # export
-    with open(res_fld / f"{prefix}.fa", "w") as f:
-        SeqIO.write(records, f, "fasta")
+    alignment = Align.MultipleSeqAlignment(records)
 
     # remove gaps
-    alignment = Align.MultipleSeqAlignment(records)
     M = np.array(alignment)
     mask = np.all(M != "-", axis=0)
     M = M[:, mask]
@@ -79,6 +87,9 @@ for mergers, prefix in [
         "L_ungapped": M.shape[1],
     }
 
+    # export full alignment
+    save_aln(M, isolates, res_fld / f"{prefix}_ungapped.fa")
+
     # remove all consensus sites
     mask = (M == M[0]).all(axis=0)
     M = M[:, ~mask]
@@ -86,16 +97,8 @@ for mergers, prefix in [
     lengths["L_restr"] = M.shape[1]
 
     # export restricted alignment
-    records = [
-        SeqRecord.SeqRecord(Seq.Seq("".join(row)), id=iso)
-        for iso, row in zip(isolates, M)
-    ]
-    with open(res_fld / f"{prefix}_restricted.fa", "w") as f:
-        SeqIO.write(records, f, "fasta")
+    save_aln(M, isolates, res_fld / f"{prefix}_restricted.fa")
 
     ldf = pd.DataFrame(lengths, index=[0])
     ldf.to_csv(res_fld / f"{prefix}_lengths.csv", index=False)
-# %%
-# %%
-# %%
 # %%
