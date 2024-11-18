@@ -136,11 +136,3 @@ plt.savefig(fig_fld / "dotplot_184_182_zoom.png")
 plt.show()
 
 # %%
-
-fig, ax = dotplot(pan, iso_A, iso_B, bdf, cl_df, mg_df)
-ax.set_xlim(2.62e6, 2.64e6)
-ax.set_ylim(4.42e6, 4.44e6)
-plt.tight_layout()
-plt.show()
-
-# %%

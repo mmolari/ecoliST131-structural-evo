@@ -1,3 +1,6 @@
+res/%_alignment_ungapped.fa: res/%_alignment_ungapped.fa.gz
+	gzip -dc $< > $@
+
 res/%_subtree.nwk: res/%_alignment_restricted.fa
 	conda run -n fasttree fasttree -nt -gtr $< > $@ 2> log_$*.txt
 
