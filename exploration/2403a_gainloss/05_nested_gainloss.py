@@ -94,10 +94,11 @@ def draw_PA(j, x, strains, ax):
         pa = pa_j[iso]
         present = pa_dict[pa]
         # filled or empty circle
-        marker = "o" if present else "x"
+        marker = "_" if present else "_"
         # color
         color = "k" if present else "lightgray"
-        ax.scatter(x, n, color=color, marker=marker, s=20)
+        y = n + 1
+        ax.scatter(x, y, color=color, marker=marker, s=20)
 
 
 def draw_tree(sdf, ax):
@@ -106,10 +107,9 @@ def draw_tree(sdf, ax):
     j = sdf["junction"].iloc[0]
 
     Phylo.draw(tree, axes=ax, do_show=False, label_func=lambda x: None)
-    ax.set_title(j, size=10)
 
     strains = [x.name for x in tree.get_terminals()]
-    x = max([tree.distance(x) for x in tree.get_terminals()])
+    x = max([tree.distance(x) for x in tree.get_terminals()]) * 1.08
     draw_PA(j, x, strains, ax)
 
 
@@ -117,10 +117,44 @@ for idx, sdf in edf[edf.junction.isin(two_events)].groupby("junction"):
     fig, ax = plt.subplots(1, 1, figsize=(4, 10), sharex=True, sharey=True)
     k = 0
     draw_tree(sdf, ax)
-    sns.despine()
+    sns.despine(left=True)
+    cat = sdf["mge_cat"].iloc[0]
+    ax.set_title(f"{idx} - {cat}", size=10)
+    ax.set_yticks([])
+    ax.set_ylabel("")
+    ax.set_xlabel("")
     plt.tight_layout()
     plt.savefig(fig_fld / f"{idx}.png", dpi=150)
     plt.show()
     # break
+
+# %%
+fig, axs = plt.subplots(2, 7, figsize=(12, 14), sharex=True, sharey=True)
+tje = edf[edf.junction.isin(two_events)].groupby("junction")
+for ax, (idx, sdf) in zip(axs.flatten(), tje):
+    draw_tree(sdf, ax)
+    sns.despine(left=True)
+    ax.set_yticks([])
+    ax.set_ylabel("")
+    ax.set_xlabel("")
+    cat = sdf["mge_cat"].iloc[0]
+    nev = sdf["type"].value_counts()
+    ev_str = "\n".join([f"{k}={v}" for k, v in nev.items()])
+    ax.text(
+        0.02,
+        0.98,
+        f"{cat}\n{ev_str}",
+        ha="left",
+        va="top",
+        transform=ax.transAxes,
+        zorder=3,
+    )
+    # set only tree rasterized
+    ax.set_rasterization_zorder(2)
+plt.tight_layout()
+plt.savefig(fig_fld / "two_events.png", dpi=150)
+plt.savefig(fig_fld / "two_events.svg")
+plt.show()
+# break
 
 # %%
