@@ -3,13 +3,10 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-import matplotlib as mpl
 import pathlib
-from collections import defaultdict, Counter
+from collections import Counter
 import pypangraph as pp
-from Bio import SeqIO, AlignIO, SeqRecord, Align, Seq, Phylo
-from functools import cache
+from Bio import AlignIO, Phylo
 import gzip
 
 # look into inversion that happened multiple times
@@ -95,7 +92,7 @@ for n, iso in enumerate([iso_A, iso_B, iso_C]):
     x = np.arange(X) * chunk_size
     y = Bsum[idx] / chunk_size
     ax.plot(x, y)
-    ax.plot(x, np.zeros_like(x), color="w", lw=2)
+    # ax.plot(x, np.zeros_like(x), color="w", lw=2)
 
     for i, row in SE.iterrows():
         s = row["start"]
@@ -105,6 +102,8 @@ for n, iso in enumerate([iso_A, iso_B, iso_C]):
 
     ax.set_xlabel(f"core alignment {iso} (bp)")
     ax.set_ylabel("nonconsensus density")
+    ax.set_ylim(bottom=0)
+    ax.set_xlim(0, B.shape[1])
 plt.tight_layout()
 plt.savefig(fig_fld / "aln_nonconsensus.png", dpi=300)
 plt.show()
