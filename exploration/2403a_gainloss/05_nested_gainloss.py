@@ -43,6 +43,10 @@ two_events = non_singleton.junction.value_counts() == 2
 two_events = two_events[two_events].index
 
 # %%
+more_events = non_singleton.junction.value_counts() > 1
+more_events = more_events[more_events].index
+
+# %%
 
 
 def load_tree():
@@ -130,8 +134,16 @@ for idx, sdf in edf[edf.junction.isin(two_events)].groupby("junction"):
 
 # %%
 fig, axs = plt.subplots(2, 7, figsize=(12, 14), sharex=True, sharey=True)
-tje = edf[edf.junction.isin(two_events)].groupby("junction")
-for ax, (idx, sdf) in zip(axs.flatten(), tje):
+tje = edf[edf.junction.isin(more_events)].groupby("junction")
+j_ord = (
+    tje["type"]
+    .value_counts()
+    .unstack()
+    .sort_values("loss", ascending=False)
+    .index[::-1]
+)
+for ax, idx in zip(axs.flat, j_ord):
+    sdf = tje.get_group(idx)
     draw_tree(sdf, ax)
     sns.despine(left=True)
     ax.set_yticks([])
@@ -142,13 +154,25 @@ for ax, (idx, sdf) in zip(axs.flatten(), tje):
     ev_str = "\n".join([f"{k}={v}" for k, v in nev.items()])
     ax.text(
         0.02,
-        0.98,
-        f"{cat}\n{ev_str}",
+        1,
+        ev_str,
         ha="left",
         va="top",
         transform=ax.transAxes,
         zorder=3,
     )
+    if idx == "HKKMVAAVLK_f__YXFAUSIPGJ_r":
+        cat = "tRNA"
+    if cat != "none":
+        ax.text(
+            0.02,
+            0.02,
+            cat,
+            ha="left",
+            va="bottom",
+            transform=ax.transAxes,
+            zorder=3,
+        )
     # set only tree rasterized
     ax.set_rasterization_zorder(2)
 plt.tight_layout()
