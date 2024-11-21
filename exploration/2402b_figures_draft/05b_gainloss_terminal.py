@@ -123,7 +123,7 @@ sns.histplot(
     discrete=(False, True),
     ax=ax,
 )
-ax.set_xlabel("n. mutations")
+ax.set_xlabel("n. substitutions")
 ax.set_ylabel("n. events")
 
 ax = axs[1]
@@ -134,7 +134,7 @@ g = sns.histplot(
     element="step",
     ax=ax,
 )
-ax.set_xlabel("n. mutations")
+ax.set_xlabel("n. substitutions")
 ax.set_ylabel("n. branches")
 # add legend
 g.legend_.set_title("")

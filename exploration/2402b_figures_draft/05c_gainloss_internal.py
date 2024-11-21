@@ -47,7 +47,6 @@ bdf["n_muts"] = bdf["branch_length"] * aln_L
 
 
 def plot_events(cdf, fname):
-
     fig, axs = plt.subplots(1, 2, figsize=(7, 3.5))
 
     ax = axs[0]
@@ -147,7 +146,7 @@ def plot_branches(df, fname, xlab, xkey):
 
 
 plot_branches(bdf, "suppl_internal_branches", "branch length", "branch_length")
-plot_branches(bdf, "suppl_internal_branches_muts", "n. mutations", "n_muts")
+plot_branches(bdf, "suppl_internal_branches_muts", "n. substitutions", "n_muts")
 
 # %%
 
@@ -170,7 +169,9 @@ for j, row in cdf_correct[mask].iterrows():
     for lb in row["loss_branches"].split("|"):
         bdf_correct.loc[gb, "n_loss"] -= 1
 
-plot_branches(bdf_correct, "suppl_internal_branches_correct")
+plot_branches(
+    bdf_correct, "suppl_internal_branches_correct", "branch length", "branch_length"
+)
 
 plot_events(cdf_correct, "suppl_internal_gainloss_correct")
 # %%

@@ -141,7 +141,7 @@ fig, axs = plt.subplots(1, 2, figsize=(8, 4), sharex=True)
 ax = axs[0]
 copies_histplot(IS_gains, ax)
 ax.set_ylabel("n. ISs gains")
-ax.set_title("gained ISs")
+ax.set_title("new IS insertions")
 
 ax = axs[1]
 copies_histplot(is_all, ax)
@@ -150,6 +150,7 @@ ax.set_title("all ISs")
 
 plt.tight_layout()
 plt.savefig(res_fld / "IS_copies_combined.png", dpi=300)
+plt.savefig(res_fld / "IS_copies_combined.pdf")
 plt.show()
 
 # %%

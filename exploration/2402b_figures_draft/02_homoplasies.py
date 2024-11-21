@@ -198,7 +198,6 @@ def fig_hist(df):
         (axs[0], "raw", False, 300, "pre"),
         (axs[1], "filtered", True, 100, "post"),
     ]:
-
         mask = sdf["aln"] == tp
         sns.histplot(
             sdf[mask],
@@ -212,7 +211,7 @@ def fig_hist(df):
             legend=leg,
             ax=ax,
         )
-        ax.set_ylabel("fraction of bi-allelic non-singleton mutations")
+        ax.set_ylabel("fraction of bi-allelic non-singleton substitutions")
         ax.set_xlabel("restricted alignment position")
         ax.set_title(f"{wh} recombination filter")
         h_frac = sdf[mask]["homoplasy"].mean()
