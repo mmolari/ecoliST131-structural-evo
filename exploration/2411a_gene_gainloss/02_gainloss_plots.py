@@ -76,8 +76,8 @@ def extract_event_n(df, gdf=gdf):
     return res_df
 
 
+# mask = E["branch"].isin(["int_node_1", "int_node_35"])
 edf = extract_event_n(E)
-
 edf
 # %%
 
@@ -109,25 +109,28 @@ print(top.to_markdown())
 edf["gains - losses"] = edf["n_gains"] - edf["n_losses"]
 dupl_mask = edf["dupli"] == "yes"
 
-fig, axs = plt.subplots(2, 1, figsize=(10, 7))
-ax = axs[0]
-sns.histplot(edf[dupl_mask], x="gains - losses", discrete=True, ax=ax, element="step")
-ax.axvline(0, color="k", linestyle="--")
-ax.set_title("Duplicated genes")
-ax.set_ylabel("n. gene clusters")
-ax.set_xlabel("n. gains - n. losses")
+fig, axs = plt.subplots(2, 1, figsize=(8, 6))
 
-ax = axs[1]
+ax = axs[0]
 sns.histplot(edf[~dupl_mask], x="gains - losses", discrete=True, ax=ax, element="step")
 ax.axvline(0, color="k", linestyle="--")
 ax.set_title("non-duplicated genes")
 ax.set_ylabel("n. gene clusters")
 ax.set_xlabel("n. gains - n. losses")
+ax.set_xlim(-20, 50)
 
+ax = axs[1]
+sns.histplot(edf[dupl_mask], x="gains - losses", discrete=True, ax=ax, element="step")
+ax.axvline(0, color="k", linestyle="--")
+ax.set_title("Duplicated genes")
+ax.set_ylabel("n. gene clusters")
+ax.set_xlabel("n. gains - n. losses")
+ax.set_xlim(-20, 50)
 
 sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "gains_minus_losses.png", dpi=300)
+plt.savefig(fig_fld / "gains_minus_losses.pdf")
 plt.show()
 
 
@@ -247,8 +250,10 @@ ax.hist(
 ax.set_xlim(0, Lo)
 ax.set_xlabel(f"Genome {other_iso} position (bp)")
 ax.set_ylabel("cumulative n. terminal losses")
+sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "gainloss_pos.png", dpi=300)
+plt.savefig(fig_fld / "gainloss_pos.pdf")
 plt.show()
 
 # %%
