@@ -64,6 +64,10 @@ def dotplot(pan, isoA, isoB, bdf, cl_df, mg_df, ax, xlims, ylims):
     posA = position_dict(pA)
     posB = position_dict(pB)
 
+    span = np.zeros((2, 2))
+    span[0, 0] = np.inf
+    span[1, 0] = np.inf
+
     for b, PA in posA.items():
         if b not in posB:
             continue
@@ -87,9 +91,17 @@ def dotplot(pan, isoA, isoB, bdf, cl_df, mg_df, ax, xlims, ylims):
                     col = cl_df.loc[mg, "color"]
                     lw = 3
                     # lw = 1
-                    # if mg == "RYYAQMEJGY":
-                    #     lw = 3
+                    if mg == "RYYAQMEJGY":
+                        # save min-max positions in span
+                        span[0, 0] = min(span[0, 0], bA)
+                        span[0, 1] = max(span[0, 1], eA)
+                        span[1, 0] = min(span[1, 0], bB)
+                        span[1, 1] = max(span[1, 1], eB)
                 ax.plot(x, y, color=col, lw=lw)
+
+    if span[0, 0] > 0:
+        ax.axvspan(span[0, 0], span[0, 1], color="whitesmoke")
+        ax.axhspan(span[1, 0], span[1, 1], color="whitesmoke")
     ax.set_aspect("equal")
 
 
@@ -125,6 +137,9 @@ for i, j in itt.product(range(N_iso), range(N_iso)):
         ax.set_ylabel(iso_y, color=positions.loc[iso_y]["color"])
     if ax_y == N_iso - 2:
         ax.set_xlabel(iso_x, color=positions.loc[iso_x]["color"])
+
+axs[-1, 2].set_xticks([2e5, 4e5, 6e5, 8e5])
+axs[-1, 3].set_xticks([0, 2e5, 4e5, 6e5])
 plt.tight_layout()
 plt.savefig(fig_fld / "dotplot.png", dpi=300)
 plt.savefig(fig_fld / "dotplot.svg", dpi=300)
