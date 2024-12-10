@@ -109,28 +109,42 @@ print(top.to_markdown())
 edf["gains - losses"] = edf["n_gains"] - edf["n_losses"]
 dupl_mask = edf["dupli"] == "yes"
 
-fig, axs = plt.subplots(2, 1, figsize=(8, 6))
 
-ax = axs[0]
+# %%
+
+fig, axs = plt.subplots(
+    2, 2, figsize=(9, 6), sharey="row", gridspec_kw={"width_ratios": [5, 1]}
+)
+
+ax = axs[0, 0]
 sns.histplot(edf[~dupl_mask], x="gains - losses", discrete=True, ax=ax, element="step")
 ax.axvline(0, color="k", linestyle="--")
 ax.set_title("non-duplicated genes")
 ax.set_ylabel("n. gene clusters")
 ax.set_xlabel("n. gains - n. losses")
-ax.set_xlim(-20, 50)
+ax.set_xlim(-20, 55)
 
-ax = axs[1]
+ax = axs[1, 0]
 sns.histplot(edf[dupl_mask], x="gains - losses", discrete=True, ax=ax, element="step")
 ax.axvline(0, color="k", linestyle="--")
-ax.set_title("Duplicated genes")
+ax.set_title("duplicated genes")
 ax.set_ylabel("n. gene clusters")
 ax.set_xlabel("n. gains - n. losses")
-ax.set_xlim(-20, 50)
+ax.set_xlim(-20, 55)
+
+ax = axs[1, 1]
+sns.histplot(edf[dupl_mask], x="gains - losses", discrete=True, ax=ax, element="step")
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.set_xlim(100, 200)
+
+axs[0, 1].remove()
 
 sns.despine()
 plt.tight_layout()
 plt.savefig(fig_fld / "gains_minus_losses.png", dpi=300)
 plt.savefig(fig_fld / "gains_minus_losses.pdf")
+plt.savefig(fig_fld / "gains_minus_losses.svg")
 plt.show()
 
 
