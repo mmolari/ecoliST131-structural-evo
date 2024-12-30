@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/597018412.svg)](https://doi.org/10.5281/zenodo.14576201)
+
 # Structural genome evolution in _E. coli_ ST131
 
 This repository contains a snakemake pipeline for the analysis of structural genomic evolution of _E.coli_ ST131 presented in [our paper](#citation).
